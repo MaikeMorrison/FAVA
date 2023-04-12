@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of FAVA is to ...
+FAVA (Fst-based Assessment of Variability over relative Abundances) is a suite of tools to quantify and compare the variability of compositional datasets (i.e., matrices with rows that sum to 1). Included functions simulate random compositional data, plot compositional data using ggplot2, and calculate Fst, Fst weighted by distances between rows and/or pairwise similarity among columns, and Fst/FstMax (a normalized measure of variability). They also can generate bootstrap replicates of one or more compositional datasets along with associated statistics. This package accompanies the paper ''PAPER TITLE HERE'' by Maike Morrison, AND OTHERS. You can access the paper in NICE JOURNAL at this link: https://doi.org/....
 
 ## Installation
 
