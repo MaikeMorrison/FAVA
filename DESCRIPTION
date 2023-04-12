@@ -1,0 +1,11 @@
+Package: FAVA
+Title: An Fst-based Assessment of Variability over relative Abundances
+Version: 0.0.0.9000
+Authors@R: 
+    person("Maike", "Morrison", , "maikem@stanford.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-0430-1401"))
+Description: An Fst-based tool to quantify and compare the variability of compositional data (i.e., matrices with rows that sum to 1). Included functions simulate random compositional data, plot compositional data using ggplot2, and calculate Fst, Fst weighted by distances between rows and/or pairwise similarity among columns, and Fst/FstMax (a normalized measure of variability). They also can generate bootstrap replicates of one or more matrices along with associated statistics. This package accompanies the paper ''PAPER TITLE HERE'' by Maike Morrison, AND OTHERS. You can access the paper in NICE JOURNAL at this link: https://doi.org/....
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
