@@ -118,6 +118,9 @@ Q_plot <- function(Q, K=ncol(Q), arrange, group) {
     if(K == ncol(Q)) K = ncol(Q) - 1
 
     grouping_vector = Q[[group]]
+    if(is.null(grouping_vector)){
+      stop("The group provided is not a column name in Q. Please provide a valid group.")
+    }
 
     Q <- cbind(data.frame(group = grouping_vector),
                Q_checker(Q = Q, K = K))
@@ -138,6 +141,7 @@ Q_plot <- function(Q, K=ncol(Q), arrange, group) {
     df <- data.frame(cbind(data.frame(Individuals = 1:nrow(Q)), Q)) %>%
       tidyr::pivot_longer(cols = 3:(ncol(Q) + 1))
     df$name <- factor(df$name, levels = unique(df$name) %>% rev())
+    df$Individuals = factor(df$Individuals)
 
 
     ggplot2::ggplot(data = df, ggplot2::aes(fill = .data$name,
@@ -146,7 +150,7 @@ Q_plot <- function(Q, K=ncol(Q), arrange, group) {
                                             x = .data$Individuals)) +
       ggplot2::geom_bar(position = "stack", stat = "identity",
                         width = 1) + ggplot2::theme_void() + ggplot2::ylab("") +
-      ggplot2::theme(legend.position = "none") +
+      ggplot2::theme(legend.position = "none", strip.text = ggplot2::element_text(size = 12)) +
       ggplot2::facet_wrap(~ group, scales = "free_x")
 
 

@@ -216,7 +216,7 @@ hetPooled <- function(Q, w, S){
 #' row_weights = c(0.5, 0, 0.5, 0)
 #' fst(Q_matrix, w = row_weights, S = similarity_matrix)
 #' @export
-fst <- function(Q, w = rep(1/ncol(Q), ncol(Q)), S = diag(ncol(Q))){
+fst <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q))){
   (hetPooled(Q, w, S) - hetMean(Q, w, S))/hetPooled(Q, w, S)
 }
 

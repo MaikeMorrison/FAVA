@@ -30,36 +30,67 @@ devtools::install_github("MaikeMorrison/FAVA")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
-
 ``` r
 library(FAVA)
 ## basic example code
+
+Q = cbind(data.frame(population = c(rep("A", 5), rep("B", 5))),
+          matrix(c(1.0, 0.0, 0.0, 0.0,
+                   0.5, 0.5, 0.0, 0.0,
+                   0.1, 0.2, 0.6, 0.1,
+                   0.4, 0.0, 0.5, 0.1,
+                   0.0, 0.3, 0.4, 0.3,
+                   0.0, 0.0, 1.0, 0.0,
+                   0.1, 0.2, 0.6, 0.1,
+                   0.0, 0.0, 0.0, 1.0,
+                   0.1, 0.2, 0.6, 0.1,
+                   0.3, 0.2, 0.1, 0.4), 
+                 byrow = TRUE, ncol = 4))
+
+Q
+#>    population   1   2   3   4
+#> 1           A 1.0 0.0 0.0 0.0
+#> 2           A 0.5 0.5 0.0 0.0
+#> 3           A 0.1 0.2 0.6 0.1
+#> 4           A 0.4 0.0 0.5 0.1
+#> 5           A 0.0 0.3 0.4 0.3
+#> 6           B 0.0 0.0 1.0 0.0
+#> 7           B 0.1 0.2 0.6 0.1
+#> 8           B 0.0 0.0 0.0 1.0
+#> 9           B 0.1 0.2 0.6 0.1
+#> 10          B 0.3 0.2 0.1 0.4
+
+Q_plot(Q = Q, K = 4, arrange = FALSE)
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+<img src="man/figures/README-example-1.png" width="100%" />
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+
+# Unweighted Fst
+fst(Q[1:5,2:5])
+#> [1] 0.3371429
+fst(Q[6:10,2:5])
+#> [1] 0.4377267
+
+# Weighted Fst
+
+similarity_matrix = diag(4)
+similarity_matrix[2,3] = similarity_matrix[3,2] = 0.8
+similarity_matrix[1,3] = similarity_matrix[3,1] = 0.6
+
+similarity_matrix
+#>      [,1] [,2] [,3] [,4]
+#> [1,]  1.0  0.0  0.6    0
+#> [2,]  0.0  1.0  0.8    0
+#> [3,]  0.6  0.8  1.0    0
+#> [4,]  0.0  0.0  0.0    1
+
+w = c(0.2, 0.3, 0.1, .3, .1)
+
+
+fst(Q = Q[1:5,2:5], w = w, S = similarity_matrix)
+#> [1] 0.2460064
+fst(Q = Q[6:10,2:5], w = w, S = similarity_matrix)
+#> [1] 0.3954467
 ```
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/v1/examples>.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
