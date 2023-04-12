@@ -31,30 +31,18 @@ devtools::install_github("MaikeMorrison/FAVA")
 ## Help
 
 ``` r
+library(FAVA)
 ?fst
-#> No documentation for 'fst' in specified packages and libraries:
-#> you could try '??fst'
 ?fst_norm
-#> No documentation for 'fst_norm' in specified packages and libraries:
-#> you could try '??fst_norm'
 ?het
-#> No documentation for 'het' in specified packages and libraries:
-#> you could try '??het'
 ?hetMean
-#> No documentation for 'hetMean' in specified packages and libraries:
-#> you could try '??hetMean'
 ?hetPooled
-#> No documentation for 'hetPooled' in specified packages and libraries:
-#> you could try '??hetPooled'
 ?Q_plot
-#> No documentation for 'Q_plot' in specified packages and libraries:
-#> you could try '??Q_plot'
 ```
 
 ## Example
 
 ``` r
-library(FAVA)
 
 Q = cbind(data.frame(population = c(rep("A", 5), rep("B", 5))),
           matrix(c(1.0, 0.0, 0.0, 0.0,

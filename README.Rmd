@@ -42,7 +42,7 @@ devtools::install_github("MaikeMorrison/FAVA")
 
 ## Example
 
-```{r example}
+```{r example, fig.height=2}
 library(FAVA)
 
 Q = cbind(data.frame(population = c(rep("A", 5), rep("B", 5))),
