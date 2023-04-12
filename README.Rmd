@@ -29,6 +29,17 @@ You can install the development version of FAVA from [GitHub](https://github.com
 devtools::install_github("MaikeMorrison/FAVA")
 ```
 
+## Help
+```{r}
+?fst
+?fst_norm
+?het
+?hetMean
+?hetPooled
+?Q_plot
+```
+
+
 ## Example
 
 ```{r example}
@@ -51,6 +62,8 @@ Q = cbind(data.frame(population = c(rep("A", 5), rep("B", 5))),
 Q
 
 Q_plot(Q = Q, K = 4, arrange = FALSE)
+Q_plot(Q = Q, K = 4, arrange = TRUE)
+Q_plot(Q = Q, K = 4, arrange = TRUE, group = "population")
 
 # Unweighted Fst
 fst(Q[1:5,2:5])
