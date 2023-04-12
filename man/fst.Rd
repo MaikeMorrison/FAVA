@@ -4,7 +4,7 @@
 \alias{fst}
 \title{Compute the Fst of a matrix of compositional vectors}
 \usage{
-fst(Q, w = rep(1/ncol(Q), ncol(Q)), S = diag(ncol(Q)))
+fst(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q)))
 }
 \arguments{
 \item{Q}{A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.}

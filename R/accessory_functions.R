@@ -80,7 +80,7 @@ Q_checker <- function(Q, K, rep) {
 #' @param arrange Optional; controls horizontal ordering of individuals.
 #'   If \code{arrange = TRUE}, individuals are ordered by the clusters of greatest
 #'   mean membership.
-#'   @param group Optional; a string specifying the name of the column that describes which group each row  belongs to. Use if \code{Q} is a single matrix containing multiple groups of individuals you wish to compare.
+#' @param group Optional; a string specifying the name of the column that describes which group each row  belongs to. Use if \code{Q} is a single matrix containing multiple groups of individuals you wish to compare.
 #' @return A ggplot object containing a bar plot visualization of the Q matrix.
 #' @examples
 #' Q_plot(

@@ -43,7 +43,7 @@ library(FAVA)
 ## Example
 
 ``` r
-
+library(FAVA)
 Q = cbind(data.frame(population = c(rep("A", 5), rep("B", 5))),
           matrix(c(1.0, 0.0, 0.0, 0.0,
                    0.5, 0.5, 0.0, 0.0,

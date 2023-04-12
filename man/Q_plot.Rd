@@ -17,8 +17,9 @@ must have \code{K} categories. Default is the number of columns in \code{Q}.}
 
 \item{arrange}{Optional; controls horizontal ordering of individuals.
 If \code{arrange = TRUE}, individuals are ordered by the clusters of greatest
-mean membership.
-@param group Optional; a string specifying the name of the column that describes which group each row  belongs to. Use if \code{Q} is a single matrix containing multiple groups of individuals you wish to compare.}
+mean membership.}
+
+\item{group}{Optional; a string specifying the name of the column that describes which group each row  belongs to. Use if \code{Q} is a single matrix containing multiple groups of individuals you wish to compare.}
 }
 \value{
 A ggplot object containing a bar plot visualization of the Q matrix.

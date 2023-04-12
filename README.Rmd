@@ -30,7 +30,8 @@ devtools::install_github("MaikeMorrison/FAVA")
 ```
 
 ## Help
-```{r}
+```{r eval = FALSE}
+library(FAVA)
 ?fst
 ?fst_norm
 ?het
@@ -42,9 +43,8 @@ devtools::install_github("MaikeMorrison/FAVA")
 
 ## Example
 
-```{r example, fig.height=2}
+```{r example, fig.height=3}
 library(FAVA)
-
 Q = cbind(data.frame(population = c(rep("A", 5), rep("B", 5))),
           matrix(c(1.0, 0.0, 0.0, 0.0,
                    0.5, 0.5, 0.0, 0.0,
