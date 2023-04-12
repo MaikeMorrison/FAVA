@@ -1,0 +1,709 @@
+# THIS FILE CONTAINS:
+# Q_checker - internal function to clean input Q matrices
+# Q_plot - generate a population structure plot using ggplot2
+# Q_bootstrap - generate bootstrap Q matrices and related plots and statistics
+# Q_simulate - simulate Q matrices using the Dirichlet distribution
+
+
+# Q_checker ------------------------------------------------------------------
+# An internal function to check if Q matrices are up to spec and fix any issues automatically.
+# Q - a Q matrix provided as input to another function
+# K - the number of ancestral clusters
+# rep - an optional parameter used if Q matrix is one of a list, in order to provide more useful warning messages
+Q_checker <- function(Q, K, rep) {
+  # Check if Q matrix is within a list, and extract if needed
+  if (is.list(Q) && !is.data.frame(Q) && !is.array(Q)) {
+    Q <- Q[[1]]
+  }
+  # Check if Q matrix is in STRUCTURE/ADMIXTURE output form, or if it only contains columns of ancestry coefficients
+  # If it is in STRUCTURE/ADMIXTURE output form, extract the ancestry coefficients--the last K columns.
+  if (ncol(Q) > K) {
+    Q <- Q[, (ncol(Q) - K + 1):ncol(Q)]
+  }
+
+  # convert Q matrix entries to numbers
+  Q <- data.matrix(Q)
+
+  # Name Q matrix columns q1, q2, ..., qK
+  colnames(Q) <- paste0("q",1:K)
+
+  # Check if Q matrix has any missing values, and give warning if necessary
+  if(any(is.na(Q))){
+    # Identify location of missing entries
+    na.pos <- sapply(which(is.na(Q)),
+                     function(index) c(index %% nrow(Q), ceiling(index/nrow(Q)))) %>%
+      t()
+    # Format missing entries as a string
+    na.pos.format <- list()
+    for(row in 1:nrow(na.pos)){
+      na.pos.format[row] <- paste0("(", na.pos[row,1], ", ", na.pos[row,2], ")")
+    }
+    na.pos.format.string <- as.character(na.pos.format) %>% paste(collapse = ", ")
+
+    stop(paste0("There is at least one NA value in your Q matrix. The missing entries are found in the following positions: ",
+                na.pos.format.string))
+  }
+
+  # check if matrix rows sum to 1, and give useful warnings if rounding is necessary
+  sums <- rowSums(Q) %>% round(5)
+  if (any(sums != 1)) {
+    if (missing(rep)) {
+      warning("At least one Q matrix has rows which do not sum to exactly 1. Rounding the sum of each row to 1 by dividing all entries by the sum of the row.")
+    } else {
+      warning(paste0(
+        "At least one of the rows of Q matrix number ", rep,
+        " (restricted to the last K columns) does not sum to 1. Rounding the sum of each row to 1 by dividing all entries by the sum of the row."
+      ))
+    }
+    # Normalize each row of the matrix by dividing by the rowsums
+    Q <- Q / sums
+  }
+  return(Q)
+}
+
+# Q_plot -----------------------------------------------------------------
+#' Plot a compositional matrix using ggplot2
+#'
+#' This function enables graphical visualization of a matrix of compostional data.
+#'  In the output plot, each vertical bar represents a single vector;
+#' the height of each color in the bar corresponds to the abundance of each category
+#' in that vector. Because this function produces a
+#' ggplot object, its output can be modified using
+#' standard ggplot2 syntax.
+#'
+#' @param Q A dataframe, matrix, or array representing compositional data. While each row
+#'   represents a compositional vector, if \code{K} is specified the first
+#'   \code{ncol(Q)-K} columns may contain other information. When restricted to the
+#'   last \code{K} columns, the rows of this matrix must sum to 1.
+#' @param K Optional; the number of categories in the Q matrix. Each vector must
+#'   must have \code{K} categories. Default is the number of columns in \code{Q}.
+#' @param arrange Optional; controls horizontal ordering of individuals.
+#'   If \code{arrange = TRUE}, individuals are ordered by the clusters of greatest
+#'   mean membership.
+#'   @param group Optional; a string specifying the name of the column that describes which group each row  belongs to. Use if \code{Q} is a single matrix containing multiple groups of individuals you wish to compare.
+#' @return A ggplot object containing a bar plot visualization of the Q matrix.
+#' @examples
+#' Q_plot(
+#'   # Make an example matrix of compositional data
+#'   # Each row is an individual. Rows sum to 1.
+#'   Q = matrix(c(
+#'     .4, .2, .4,
+#'     .5, .3, .2,
+#'     .5, .4, .1,
+#'     .6, .1, .3,
+#'     .6, .3, .1
+#'   ),
+#'   nrow = 5,
+#'   byrow = TRUE
+#'   ),
+#'  K = 3, # How many categories per vector?
+#'  arrange = TRUE
+#' ) +
+#'   # Below are example, optional modifications to the default plot
+#'   ggplot2::ggtitle("Population A") +
+#'   ggplot2::scale_fill_brewer("Blues") +
+#'   ggplot2::scale_color_brewer("Blues") +
+#'   ggplot2::xlab("Individuals")
+#'   # Note that both scale_fill and scale_color are needed to change the color of the bars.
+#' @importFrom dplyr %>%
+#' @importFrom dplyr arrange
+#' @importFrom dplyr select
+#' @importFrom rlang .data
+#' @export
+Q_plot <- function(Q, K=ncol(Q), arrange, group) {
+
+  if(!missing(group)){
+    # If group was provided but K was not, we assume group is the only
+    # descriptive column in the data set
+    if(K == ncol(Q)) K = ncol(Q) - 1
+
+    grouping_vector = Q[[group]]
+
+    Q <- cbind(data.frame(group = grouping_vector),
+               Q_checker(Q = Q, K = K))
+
+    # Re-order individuals if arrange == TRUE
+    if (!missing(arrange)) {
+      if(arrange == TRUE){
+        clustermeans <- colMeans(Q[,-1]) %>% sort() %>% rev
+        ordernames <- names(clustermeans)
+        Q <- data.frame(Q) %>%
+          dplyr::arrange(dplyr::across({{ ordernames }})) %>%
+          dplyr::select(group, names(clustermeans))
+      }
+    }
+
+
+    # Generate the data to plot
+    df <- data.frame(cbind(data.frame(Individuals = 1:nrow(Q)), Q)) %>%
+      tidyr::pivot_longer(cols = 3:(ncol(Q) + 1))
+    df$name <- factor(df$name, levels = unique(df$name) %>% rev())
+
+
+    ggplot2::ggplot(data = df, ggplot2::aes(fill = .data$name,
+                                            color = .data$name,
+                                            y = .data$value,
+                                            x = .data$Individuals)) +
+      ggplot2::geom_bar(position = "stack", stat = "identity",
+                        width = 1) + ggplot2::theme_void() + ggplot2::ylab("") +
+      ggplot2::theme(legend.position = "none") +
+      ggplot2::facet_wrap(~ group, scales = "free_x")
+
+
+  }else{
+
+    # Clean the matrices for plotting:
+    Q <- Q_checker(Q = Q, K = K)
+
+    # Generate the data to plot
+    df <- data.frame(cbind(data.frame(Individuals = 1:nrow(Q)), Q)) %>%
+      tidyr::pivot_longer(cols = 2:(ncol(Q) + 1))
+    df$name <- factor(df$name, levels = unique(df$name) %>% rev())
+
+    # Re-order individuals if arrange == TRUE
+    if (!missing(arrange)) {
+      if(arrange == TRUE){
+        clustermeans <- colMeans(Q) %>% sort() %>% rev
+        ordernames <- names(clustermeans)
+        Q <- data.frame(Q) %>%
+          dplyr::arrange(dplyr::across({{ ordernames }})) %>%
+          dplyr::select(names(clustermeans))
+      }
+    }
+
+    # Generate the data to plot
+    df <- data.frame(cbind(data.frame(Individuals = 1:nrow(Q)), Q)) %>%
+      tidyr::pivot_longer(cols = 2:(ncol(Q) + 1))
+    df$name <- factor(df$name, levels = unique(df$name) %>% rev())
+
+    # Generate the structure plot
+    ggplot2::ggplot(
+      data = df,
+      ggplot2::aes(fill = .data$name, color = .data$name, y = .data$value, x = .data$Individuals)
+    ) +
+      ggplot2::geom_bar(position = "stack", stat = "identity", width = 1) +
+      ggplot2::theme_void() +
+      ggplot2::ylab("") +
+      ggplot2::theme(legend.position = "none")
+  }
+
+}
+
+
+
+
+#'
+#'
+#'
+#' # Q_bootstrap ----------------------------------------
+#' #' Generate and analyze bootstrap replicates of one or more Q matrices
+#' #'
+#' #' Generates bootstrap replicate Q matrices, computes Fst (possibly weighted) and/or Fst/FstMax for each bootstrap replicate, produces several plots of the bootstrap distributions of Fst (possibly weighted) and/or Fst/FstMax for each provided Q matrix, and runs two statistical tests comparing these bootstrap distributions. The tests comparing bootstrap distributions of Fst (possibly weighted) and/or Fst/FstMax facilitate statistical comparison of the variability in each of multiple Q matrices.
+#' #'
+#' #' @param matrices A dataframe, matrix, or array representing a Q matrix or a (possibly named) list of arbitrarily many Q matrices. For each Q matrix, matrix rows represent individuals and the last \code{K} columns contain individual categories (when restricted to the last \code{K} columns, the rows must sum to approximately 1). If the matrices are not named (e.g., \code{matrices = list(matrix1, matrix2)} instead of \code{matrices = list(A = matrix1, B = matrix2)}), the matrices will be numbered in the order they are provided in the list. If \code{matrices} is a single matrix, dataframe, or array and \code{group} is specified, the matrix will be split into multiple Q matrices, one for each distinct value of the column \code{group}, which will each be analyzed separately.
+#' #' @param n_replicates The number of bootstrap replicate matrices to generate for each provided Q matrix.
+#' #' @param K Optional; the number of ancestral clusters in each provided Q matrix, or a vector of such K values if the value of Q differs between matrices. If a single K is provided, each individual in every matrix must have \code{K} categories. If a vector of multiple K values is provided, \code{matrices} must be a list and the \eqn{i^{th}} entry of \code{K} must correspond to the \eqn{i^{th}} Q matrix in \code{matrices}. The default value of \code{K} is the number of columns in the matrix, the number of columns in the first matrix if a list is provided, or the number of columns minus 1 if \code{group} is specified but \code{K} is not.
+#' #' @param seed Optional; a number to set as the random seed. Use if reproducibility of random results is desired.
+#' #' @param group Optional; a string specifying the name of the column that describes which group each row (individual) belongs to. Use if \code{matrices} is a single matrix containing multiple groups of individuals you wish to compare. If the matrix was simulated using \code{Q_simulate} with \code{rep > 1} and/or a vector for \code{alpha}, \code{group = "Pop"}.
+#' #'
+#' #' @return A named list containing the following entries:
+#' #' \itemize{
+#' #' \item \code{bootstrap_replicates}: A named list of lists. Each element is named for a Q matrix provided in \code{matrices} and contains a list of \code{n_replicates} bootstrap replicates of the provided matrix. E.g., if \code{n_replicates = 100} and the first Q matrix in \code{matrices} is named \code{A}, then the first element of \code{bootstrap_replicates}, \code{bootstrap_replicates$bootstrap_matrices_A}, is itself a list of 100 matrices, each representing a bootstrap replicate of matrix A.
+#' #' \item \code{statistics}: A dataframe containing the output of \code{Q_stat}: \code{Fst}, \code{FstMax}, and \code{ratio} (Fst/FstMax), computed for each bootstrap replicate matrix in \code{bootstrap_replicates}. The ratio Fst/FstMax quantifies the variability of each  Q matrix. The first column, titled \code{Matrix}, is a factor indicating which provided Q matrix the row corresponds to (the matrix name if \code{matrices} is a named list, or a number otherwise). The row names are of the form \code{stats_matrix.replicate} where \code{matrix} is the name of one of the provided Q matrices (or the entry number if the list elements were not named) and replicate is the number of bootstrap replicate (rep takes values from 1 to \code{n_replicates}).
+#' #' \item \code{plot_boxplot}: A ggplot2 box plot depicting the bootstrap distribution of Fst/FstMax for each matrix in \code{matrices}.
+#' #' \item \code{plot_violin}: A ggplot2 violin plot depicting the bootstrap distribution of Fst/FstMax for each matrix in \code{matrices}.
+#' #' \item \code{plot_ecdf}: A ggplot2 empirical cumulative distribution function plot depicting the bootstrap distribution of Fst/FstMax for each matrix in \code{matrices}.
+#' #' \item \code{test_kruskal_wallis}: Results of a Kruskal-Wallis test performed on the bootstrap distributions of Fst/FstMax. This test is a non-parametric statistical test of whether all provided bootstrap distributions are identically distributed.
+#' #' \item \code{test_pairwise_wilcox}: Results of a Wilcoxon rank-sum test performed on the bootstrap distributions of Fst/FstMax. This test is a non-parameteric statistical test of whether \emph{each pairwise combination} of provided bootstrap distributions is identically distributed. The result is a matrix of p-values whose entries correspond to each pair of Q matrices.
+#' #' }
+#' #' @examples
+#' #' # Use Q_simulate to generate 4 random Q matrices
+#' #' A <- Q_simulate(
+#' #'   alpha = .1,
+#' #'   lambda = c(.5, .5),
+#' #'   popsize = 20,
+#' #'   rep = 1,
+#' #'   seed = 1
+#' #' )
+#' #'
+#' #' B <- Q_simulate(
+#' #'   alpha = .1,
+#' #'   lambda = c(.5, .5),
+#' #'   popsize = 20,
+#' #'   rep = 1,
+#' #'   seed = 2
+#' #' )
+#' #'
+#' #' C <- Q_simulate(
+#' #'   alpha = 1,
+#' #'   lambda = c(.5, .5),
+#' #'   popsize = 20,
+#' #'   rep = 1,
+#' #'   seed = 3
+#' #' )
+#' #'
+#' #' D <- Q_simulate(
+#' #'   alpha = 1,
+#' #'   lambda = c(.5, .5),
+#' #'   popsize = 20,
+#' #'   rep = 1,
+#' #'   seed = 4
+#' #' )
+#' #'
+#' #' # Draw 100 bootstrap replicates from
+#' #' # each of the 4 Q matrices
+#' #' bootstrap_1 <- Q_bootstrap(
+#' #'   matrices = list(
+#' #'     A = A,
+#' #'     B = B,
+#' #'     C = C,
+#' #'     D = D
+#' #'   ),
+#' #'   n_replicates = 100,
+#' #'   K = 2
+#' #' )
+#' #'
+#' #' # Access the elements of this list using $.
+#' #' # For example:
+#' #' # To look at all 400 bootstrap Q matrix
+#' #' # replicates:
+#' #' bootstrap_1$bootstrap_replicates
+#' #'
+#' #' # To look at Fst, FstMax, and
+#' #' # the ratio (Fst/FstMax) for each replicate
+#' #' bootstrap_1$statistics
+#' #'
+#' #' # To look at a plot of the distribution of
+#' #' # Fst/FstMax for each Q matrix:
+#' #' bootstrap_1$plot_violin
+#' #'
+#' #' # To determine if each of the 4 distibutions of
+#' #' # Fst/FstMax is significantly different from
+#' #' # each of the other distributions:
+#' #' bootstrap_1$test_pairwise_wilcox
+#' #'
+#' #' # Alternatively, you can simulate all of your comparison populations at once
+#' #' # and use the group parameter:
+#' #'
+#' #' # Here, Q_simulate generates 4 populations with the same parameters used to
+#' #' # simulate the 4 Q matrices above. However, these will all be stacked in one
+#' #' # matrix, rather than assigning each to a separate matrix.
+#' #'
+#' #' Q_4 <- Q_simulate(alpha = c(0.1, 1),
+#' #'                   lambda = c(0.5, 0.5),
+#' #'                   popsize = 20,
+#' #'                   rep = 2,
+#' #'                   seed = 1)
+#' #'
+#' #' # Look at the first few rows of Q_4
+#' #' head(Q_4)
+#' #'
+#' #' # Generate 100 bootstrap replicates for each of the
+#' #' bootstrap_2 <- Q_bootstrap(matrices = Q_4,
+#' #'                            n_replicates = 100,
+#' #'                            K = 2,
+#' #'                            seed = 1,
+#' #'                            group = "Pop")
+#' #'
+#' #' # To look at a plot of the distribution of
+#' #' # Fst/FstMax for each Q matrix:
+#' #' bootstrap_2$plot_violin
+#' #'
+#' #' # To determine if each of the 4 distibutions of
+#' #' # Fst/FstMax is significantly different from
+#' #' # each of the other distributions:
+#' #' bootstrap_2$test_pairwise_wilcox
+#' #'
+#' #' @importFrom dplyr %>%
+#' #' @importFrom dplyr mutate
+#' #' @importFrom dplyr filter
+#' #' @importFrom rlang .data
+#' #' @export
+#' Q_bootstrap <- function(matrices, n_replicates, K, seed, group) {
+#'   . <- NULL # to please R command check
+#'
+#'   # set seed
+#'
+#'   if (!missing(seed)) {
+#'     set.seed(seed)
+#'   }
+#'
+#'   # If group provided, create a new matrices list
+#'   # which converts the long single matrix to a list of matrices.
+#'
+#'   if(!missing(group)){
+#'     # the true K, if K was not provided, will be nrow(Q) - 1 since one of the columns is group
+#'     if(missing(K)){ K = ncol(matrices) - 1}
+#'
+#'     Qnames <- unique(matrices %>% select(group) %>% unlist)
+#'
+#'     matrix_list <- vector("list", length(Qnames))
+#'     i = 1
+#'     for(matrix in Qnames){
+#'       matrix_list[[i]] <- dplyr::filter(dplyr::mutate(matrices, "group" = get(group)),
+#'                                         group == matrix) %>%
+#'         select(-"group")
+#'       i = i +1
+#'     }
+#'     names(matrix_list) <- Qnames
+#'
+#'     matrices <- matrix_list
+#'   }
+#'
+#'
+#'   # Do computations if matrices = a single matrix ---------------------------------------
+#'
+#'   if ((is.data.frame(matrices) | is.array(matrices) | length(matrices) == 1) & missing(group)) {
+#'     if(missing(K)){
+#'       K = ncol(matrices)
+#'     }
+#'
+#'     n_matrix <- 1
+#'
+#'     names <- "Q"
+#'
+#'     # Clean Q matrix - isolate ancestry coefficients
+#'     matrices <- Q_checker(Q = matrices, K = K)
+#'
+#'     bootstrap_matrices_Q <- list()
+#'     matrix <- matrices
+#'     # Generate bootstrap data sets
+#'     for (replicate in 1:n_replicates) {
+#'       bootstrap_matrices_Q[[replicate]] <- matrix[purrr::rdunif(
+#'         n = nrow(matrix),
+#'         a = 1, b = nrow(matrix)
+#'       ), ]
+#'     }
+#'
+#'     # Compute statistics for these reps
+#'     stats_Q <- lapply(
+#'       X = bootstrap_matrices_Q,
+#'       FUN = function(matrix) Q_stat(Q = matrix, K = ncol(matrix))
+#'     ) %>%
+#'       unlist() %>%
+#'       matrix(ncol = 3, byrow = TRUE) %>%
+#'       data.frame() %>%
+#'       `colnames<-`(c("Fst", "FstMax", "ratio"))
+#'
+#'
+#'     # Do computations if matrices = a list ---------------------------------------------
+#'   } else if (is.list(matrices)) {
+#'     if(missing(K)){
+#'       K = ncol(matrices[[1]])
+#'     }
+#'     n_matrix <- length(matrices)
+#'     K.list <- K
+#'
+#'     # List of names of matrices
+#'     names <- if (sum(!is.na(names(matrices)))) {
+#'       names(matrices)
+#'     } else {
+#'       1:n_matrix
+#'     }
+#'
+#'     ## For each matrix: ##
+#'     for (m in 1:n_matrix) {
+#'       if(length(K.list)>1){
+#'         K <- K.list[[m]]
+#'       }
+#'
+#'       bs_list <- list()
+#'       matrix <- matrices[[m]]
+#'
+#'       # Check format of matrix
+#'       matrix <- Q_checker(Q = matrix, K = K, rep = m)
+#'
+#'       # Generate bootstrap data sets
+#'       for (replicate in 1:n_replicates) {
+#'         bs_list[[replicate]] <- matrix[purrr::rdunif(
+#'           n = nrow(matrix),
+#'           a = 1, b = nrow(matrix)
+#'         ), ]
+#'       }
+#'
+#'       # Compute statistics for these reps
+#'       stats <- lapply(
+#'         X = bs_list,
+#'         FUN = function(matrix) Q_stat(Q = matrix, K = ncol(matrix))
+#'       ) %>%
+#'         unlist() %>%
+#'         matrix(ncol = 3, byrow = TRUE) %>%
+#'         data.frame() %>%
+#'         `colnames<-`(c("Fst", "FstMax", "ratio"))
+#'
+#'       # Sometimes, for values of Fst very close to 0 (i.e. order 10^-6, 10^-7), the
+#'       # value of Fst ends up negative due to precision errors.
+#'       # Find matrices for which this is the case, and replace them and their statistics
+#'
+#'       while (sum(stats$ratio < 0)) {
+#'         # Which bootstrap matrices have negative values for Fst/FstMax?
+#'         negatives <- which(stats$ratio < 0)
+#'
+#'         # Replace those bootstrap replicates with new, random bootstrap replicates
+#'         bs_list[negatives] <- lapply(
+#'           X = 1:length(negatives),
+#'           FUN = function(x) {
+#'             matrix[purrr::rdunif(
+#'               n = nrow(matrix),
+#'               a = 1, b = nrow(matrix)
+#'             ), ]
+#'           }
+#'         )
+#'
+#'         # Replace the corresponding entries of the statistics matrix
+#'         stats[negatives, ] <- lapply(
+#'           X = bs_list[negatives],
+#'           FUN = function(matrix) {
+#'             Q_stat(Q = matrix, K = ncol(matrix))
+#'           }
+#'         ) %>%
+#'           unlist() %>%
+#'           matrix(ncol = 3, byrow = TRUE) %>%
+#'           data.frame()
+#'       } # repeat this until there are no more errors
+#'
+#'       # Name this dataset, based on the name of the matrices in the list or the entry number
+#'       assign(paste0("stats_", names[m]), stats, pos = -1)
+#'       assign(paste0("bootstrap_matrices_", names[m]), bs_list, pos = -1)
+#'     }
+#'   } else {
+#'     stop("Error: The entry `matrices` must be a data frame, matrix, or array, or a list of these objects.")
+#'   }
+#'
+#'   # Make a dataset with all matrices' statistics:
+#'   all_stats <- cbind(
+#'     Matrix =
+#'       names %>%
+#'       lapply(function(name) rep(name, n_replicates)) %>%
+#'       unlist(),
+#'     mget(paste0("stats_", names)) %>%
+#'       do.call(what = rbind, args = .) %>%
+#'       rbind()
+#'   )
+#'
+#'   all_stats$Matrix <- factor(all_stats$Matrix, levels = unique(all_stats$Matrix))
+#'
+#'   plot_ecdf <- ggplot2::ggplot(data = all_stats) +
+#'     ggplot2::stat_ecdf(ggplot2::aes(x = .data$ratio, color = .data$Matrix)) +
+#'     ggplot2::xlab(expression(F[ST]/F[ST]^{max})) +
+#'     ggplot2::ylab("Cumulative Probability") +
+#'     ggplot2::xlim(0, 1) +
+#'     ggplot2::theme_bw() +
+#'     ggplot2::scale_color_viridis_d()
+#'
+#'   plot_boxplot <- ggplot2::ggplot(
+#'     data = all_stats,
+#'     ggplot2::aes(x = .data$Matrix, y = .data$ratio)
+#'   ) +
+#'     ggplot2::geom_boxplot() +
+#'     ggplot2::ylab(expression(F[ST]/F[ST]^{max})) +
+#'     ggplot2::xlab("") +
+#'     ggplot2::theme_bw()
+#'
+#'   plot_violin <- ggplot2::ggplot(
+#'     data = all_stats,
+#'     ggplot2::aes(
+#'       x = .data$Matrix,
+#'       y = round(.data$ratio, 5)
+#'     )
+#'   ) +
+#'     ggplot2::geom_violin(scale = "width") +
+#'     ggplot2::geom_boxplot(width = 0.3) +
+#'     ggplot2::ylab(expression(F[ST]/F[ST]^{max})) +
+#'     ggplot2::xlab("") +
+#'     ggplot2::theme_bw()
+#'
+#'   if (is.data.frame(matrices) | is.array(matrices)) {
+#'     test_kruskal_wallis <- "This statistical test can only be performed if a list of matrices is provided."
+#'
+#'     test_pairwise_wilcox <- "This statistical test can only be performed if a list of matrices is provided."
+#'   } else {
+#'     test_kruskal_wallis <- stats::kruskal.test(all_stats$ratio ~ all_stats$Matrix)
+#'
+#'     test_pairwise_wilcox <- stats::pairwise.wilcox.test(
+#'       x = all_stats$ratio,
+#'       g = all_stats$Matrix,
+#'       paired = FALSE
+#'     )
+#'   }
+#'
+#'   bootstrap_replicates <- mget(paste0(
+#'     "bootstrap_matrices_",
+#'     names
+#'   ))
+#'
+#'   return(list(
+#'     bootstrap_replicates = bootstrap_replicates,
+#'     statistics = all_stats,
+#'     plot_boxplot = plot_boxplot,
+#'     plot_violin = plot_violin,
+#'     plot_ecdf = plot_ecdf,
+#'     test_kruskal_wallis = test_kruskal_wallis,
+#'     test_pairwise_wilcox = test_pairwise_wilcox
+#'   ))
+#' }
+#'
+#'
+#'
+#'
+#'
+#'
+#'
+#'
+#'
+#'
+#' # Q_simulate ----------------------------------------
+#' #' Simulate one or more Q matrices using the Dirichlet distribution
+#' #'
+#' #' Simulates Q matrices by drawing vectors of categories from a Dirichlet distribution parameterized by two variables: \eqn{\alpha}, which controls variability, and \eqn{\lambda=(\lambda_1, \lambda_2, ...., \lambda_K)} which controls the mean of each of the K ancestry coefficients.
+#' #'
+#' #' @param alpha A number greater than 0 that sets the variability of the categories under the Dirichlet model. The variance of coefficient k is \eqn{Var[x_k] = \lambda_k(1-\lambda_k)/(\alpha+1)}. Larger values of \eqn{\alpha} lead to lower variability. \code{alpha} can also be a numeric vector, in which case \code{rep} groups of \code{popsize} rows are simulated for each entry of \code{alpha}.
+#' #' @param lambda A vector that sets the mean membership of each ancestral cluster across the population. The vector must sum to 1.
+#' #' @param popsize The number of individuals to include in each population.
+#' #' @param rep The number of populations to generate. Default is 1.
+#' #' @param seed Optional; sets the random seed. Use if reproducibility of random results is desired.
+#' #'
+#' #' @return A data frame containing the simulated ancestry vectors. Each row represents a single simulated individual. The data frame has the following columns
+#' #' \itemize{
+#' #' \item \code{rep}: Which population the row belongs to (a number between 1 and the parameter \code{rep})
+#' #' \item \code{ind}: Which individual in each population the row corresponds to (a number between 1 and the parameter \code{popsize})
+#' #' \item \code{alpha}: The alpha value used for that population.
+#' #' \item \code{Pop}: alpha_rep (where rep and alpha are the first and third columns as described in this list). Serves as a unique identifier for each population.
+#' #' \item \code{spacer}: a repeated ":" to make simulated Q matrices match output of population structure inference software.
+#' #' \item \code{q1, q2, etc.}: Categories (sum to 1).
+#' #' }
+#' #'
+#' #' @examples
+#' #' # Simulate ancestry for 100 random populations of 50 individuals.
+#' #' # In this example, each Q matrix has
+#' #' # 100 individuals.
+#' #' # On average these individuals have
+#' #' # mean ancestry (1/2, 1/4, 1/4)
+#' #' # from each of 3 ancestral clusters.
+#' #' # The variance of each cluster i is
+#' #' # Var[q_i] = lambda_i(1-lambda_i)/(alpha + 1)
+#' #' # Here lambda_1 = 1/2,
+#' #' #      lambda_2 = lambda_3 = 1/4
+#' #'
+#' #' Q <- Q_simulate(
+#' #'   alpha = 1,
+#' #'   lambda = c(1 / 2, 1 / 4, 1 / 4),
+#' #'   popsize = 50,
+#' #'   rep = 100,
+#' #'   seed = 1
+#' #' )
+#' #'
+#' #' @importFrom dplyr %>%
+#' #' @importFrom rlang .data
+#' #' @export
+#' Q_simulate <- function(alpha, lambda, popsize, rep = 1, seed) {
+#'   . <- NULL # to please R command check
+#'
+#'   # How many clusters are there?
+#'   K <- length(lambda)
+#'
+#'   if (!missing(seed)) {
+#'     set.seed(seed)
+#'   }
+#'
+#'   # (a1, a2, ...) = (lambda1, lambda2, ...)*alpha parameterizes the Dirichlet distribution
+#'   alpha_vec <- alpha %>%
+#'     data.frame("alpha" = .) %>%
+#'     cbind(apply(X = ., MARGIN = 1, FUN = function(a) a * lambda) %>%
+#'             matrix(byrow = TRUE, ncol = K)) %>%
+#'     # this step necessary for K=1 case
+#'     `colnames<-`(c("alpha", sapply(1:K, function(k) paste0("a", k))))
+#'
+#'   ### Simulate Q matrices ###
+#'
+#'   # Generate a data frame that uses the alpha_vec matrix above to simulate ancestry coefficients for a population of individuals for each alpha
+#'   Q <- apply(
+#'     X = alpha_vec %>%
+#'       dplyr::select(-alpha), # Input is list of alpha vectors for each alpha
+#'     MARGIN = 1, # call function on each row
+#'     FUN = function(a) { # Draw ancestry vectors for a population for each alpha
+#'       gtools::rdirichlet(
+#'         n = popsize,
+#'         alpha = a
+#'       ) %>%
+#'         round(10)
+#'     }
+#'   ) %>%
+#'     data.frame() %>%
+#'     ### Restructure output so the columns are: individual, alphas, lambda1, lambda2, rep
+#'     `colnames<-`(alpha_vec$alpha) %>%
+#'     dplyr::mutate(
+#'       ind = rep(1:popsize, K),
+#'       lambda = (sapply(
+#'         X = 1:K,
+#'         FUN = function(x) paste0("q", x)
+#'       ) %>%
+#'         lapply(function(q) rep(q, popsize)) %>%
+#'         unlist())
+#'     ) %>%
+#'     tidyr::pivot_longer(
+#'       cols = 1:length(alpha),
+#'       names_to = "alpha",
+#'       values_to = "Q"
+#'     ) %>%
+#'     tidyr::pivot_wider(
+#'       names_from = lambda,
+#'       values_from = Q
+#'     ) %>%
+#'     cbind("rep" = 1, .)
+#'
+#'   if (rep > 1) {
+#'     # Repeat this process for iter times
+#'     for (iter in 2:(rep)) {
+#'       Q <- Q %>%
+#'         rbind(
+#'           apply(
+#'             X = alpha_vec %>%
+#'               dplyr::select(-alpha), # Input is list of alpha vectors for each alpha
+#'             MARGIN = 1, # call function on each row
+#'             FUN = function(a) { # Draw ancestry vectors for a population for each alpha
+#'               gtools::rdirichlet(
+#'                 n = popsize,
+#'                 alpha = a
+#'               ) %>%
+#'                 round(10)
+#'             }
+#'           ) %>%
+#'             data.frame() %>% ### Restructure output so the columns are: individual, alphas, lambda1, lambda2, rep
+#'             `colnames<-`(alpha_vec$alpha) %>%
+#'             dplyr::mutate(
+#'               ind = rep(1:popsize, K),
+#'               lambda = (sapply(
+#'                 X = 1:K,
+#'                 FUN = function(x) paste0("q", x)
+#'               ) %>%
+#'                 lapply(function(q) rep(q, popsize)) %>%
+#'                 unlist())
+#'             ) %>%
+#'             tidyr::pivot_longer(
+#'               cols = 1:length(alpha),
+#'               names_to = "alpha",
+#'               values_to = "Q"
+#'             ) %>%
+#'             tidyr::pivot_wider(
+#'               names_from = lambda,
+#'               values_from = Q
+#'             ) %>%
+#'             cbind("rep" = iter, .)
+#'         )
+#'     }
+#'   }
+#'
+#'   # Give each population a unique identifier: alpha_rep
+#'   Q <- Q %>%
+#'     dplyr::mutate(
+#'       ind = as.factor(.data$ind),
+#'       alpha = as.numeric(alpha),
+#'       Pop = paste(round(alpha, 3), rep, sep = "_") %>% as.factor(),
+#'       rep = as.factor(rep),
+#'       spacer = ":",
+#'       .before = .data$q1
+#'     ) %>%
+#'     dplyr::arrange(rep, .data$Pop, .data$ind)
+#'   return(Q)
+#' }
