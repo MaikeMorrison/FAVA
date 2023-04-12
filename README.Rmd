@@ -44,7 +44,6 @@ devtools::install_github("MaikeMorrison/FAVA")
 
 ```{r example}
 library(FAVA)
-## basic example code
 
 Q = cbind(data.frame(population = c(rep("A", 5), rep("B", 5))),
           matrix(c(1.0, 0.0, 0.0, 0.0,
@@ -61,13 +60,27 @@ Q = cbind(data.frame(population = c(rep("A", 5), rep("B", 5))),
 
 Q
 
-Q_plot(Q = Q, K = 4, arrange = FALSE)
-Q_plot(Q = Q, K = 4, arrange = TRUE)
-Q_plot(Q = Q, K = 4, arrange = TRUE, group = "population")
+# Plot
+
+palette = RColorBrewer::brewer.pal(4, "RdYlBu")
+names(palette) <- paste0("q", 1:4)
+
+Q_plot(Q = Q, K = 4, arrange = FALSE) + 
+  ggplot2::scale_color_manual(values = rep("white", 4)) + 
+  ggplot2::scale_fill_manual(values = palette)
+
+Q_plot(Q = Q, K = 4, arrange = TRUE)+ 
+  ggplot2::scale_color_manual(values = rep("white", 4)) + 
+  ggplot2::scale_fill_manual(values = palette)
+
+Q_plot(Q = Q, K = 4, arrange = TRUE, group = "population")+ 
+  ggplot2::scale_color_manual(values = rep("white", 4)) + 
+  ggplot2::scale_fill_manual(values = palette)
 
 # Unweighted Fst
 fst(Q[1:5,2:5])
 fst(Q[6:10,2:5])
+
 
 # Weighted Fst
 

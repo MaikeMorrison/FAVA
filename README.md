@@ -55,7 +55,6 @@ devtools::install_github("MaikeMorrison/FAVA")
 
 ``` r
 library(FAVA)
-## basic example code
 
 Q = cbind(data.frame(population = c(rep("A", 5), rep("B", 5))),
           matrix(c(1.0, 0.0, 0.0, 0.0,
@@ -83,19 +82,32 @@ Q
 #> 9           B 0.1 0.2 0.6 0.1
 #> 10          B 0.3 0.2 0.1 0.4
 
-Q_plot(Q = Q, K = 4, arrange = FALSE)
+# Plot
+
+palette = RColorBrewer::brewer.pal(4, "RdYlBu")
+names(palette) <- paste0("q", 1:4)
+
+Q_plot(Q = Q, K = 4, arrange = FALSE) + 
+  ggplot2::scale_color_manual(values = rep("white", 4)) + 
+  ggplot2::scale_fill_manual(values = palette)
 ```
 
 <img src="man/figures/README-example-1.png" width="100%" />
 
 ``` r
-Q_plot(Q = Q, K = 4, arrange = TRUE)
+
+Q_plot(Q = Q, K = 4, arrange = TRUE)+ 
+  ggplot2::scale_color_manual(values = rep("white", 4)) + 
+  ggplot2::scale_fill_manual(values = palette)
 ```
 
 <img src="man/figures/README-example-2.png" width="100%" />
 
 ``` r
-Q_plot(Q = Q, K = 4, arrange = TRUE, group = "population")
+
+Q_plot(Q = Q, K = 4, arrange = TRUE, group = "population")+ 
+  ggplot2::scale_color_manual(values = rep("white", 4)) + 
+  ggplot2::scale_fill_manual(values = palette)
 ```
 
 <img src="man/figures/README-example-3.png" width="100%" />
@@ -107,6 +119,7 @@ fst(Q[1:5,2:5])
 #> [1] 0.3371429
 fst(Q[6:10,2:5])
 #> [1] 0.4377267
+
 
 # Weighted Fst
 
