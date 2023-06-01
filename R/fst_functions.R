@@ -1,6 +1,9 @@
 # THIS FILE CONTAINS:
 # het - compute the heterozygosity of a compositional vector
-
+# hetMean
+# hetPooled
+# fst
+# fst_norm
 
 # het -----------------------------------------------------------------
 #' Compute the heterozygosity of a compositional vector
