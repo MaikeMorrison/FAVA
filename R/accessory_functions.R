@@ -81,7 +81,8 @@ Q_checker <- function(Q, K, rep) {
 #'   If \code{arrange = TRUE} or \code{arrange = "both"}, samples are ordered by the categories of greatest
 #'   abundance and categories are ordered in decreasing abundance. If \code{arrange = "vertical"}, sample
 #'   order is unchanged but categories are ordered in decreasing abundance. If \code{arrange = "horizontal"},
-#'   samples are ordered by the most abundant categories, but category order is unchanged.
+#'   samples are ordered by the most abundant categories, but category order is unchanged. If \code{arrange} is missing
+#'   or \code{arrange = FALSE}, neither order is changed.
 #' @param group Optional; a string specifying the name of the column that describes which group each row  belongs to. Use if \code{Q} is a single matrix containing multiple groups of individuals you wish to compare.
 #' @return A ggplot object containing a bar plot visualization of the Q matrix.
 #' @examples
@@ -128,7 +129,7 @@ Q_plot <- function(Q, K=ncol(Q), arrange, group) {
                Q_checker(Q = Q, K = K))
 
     # Re-order individuals if arrange == TRUE
-    if (!missing(arrange)){
+    if (!missing(arrange) & arrange !=FALSE){
       if(arrange %in% c(TRUE, "both")){
         clustermeans <- colMeans(Q[,-1]) %>% sort() %>% rev
         ordernames <- c("group", names(clustermeans))
@@ -162,7 +163,7 @@ Q_plot <- function(Q, K=ncol(Q), arrange, group) {
           dplyr::arrange(dplyr::across({{ ordernames }}))# %>%
         # dplyr::select(c("group", names(which(clustermeans != 0))))
       }else{
-        stop("The options for arrange are TRUE, vertical, horizontal, or both. TRUE and both are interchangeable.")
+        stop("The options for arrange are FALSE, TRUE, vertical, horizontal, or both. TRUE and both are interchangeable.")
       }
 
     }
@@ -197,7 +198,7 @@ Q_plot <- function(Q, K=ncol(Q), arrange, group) {
 
     # Re-order vertical bars if arrange == TRUE, "both", or "horizontal",
     # Re-order categories if arrange == TRUE, "both" or "vertical"
-    if (!missing(arrange)){
+    if (!missing(arrange) & arrange !=FALSE){
       if(arrange %in% c(TRUE, "both")){
         clustermeans <- colMeans(Q) %>% sort() %>% rev
         ordernames <- names(clustermeans)

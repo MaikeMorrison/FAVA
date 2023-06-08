@@ -19,7 +19,8 @@ must have \code{K} categories. Default is the number of columns in \code{Q}.}
 If \code{arrange = TRUE} or \code{arrange = "both"}, samples are ordered by the categories of greatest
 abundance and categories are ordered in decreasing abundance. If \code{arrange = "vertical"}, sample
 order is unchanged but categories are ordered in decreasing abundance. If \code{arrange = "horizontal"},
-samples are ordered by the most abundant categories, but category order is unchanged.}
+samples are ordered by the most abundant categories, but category order is unchanged. If \code{arrange} is missing
+or \code{arrange = FALSE}, neither order is changed.}
 
 \item{group}{Optional; a string specifying the name of the column that describes which group each row  belongs to. Use if \code{Q} is a single matrix containing multiple groups of individuals you wish to compare.}
 }
