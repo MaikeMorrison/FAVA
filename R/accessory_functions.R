@@ -77,9 +77,11 @@ Q_checker <- function(Q, K, rep) {
 #'   last \code{K} columns, the rows of this matrix must sum to 1.
 #' @param K Optional; the number of categories in the Q matrix. Each vector must
 #'   must have \code{K} categories. Default is the number of columns in \code{Q}.
-#' @param arrange Optional; controls horizontal ordering of individuals.
-#'   If \code{arrange = TRUE}, individuals are ordered by the clusters of greatest
-#'   mean membership.
+#' @param arrange Optional; controls horizontal ordering of samples and vertical ordering of categories.
+#'   If \code{arrange = TRUE} or \code{arrange = "both"}, samples are ordered by the categories of greatest
+#'   abundance and categories are ordered in decreasing abundance. If \code{arrange = "vertical"}, sample
+#'   order is unchanged but categories are ordered in decreasing abundance. If \code{arrange = "horizontal"},
+#'   samples are ordered by the most abundant categories, but category order is unchanged.
 #' @param group Optional; a string specifying the name of the column that describes which group each row  belongs to. Use if \code{Q} is a single matrix containing multiple groups of individuals you wish to compare.
 #' @return A ggplot object containing a bar plot visualization of the Q matrix.
 #' @examples
@@ -126,14 +128,43 @@ Q_plot <- function(Q, K=ncol(Q), arrange, group) {
                Q_checker(Q = Q, K = K))
 
     # Re-order individuals if arrange == TRUE
-    if (!missing(arrange)) {
-      if(arrange == TRUE){
+    if (!missing(arrange)){
+      if(arrange %in% c(TRUE, "both")){
         clustermeans <- colMeans(Q[,-1]) %>% sort() %>% rev
-        ordernames <- names(clustermeans)
+        ordernames <- c("group", names(clustermeans))
         Q <- data.frame(Q) %>%
           dplyr::arrange(dplyr::across({{ ordernames }})) %>%
-          dplyr::select(group, names(clustermeans))
+          dplyr::select(c("group", names(which(clustermeans != 0))))
+
+        if(sum(clustermeans != 0) != K){
+          warning(paste0("Only plotting the ", sum(clustermeans != 0),
+                         " categories with non-zero abundances. If you are manually changing the fill or color of the plot, please provide ",
+                         sum(clustermeans != 0), " colors, instead of ", K, "."))
+        }
+
+      }else if(arrange == "vertical"){
+        clustermeans <- colMeans(Q[,-1]) %>% sort() %>% rev
+        ordernames <- c("group", names(clustermeans))
+        Q <- data.frame(Q) %>%
+          # dplyr::arrange(dplyr::across({{ ordernames }})) %>%
+          dplyr::select(c("group", names(which(clustermeans != 0))))
+
+        if(sum(clustermeans != 0) != K){
+          warning(paste0("Only plotting the ", sum(clustermeans != 0),
+                         " categories with non-zero abundances. If you are manually changing the fill or color of the plot, please provide ",
+                         sum(clustermeans != 0), " colors, instead of ", K, "."))
+        }
+
+      }else if(arrange == "horizontal"){
+        clustermeans <- colMeans(Q[,-1]) %>% sort() %>% rev
+        ordernames <- c("group", names(clustermeans))
+        Q <- data.frame(Q) %>%
+          dplyr::arrange(dplyr::across({{ ordernames }}))# %>%
+        # dplyr::select(c("group", names(which(clustermeans != 0))))
+      }else{
+        stop("The options for arrange are TRUE, vertical, horizontal, or both. TRUE and both are interchangeable.")
       }
+
     }
 
 
@@ -164,15 +195,45 @@ Q_plot <- function(Q, K=ncol(Q), arrange, group) {
       tidyr::pivot_longer(cols = 2:(ncol(Q) + 1))
     df$name <- factor(df$name, levels = unique(df$name) %>% rev())
 
-    # Re-order individuals if arrange == TRUE
-    if (!missing(arrange)) {
-      if(arrange == TRUE){
+    # Re-order vertical bars if arrange == TRUE, "both", or "horizontal",
+    # Re-order categories if arrange == TRUE, "both" or "vertical"
+    if (!missing(arrange)){
+      if(arrange %in% c(TRUE, "both")){
         clustermeans <- colMeans(Q) %>% sort() %>% rev
         ordernames <- names(clustermeans)
         Q <- data.frame(Q) %>%
           dplyr::arrange(dplyr::across({{ ordernames }})) %>%
-          dplyr::select(names(clustermeans))
+          dplyr::select(names(which(clustermeans != 0)))
+
+        if(sum(clustermeans != 0) != K){
+          warning(paste0("Only plotting the ", sum(clustermeans != 0),
+                         " categories with non-zero abundances. If you are manually changing the fill or color of the plot, please provide ",
+                         sum(clustermeans != 0), " colors, instead of ", K, "."))
+        }
+
+      }else if(arrange == "vertical"){
+        clustermeans <- colMeans(Q) %>% sort() %>% rev
+        ordernames <- names(clustermeans)
+        Q <- data.frame(Q) %>%
+          # dplyr::arrange(dplyr::across({{ ordernames }})) %>%
+          dplyr::select(names(which(clustermeans != 0)))
+
+        if(sum(clustermeans != 0) != K){
+          warning(paste0("Only plotting the ", sum(clustermeans != 0),
+                         " categories with non-zero abundances. If you are manually changing the fill or color of the plot, please provide ",
+                         sum(clustermeans != 0), " colors, instead of ", K, "."))
+        }
+
+      }else if(arrange == "horizontal"){
+        clustermeans <- colMeans(Q) %>% sort() %>% rev
+        ordernames <- names(clustermeans)
+        Q <- data.frame(Q) %>%
+          dplyr::arrange(dplyr::across({{ ordernames }}))# %>%
+        # dplyr::select(names(which(clustermeans != 0)))
+      }else{
+        stop("The options for arrange are TRUE, vertical, horizontal, or both. TRUE and both are interchangeable.")
       }
+
     }
 
     # Generate the data to plot
@@ -192,6 +253,8 @@ Q_plot <- function(Q, K=ncol(Q), arrange, group) {
   }
 
 }
+
+
 
 
 

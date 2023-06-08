@@ -15,9 +15,11 @@ last \code{K} columns, the rows of this matrix must sum to 1.}
 \item{K}{Optional; the number of categories in the Q matrix. Each vector must
 must have \code{K} categories. Default is the number of columns in \code{Q}.}
 
-\item{arrange}{Optional; controls horizontal ordering of individuals.
-If \code{arrange = TRUE}, individuals are ordered by the clusters of greatest
-mean membership.}
+\item{arrange}{Optional; controls horizontal ordering of samples and vertical ordering of categories.
+If \code{arrange = TRUE} or \code{arrange = "both"}, samples are ordered by the categories of greatest
+abundance and categories are ordered in decreasing abundance. If \code{arrange = "vertical"}, sample
+order is unchanged but categories are ordered in decreasing abundance. If \code{arrange = "horizontal"},
+samples are ordered by the most abundant categories, but category order is unchanged.}
 
 \item{group}{Optional; a string specifying the name of the column that describes which group each row  belongs to. Use if \code{Q} is a single matrix containing multiple groups of individuals you wish to compare.}
 }
