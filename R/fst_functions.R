@@ -184,6 +184,9 @@ hetPooled <- function(Q, w, S){
 #' This function computes the population genetic statistic Fst on any matrix with rows that sum to 1. Values of 0 are achieved when each row is a permutation of (1,0,..., 0) and at least two categories have non-zero abundance across all rows. The value equals 1 when each row is identical.
 #'
 #' @param Q A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.
+#' If \code{Q} contains any metadata, it must be on the left-hand side of the matrix and the number of entries
+#' that sum to 1 (\code{K}) must be specified.
+#' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(Q)}.
 #' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(Q), nrow(Q))}.
 #' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(Q))}.
 #' @returns A numeric value between 0 and 1.
@@ -219,16 +222,22 @@ hetPooled <- function(Q, w, S){
 #' row_weights = c(0.5, 0, 0.5, 0)
 #' fst(Q_matrix, w = row_weights, S = similarity_matrix)
 #' @export
-fst <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q))){
+fst <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q)), K = ncol(Q)){
+  Q = Q[,(ncol(Q)-K+1):ncol(Q)]
   (hetPooled(Q, w, S) - hetMean(Q, w, S))/hetPooled(Q, w, S)
 }
 
 # fst_norm -----------------------------------------------------------------
 #' Compute the normalized Fst of a matrix of compositional vectors
 #'
-#' This function computes the normalized Fst given the number of rows and the mean abundance of the most abundant category. We employ the normalization employed in the [FSTruct package](https://github.com/MaikeMorrison/FSTruct) by [Morrison, Alcala, and Rosenberg (2020)](https://doi.org/10.1111/1755-0998.13647).
+#' This function computes the normalized Fst given the number of rows and the mean abundance of the most abundant category.
+#' We employ the normalization employed in the [FSTruct package](https://github.com/MaikeMorrison/FSTruct) by
+#' [Morrison, Alcala, and Rosenberg (2020)](https://doi.org/10.1111/1755-0998.13647).
 #'
 #' @param Q A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.
+#' If \code{Q} contains any metadata, it must be on the left-hand side of the matrix and the number of entries
+#' that sum to 1 (\code{K}) must be specified.
+#' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(Q)}.
 #' @returns A numeric value between 0 and 1.
 #' @examples
 #' # Compute the weighted Fst of
@@ -243,7 +252,8 @@ fst <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q))){
 #'
 #' fst_norm(Q_matrix)
 #' @export
-fst_norm <- function(Q){
+fst_norm <- function(Q, K = ncol(Q)){
+  Q = Q[,(ncol(Q)-K+1):ncol(Q)]
   I <- nrow(Q) # Here, I is the number of individuals (number of subpopulations)
   p <- colSums(Q) # yields vector of summed allele frequencies across populations
   sig1 <- max(p)
