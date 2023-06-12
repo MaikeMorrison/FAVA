@@ -14,10 +14,10 @@ window_list(window_size, length, window_step = 1)
 \item{window_step}{Optional; an integer specifying the distance between the first entry of adjacent windows. Default is \code{window_step=1}.}
 }
 \value{
-A list of vectors of sample indices. Each list entry represents one window.
+A list of samples of sample indices. Each list entry represents one window.
 }
 \description{
-This function generates a list of of sliding windows conditional on two parameters: the length of each window (number of samples) and the total number of samples
+This function generates a list of of sliding windows conditional on two parameters: the length of each window (number of samples) and the total number of samples present in the data.
 }
 \examples{
 window_list(6,40)

@@ -4,16 +4,22 @@
 \alias{fst_norm}
 \title{Compute the normalized Fst of a matrix of compositional vectors}
 \usage{
-fst_norm(Q)
+fst_norm(Q, K = ncol(Q))
 }
 \arguments{
-\item{Q}{A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.}
+\item{Q}{A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.
+If \code{Q} contains any metadata, it must be on the left-hand side of the matrix and the number of entries
+that sum to 1 (\code{K}) must be specified.}
+
+\item{K}{Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(Q)}.}
 }
 \value{
 A numeric value between 0 and 1.
 }
 \description{
-This function computes the normalized Fst given the number of rows and the mean abundance of the most abundant category. We employ the normalization employed in the \href{https://github.com/MaikeMorrison/FSTruct}{FSTruct package} by \href{https://doi.org/10.1111/1755-0998.13647}{Morrison, Alcala, and Rosenberg (2020)}.
+This function computes the normalized Fst given the number of rows and the mean abundance of the most abundant category.
+We employ the normalization employed in the \href{https://github.com/MaikeMorrison/FSTruct}{FSTruct package} by
+\href{https://doi.org/10.1111/1755-0998.13647}{Morrison, Alcala, and Rosenberg (2020)}.
 }
 \examples{
 # Compute the weighted Fst of

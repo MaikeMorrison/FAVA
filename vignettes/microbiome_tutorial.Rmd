@@ -1,0 +1,57 @@
+---
+title: "microbiome_tutorial"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{microbiome_tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(FAVA)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+
+# Visualize relative abundances
+
+```{r}
+set.seed(12)
+pal = c(viridis::rocket(224), viridis::mako(300))[sample(1:524)]
+
+Q_plot(Q = xue_microbiome_sample, 
+       K = 524, 
+       group = "subject", 
+       arrange = "vertical") + 
+  scale_color_manual(values = rep("white", 1346)) +
+  scale_fill_manual(values = pal)
+```
+
+# Quantify the variability of each set of relative abundances
+
+```{r}
+xue_microbiome_sample %>% 
+  group_by(subject) %>%
+  group_map(~ FAVA::fst(select(.x, - timepoint)))
+```
+
+
+```{r}
+window_out = window_fava(Q = xue_microbiome_sample, K = 524, window_size = 6, group = "subject")
+head(window_out)
+```
+
+```{r}
+
+    
+```
+
