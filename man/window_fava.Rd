@@ -12,7 +12,8 @@ window_fava(
   window_step = 1,
   normalized = FALSE,
   w = rep(1/nrow(Q), nrow(Q)),
-  S = diag(K)
+  S = diag(K),
+  index
 )
 }
 \arguments{
@@ -41,6 +42,9 @@ n the computation of the mean abundance of each category across rows. The defaul
 \item{S}{Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for
 \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling
 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(Q))}.}
+
+\item{index}{Optional; the name of the column in \code{Q} containing an index for each sample. For example, if \code{Q} contains time series data,
+\code{index} would be the column containing the time of each sample.}
 }
 \value{
 A list of values of Fst for each window.

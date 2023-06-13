@@ -54,6 +54,8 @@ window_list <- function(window_size, length, window_step = 1){
 #' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for
 #' \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling
 #' 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(Q))}.
+#' @param index Optional; the name of the column in \code{Q} containing an index for each sample. For example, if \code{Q} contains time series data,
+#' \code{index} would be the column containing the time of each sample.
 #' @returns A list of values of Fst for each window.
 #' @importFrom dplyr %>%
 #' @examples
@@ -63,7 +65,9 @@ window_list <- function(window_size, length, window_step = 1){
 #' @export
 window_fava <- function(Q, K = ncol(Q), window_size, group,
                        window_step = 1, normalized = FALSE,
-                       w = rep(1/nrow(Q), nrow(Q)), S = diag(K)){
+                       w = rep(1/nrow(Q), nrow(Q)), S = diag(K),
+                       index){
+  Q_full = Q
   # UNGROUPED DATA ------------------------------------------------------------
   if(missing(group)){
     Q = Q[,(ncol(Q)-K+1):ncol(Q)]
@@ -80,8 +84,18 @@ window_fava <- function(Q, K = ncol(Q), window_size, group,
       }
     }
 
-    cbind(data.frame(FAVA = fst_list, window_index = 1:length(fst_list)),
+    output = cbind(data.frame(FAVA = fst_list, window_index = 1:length(fst_list)),
           do.call(rbind, window_indices) %>% `colnames<-`(paste0("w", 1:window_size)))
+
+    if(missing(index)){ return(output) }else{
+
+        tidyr::pivot_longer(output, -c(FAVA, window_index),
+                            names_to = "window_number", values_to = "generic_index") %>%
+        left_join(data.frame(original_index = Q_full[,index] %>% unlist,
+                 generic_index = 1:nrow(Q_full))) %>%
+        select(-generic_index) %>%
+        pivot_wider(names_from = window_number, values_from = original_index)
+    }
   }else{
 
     # GROUPED DATA -------------------------------------------------------------
@@ -113,7 +127,20 @@ window_fava <- function(Q, K = ncol(Q), window_size, group,
       i = i + 1
 
     }
-    do.call(rbind, group_fst_list)
+    output = do.call(rbind, group_fst_list)
+
+    if(missing(index)){ return(output) }else{
+
+      tidyr::pivot_longer(output,
+                          -c(FAVA, window_index, group),
+                          names_to = "window_number",
+                          values_to = "generic_index") %>%
+        left_join(data.frame(group = unlist(Q[,group]),
+                             original_index = unlist(Q[,index])) %>%
+                    group_by(group) %>% mutate(generic_index = 1:n())) %>%
+        select(-generic_index) %>%
+        pivot_wider(names_from = window_number, values_from = original_index)
+    }
   }
 }
 

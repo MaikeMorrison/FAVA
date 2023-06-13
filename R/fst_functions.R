@@ -4,6 +4,7 @@
 # hetPooled
 # fst
 # fst_norm
+# time_weights
 
 # het -----------------------------------------------------------------
 #' Compute the heterozygosity of a compositional vector
@@ -279,6 +280,34 @@ fst_norm <- function(Q, K = ncol(Q)){
     Fst / FstMax
   }
 }
+
+
+# # time_weights -----------------------------------------------------------------
+# #' Compute a normalized weighting vector based on a vector of sampling times.
+# #'
+# #' This function computes a normalized vector
+# #'
+# #' @param Q A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.
+# #' If \code{Q} contains any metadata, it must be on the left-hand side of the matrix and the number of entries
+# #' that sum to 1 (\code{K}) must be specified.
+# #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(Q)}.
+# #' @returns A numeric value between 0 and 1.
+# #' @examples
+# #' # Compute the weighted Fst of
+# #' # the following compositional vectors:
+# #' q1 = c(1,   0,   0,   0)
+# #' q2 = c(0.5, 0.5, 0,   0)
+# #' q3 = c(1/4, 1/4, 1/4, 1/4)
+# #' q4 = c(0,   0,   1,   0)
+# #
+# #' Q_matrix = matrix(c(q1, q2, q3, q4),
+# #'                   byrow = TRUE, nrow = 4)
+# #'
+# #' fst_norm(Q_matrix)
+# #' @export
+# time_weights <- function
+
+
 
 
 

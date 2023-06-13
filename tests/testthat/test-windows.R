@@ -3,7 +3,7 @@ library(FAVA)
 Q = xue_microbiome_sample
 
 test_that("window_fst works - unnormalized, ungrouped", {
-  expect_no_error(window_fava(Q = Q, normalized = TRUE,
+  expect_no_error(window_fava(Q = Q, normalized = FALSE,
                                        K = 524, window_size = 20, window_step = 10))
 })
 

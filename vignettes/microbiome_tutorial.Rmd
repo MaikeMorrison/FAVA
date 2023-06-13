@@ -25,14 +25,14 @@ library(ggplot2)
 # Visualize relative abundances
 
 ```{r}
-set.seed(12)
-pal = c(viridis::rocket(224), viridis::mako(300))[sample(1:524)]
+set.seed(5)
+pal = c(MetBrewer::met.brewer("Johnson", 542))[sample(1:524)]
 
 Q_plot(Q = xue_microbiome_sample, 
        K = 524, 
        group = "subject", 
        arrange = "vertical") + 
-  scale_color_manual(values = rep("white", 1346)) +
+  scale_color_manual(values = rep("white", 524)) +
   scale_fill_manual(values = pal)
 ```
 
@@ -46,12 +46,12 @@ xue_microbiome_sample %>%
 
 
 ```{r}
-window_out = window_fava(Q = xue_microbiome_sample, K = 524, window_size = 6, group = "subject")
+window_out = window_fava(Q = xue_microbiome_sample, K = 524, window_size = 6, group = "subject", index = "timepoint")
 head(window_out)
 ```
 
 ```{r}
-
-    
+window_plot(window_out)
+window_plot(window_out) + facet_wrap(~ group)
 ```
 
