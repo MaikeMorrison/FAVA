@@ -50,7 +50,9 @@ window_list <- function(window_size, length, window_step = 1){
 #' on the most abundant category and the number of categories. This setting is recommended when there are fewer than 5 samples per window. Note that it is
 #' incompatible with weightings at this time.
 #' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} i
-#' n the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(Q), nrow(Q))}.
+#' n the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(Q), nrow(Q))}. If \code{group} is specified,
+#' then \code{w} can contain the weights for multiple groups, concatenated in the same order as the rows of \code{Q}. In this case, \code{w} must sum to the
+#' number of distinct elements of \code{group}.
 #' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for
 #' \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling
 #' 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(Q))}.

@@ -4,10 +4,12 @@
 \alias{hetPooled}
 \title{Compute the pooled heterozygosity of the rows in a matrix of compositional vectors}
 \usage{
-hetPooled(Q, w, S)
+hetPooled(Q, K = ncol(Q), w, S)
 }
 \arguments{
 \item{Q}{A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.}
+
+\item{K}{Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(Q)}.}
 
 \item{w}{Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(Q), nrow(Q))}.}
 

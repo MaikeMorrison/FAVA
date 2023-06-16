@@ -4,10 +4,12 @@
 \alias{hetMean}
 \title{Compute the mean heterozygosity of the rows in a matrix of compositional vectors}
 \usage{
-hetMean(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q)))
+hetMean(Q, K = ncol(Q), w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q)))
 }
 \arguments{
 \item{Q}{A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.}
+
+\item{K}{Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(Q)}.}
 
 \item{w}{Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean variability across rows. The default value is \code{w = rep(1/nrow(Q), nrow(Q))}.}
 

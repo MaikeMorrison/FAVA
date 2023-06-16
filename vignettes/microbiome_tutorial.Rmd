@@ -44,9 +44,33 @@ xue_microbiome_sample %>%
   group_map(~ FAVA::fst(select(.x, - timepoint)))
 ```
 
+# Generate a species similarity matrix
+```{r}
+# First generate a distance matrix based on the species tree
+sp.dist <- ape::cophenetic.phylo(x = xue_species_tree)
+
+sp.dist %>% data.frame %>%
+  mutate(name2 = rownames(sp.dist)) %>% 
+  pivot_longer(cols =  1:ncol(sp.dist)) %>% 
+  ggplot() + geom_raster(aes(x = name, y = name2, fill = value)) + scale_fill_viridis_c() + theme_void()
+
+# There are a few different ways to convert a distance matrix to a similarity matrix:
+sp.sim <-  exp(-sp.dist)
+# sp.sim <-  1/(sp.dist + 1)
+# sp.sim <-  sqrt(1 - sp.dist/max(sp.dist))
+
+```
+
 
 ```{r}
-window_out = window_fava(Q = xue_microbiome_sample, K = 524, window_size = 6, group = "subject", index = "timepoint")
+window_out = window_fava(Q = xue_microbiome_sample,
+                         K = 524,
+                         w = time_weights(times = xue_microbiome_sample$timepoint, 
+                                          group = xue_microbiome_sample$subject),
+                         S = sp.sim,
+                         window_size = 6, 
+                         group = "subject", 
+                         index = "timepoint")
 head(window_out)
 ```
 

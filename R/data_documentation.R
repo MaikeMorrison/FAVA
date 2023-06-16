@@ -14,3 +14,12 @@
 #'   ...
 #' }
 "xue_microbiome_sample"
+
+
+#' Phylogenetic tree for the species included in xue_microbiome_sample
+#'
+#' A phylogenetic tree in the Newick format.
+#'
+#' @format ## `xue_species_tree`
+#' A Newick tree.
+"xue_species_tree"

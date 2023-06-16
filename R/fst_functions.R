@@ -6,6 +6,28 @@
 # fst_norm
 # time_weights
 
+# S_checker ------------------------------------------------------------------
+# An internal function to check if similarity matrices are up to spec and fix any issues automatically.
+# S - a similarity matrix
+# K - the number of taxa
+S_checker <- function(S, K) {
+  if(!isSymmetric(S)){
+    stop("S must be symmetric.")
+  }
+  if(any(diag(S)!=1)){
+    stop("All diagonal elements of S must be equal to 1.")
+  }
+  if(nrow(S) != K | ncol(S) != K){
+    stop("S must have K rows and K columns.")
+  }
+  if(any(S>1)){
+    stop("All elements of S must be less than or equal to 1.")
+  }
+  if(any(S<0)){
+    stop("All elements of S must be positive.")
+  }
+}
+
 # het -----------------------------------------------------------------
 #' Compute the heterozygosity of a compositional vector
 #'
@@ -38,6 +60,7 @@ het <- function(q, S = diag(length(q))){
 #' This function computes the mean heterozygosity, a statistical measure of variability also known as the Gini-Simpson index, of a set of vectors of non-negative entries which sum to 1. The function returns a number between 0 and 1 which quantifies the mean variability of the vectors. Values of 0 are achieved when each vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when the vectors are equal to (1/K, 1/K, ..., 1/K).
 #'
 #' @param Q A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.
+#' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(Q)}.
 #' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean variability across rows. The default value is \code{w = rep(1/nrow(Q), nrow(Q))}.
 #' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(Q))}.
 #' @returns A numeric value between 0 and 1.
@@ -77,22 +100,16 @@ het <- function(q, S = diag(length(q))){
 #' row_weights = c(0.5, 0, 0.5, 0)
 #' hetMean(Q_matrix, w = row_weights, S = similarity_matrix)
 #' @export
-hetMean <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q))){
-  # w and S are optional arguments
+hetMean <- function(Q,
+                    K = ncol(Q),
+                    w = rep(1/nrow(Q), nrow(Q)),
+                    S = diag(ncol(Q))){
+  # K, w, and S are optional arguments
 
   I = nrow(Q)
-  K = ncol(Q)
+  S_checker(S = S, K = K)
 
 
-  if(any(diag(S)!=1)){
-    stop("The diagonal elements of S must equal 1.")
-  }
-  if(any(S>1)){
-    stop("All elements of S must be less than or equal to 1.")
-  }
-  if(any(S<0)){
-    stop("All elements of S must be positive.")
-  }
   if(!missing(w) && length(w) != nrow(Q)){
     stop("Length of w must equal number of rows of Q.")
   }
@@ -108,6 +125,7 @@ hetMean <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q))){
 #' This function computes the heterozygosity of a "pooled" vector equal to \code{colMeans(Q)}. Values of 0 are achieved when this pooled vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when this pooled vector is equal to (1/K, 1/K, ..., 1/K).
 #'
 #' @param Q A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.
+#' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(Q)}.
 #' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(Q), nrow(Q))}.
 #' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(Q))}.
 #' @returns A numeric value between 0 and 1.
@@ -148,11 +166,15 @@ hetMean <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q))){
 #' row_weights = c(0.5, 0, 0.5, 0)
 #' hetPooled(Q_matrix, w = row_weights, S = similarity_matrix)
 #' @export
-hetPooled <- function(Q, w, S){
+hetPooled <- function(Q,
+                      K = ncol(Q),
+                      w,
+                      S){
   # w and S are optional arguments
 
   I = nrow(Q)
-  K = ncol(Q)
+
+  S_checker(S = S, K = K)
 
   if(missing(S)){
     S = diag(K)
@@ -162,15 +184,7 @@ hetPooled <- function(Q, w, S){
     w = rep(1, I)/I
   }
 
-  if(any(diag(S)!=1)){
-    stop("The diagonal elements of S must equal 1.")
-  }
-  if(any(S>1)){
-    stop("All elements of S must be less than or equal to 1.")
-  }
-  if(any(S<0)){
-    stop("All elements of S must be positive.")
-  }
+
   if(!missing(w) && length(w) != nrow(Q)){
     stop("Length of w must equal number of rows of Q.")
   }
@@ -282,30 +296,74 @@ fst_norm <- function(Q, K = ncol(Q)){
 }
 
 
-# # time_weights -----------------------------------------------------------------
-# #' Compute a normalized weighting vector based on a vector of sampling times.
-# #'
-# #' This function computes a normalized vector
-# #'
-# #' @param Q A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.
-# #' If \code{Q} contains any metadata, it must be on the left-hand side of the matrix and the number of entries
-# #' that sum to 1 (\code{K}) must be specified.
-# #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(Q)}.
-# #' @returns A numeric value between 0 and 1.
-# #' @examples
-# #' # Compute the weighted Fst of
-# #' # the following compositional vectors:
-# #' q1 = c(1,   0,   0,   0)
-# #' q2 = c(0.5, 0.5, 0,   0)
-# #' q3 = c(1/4, 1/4, 1/4, 1/4)
-# #' q4 = c(0,   0,   1,   0)
-# #
-# #' Q_matrix = matrix(c(q1, q2, q3, q4),
-# #'                   byrow = TRUE, nrow = 4)
-# #'
-# #' fst_norm(Q_matrix)
-# #' @export
-# time_weights <- function
+# time_weights -----------------------------------------------------------------
+#' Compute a normalized weighting vector based on a vector of sampling times.
+#'
+#' This function takes a vector of sampling times, \eqn{t = (t_1, t_2, \ldots, t_I)}{latex}
+#' and computes a normalized vector which can be used to weight each sample based on
+#' the time between the subsequent and the preceding samples. The weighting vector \eqn{w}
+#' is defined such that each entry, \eqn{w_i = d_i / 2T}, where \eqn{T=t_I - t_1} and
+#' \eqn{d_i = t_{i+1} - t_{i-1}} for \eqn{i} not equal to 1 or I. \eqn{d_1 = t_2-t_1} and \eqn{d_I = t_I-t_{I-1}}.
+#'
+#' @param times A numeric vector of sampling times. Each entry must be non-negative and
+#' greater than the previous entry.
+#' @param group Optional; a character vector specifying the group identity of each
+#' sampling time. Use if there are samples from multiple replicates or subjects
+#' in one data set.
+#' @examples
+
+#' time_vector = c(1, 8, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+#'                 32, 33, 34, 35, 36, 37, 38, 39, 44, 50, 57, 64)
+#'
+#' time_weights(times = time_vector)
+#' @export
+time_weights <- function(times, group){
+
+
+
+  if(missing(group)){
+    I = length(times)
+    T = times[I] - times[1]
+
+    if(I<2){
+      stop("times must have length greater than 1.")
+    }
+    if(any(sapply(2:I, function(i) times[i] - times[i-1]) <= 0)){
+      stop("times must be increasing. Each entry must be greater than the previous entry.")
+    }
+
+    di <- c(times[2] - times[1])
+    for(i in 2:(I-1)){
+      di[i] = times[i+1] - times[i-1]
+    }
+    di[I] = times[I] - times[I-1]
+    return(di/(2*T))
+  }else{
+
+    wi = c()
+    for(name in unique(group)){
+      time_name = times[which(group == name)]
+
+      I = length(time_name)
+      T = time_name[I] - time_name[1]
+
+      if(I<2){
+        stop("Within each group, times must have length greater than 1.")
+      }
+      if(any(sapply(2:I, function(i) time_name[i] - time_name[i-1]) <= 0)){
+        stop("Within each group, times must be increasing. Each entry must be greater than the previous entry.")
+      }
+
+      wi <- c(wi, (time_name[2] - time_name[1])/(2*T))
+      for(i in 2:(I-1)){
+        wi = c(di, (time_name[i+1] - time_name[i-1])/(2*T))
+      }
+      wi = c(di, (time_name[I] - time_name[I-1])/(2*T))
+    }
+    return(wi)
+  }
+
+}
 
 
 
