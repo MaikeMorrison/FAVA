@@ -12,6 +12,7 @@
 # K - the number of taxa
 S_checker <- function(S, K) {
   S = as.matrix(S)
+
   if(!isSymmetric(S)){
     stop("S must be symmetric.")
   }
@@ -169,8 +170,8 @@ hetMean <- function(Q,
 #' @export
 hetPooled <- function(Q,
                       K = ncol(Q),
-                      w,
-                      S){
+                      w = rep(1/nrow(Q), nrow(Q)),
+                      S = diag(ncol(Q))){
   # w and S are optional arguments
 
   I = nrow(Q)
@@ -239,8 +240,9 @@ hetPooled <- function(Q,
 #' fst(Q_matrix, w = row_weights, S = similarity_matrix)
 #' @export
 fst <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q)), K = ncol(Q)){
+  S = as.matrix(S)
   Q = Q[,(ncol(Q)-K+1):ncol(Q)]
-  (hetPooled(Q, w, S) - hetMean(Q, w, S))/hetPooled(Q, w, S)
+  (hetPooled(Q, K, w, S) - hetMean(Q, K, w, S))/hetPooled(Q, K, w, S)
 }
 
 # fst_norm -----------------------------------------------------------------
