@@ -11,7 +11,6 @@
 # S - a similarity matrix
 # K - the number of taxa
 S_checker <- function(S, K) {
-  S = as.matrix(S)
 
   if(!isSymmetric(S)){
     stop("S must be symmetric.")
@@ -108,6 +107,7 @@ hetMean <- function(Q,
                     S = diag(ncol(Q))){
   # K, w, and S are optional arguments
 
+  S = as.matrix(S)
   I = nrow(Q)
   S_checker(S = S, K = K)
 
@@ -176,6 +176,7 @@ hetPooled <- function(Q,
 
   I = nrow(Q)
 
+  S = as.matrix(S)
   S_checker(S = S, K = K)
 
   if(missing(S)){
