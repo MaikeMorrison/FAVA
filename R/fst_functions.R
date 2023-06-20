@@ -11,6 +11,7 @@
 # S - a similarity matrix
 # K - the number of taxa
 S_checker <- function(S, K) {
+  S = as.matrix(S)
   if(!isSymmetric(S)){
     stop("S must be symmetric.")
   }
