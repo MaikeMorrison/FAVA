@@ -116,6 +116,8 @@ hetMean <- function(Q,
     stop("Length of w must equal number of rows of Q.")
   }
 
+  Q = Q[,(ncol(Q)-K+1):ncol(Q)]
+
   # Average heterozygosity of each of the I subpopulations
   sum(w *sapply(1:I, function(i){ het(q = unlist(Q[i,]), S = S) }))
 
@@ -191,6 +193,8 @@ hetPooled <- function(Q,
   if(!missing(w) && length(w) != nrow(Q)){
     stop("Length of w must equal number of rows of Q.")
   }
+
+  Q = Q[,(ncol(Q)-K+1):ncol(Q)]
 
   het(q = colSums(sweep(x = Q, MARGIN = 1, w, `*`)), S = S)
 
