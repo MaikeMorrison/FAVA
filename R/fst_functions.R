@@ -36,6 +36,7 @@ S_checker <- function(S, K) {
 #'
 #' @param q A vector with \code{K=length(q)} non-negative entries that sum to 1.
 #' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(q))}.
+#' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=length(q)}.
 #' @returns A numeric value between 0 and 1.
 #' @examples
 #' # Compute unweighted heterozygosity:
@@ -48,7 +49,11 @@ S_checker <- function(S, K) {
 #' similarity_matrix[2,1] = 1
 #' het(q = c(0.4, 0.3, 0.3), S = similarity_matrix)
 #' @export
-het <- function(q, S = diag(length(q))){
+het <- function(q, S = diag(length(q)), K = length(q)){
+  S = as.matrix(S)
+  S_checker(S = S, K = K)
+  q = unlist(q)[(length(q)-K+1):length(q)]
+
   if(round(sum(q), 4) != 1){stop("Vector does not sum to 1")}
   if(length(q) == 1){q = c(1,0)}
 
@@ -107,9 +112,9 @@ hetMean <- function(Q,
                     S = diag(ncol(Q))){
   # K, w, and S are optional arguments
 
-  S = as.matrix(S)
+  # S = as.matrix(S)
   I = nrow(Q)
-  S_checker(S = S, K = K)
+  # S_checker(S = S, K = K)
 
 
   if(!missing(w) && length(w) != nrow(Q)){
@@ -178,8 +183,8 @@ hetPooled <- function(Q,
 
   I = nrow(Q)
 
-  S = as.matrix(S)
-  S_checker(S = S, K = K)
+  # S = as.matrix(S)
+  # S_checker(S = S, K = K)
 
   if(missing(S)){
     S = diag(K)
@@ -245,7 +250,7 @@ hetPooled <- function(Q,
 #' fst(Q_matrix, w = row_weights, S = similarity_matrix)
 #' @export
 fst <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q)), K = ncol(Q)){
-  S = as.matrix(S)
+  # S = as.matrix(S)
   Q = Q[,(ncol(Q)-K+1):ncol(Q)]
   (hetPooled(Q, K, w, S) - hetMean(Q, K, w, S))/hetPooled(Q, K, w, S)
 }
