@@ -71,11 +71,15 @@ Q_bootstrap <- function(matrices, n_replicates,
   # If group provided, create a new matrices list
   # which converts the long single matrix to a list of matrices.
 
-  if(!missing(group)){
-    # the true K, if K was not provided, will be nrow(Q) - 1 since one of the columns is group
-    if(missing(K)){ K = ncol(matrices) - 1 - !missing(timepoint)}
 
-    groups <- unique(matrices %>% dplyr::select(dplyr::all_of(group)) %>% unlist)
+  # MAIKE IS HERE
+  if(!is.null(group)){
+    # the true K, if K was not provided, will be nrow(Q) - 1 since one of the columns is group
+    if(is.null(K)){ K = ncol(matrices) - (!is.null(group)) - !is.null(time)}
+
+    relab_matrix_clean = relab_checker(matrices, K = K, group = group, time = time)
+
+    groups <- unique(relab_matrix_clean$group)
 
     matrix_list <- vector("list", length(groups))
     i = 1
@@ -91,11 +95,13 @@ Q_bootstrap <- function(matrices, n_replicates,
   }
 
 
+
+
   # Do computations if matrices = a single matrix ---------------------------------------
 
-  if ((is.data.frame(matrices) | is.array(matrices) | length(matrices) == 1) & missing(group)) {
-    if(missing(K)){
-      K = ncol(matrices) - !missing(time)
+  if ((is.data.frame(matrices) | is.array(matrices) | length(matrices) == 1) & is.null(group)) {
+    if(is.null(K)){
+      K = ncol(matrices) - (!is.null(time)) - (!is.null(group))
     }
 
     n_matrix <- 1
@@ -103,7 +109,7 @@ Q_bootstrap <- function(matrices, n_replicates,
     names <- "Q"
 
     # Clean Q matrix - isolate categories
-    matrices <- Q_checker(Q = matrices, K = K)
+    matrices <- relab_checker(relab = matrices, K = K, group = group, time = time)$relab_matrix
 
     bootstrap_matrices_Q <- list()
     matrix <- matrices
@@ -118,7 +124,7 @@ Q_bootstrap <- function(matrices, n_replicates,
     # Compute statistics for these reps
     stats_Q <- lapply(
       X = bootstrap_matrices_Q,
-      FUN = function(matrix) Q_stat(Q = matrix, K = ncol(matrix))
+      FUN = function(matrix) fava(relab_matrix = matrix, w = w, K = K, S = S, normalized = normalized)
     ) %>%
       unlist() %>%
       matrix(ncol = 3, byrow = TRUE) %>%
@@ -128,7 +134,7 @@ Q_bootstrap <- function(matrices, n_replicates,
 
     # Do computations if matrices = a list ---------------------------------------------
   } else if (is.list(matrices)) {
-    if(missing(K)){
+    if(is.null(K)){
       K = ncol(matrices[[1]])
     }
     n_matrix <- length(matrices)

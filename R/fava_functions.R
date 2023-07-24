@@ -376,11 +376,24 @@ time_weights <- function(times, group = NULL){
 #' fava(relative_abundances, w = row_weights, S = similarity_matrix)
 #' @export
 fava <- function(relab_matrix,
-                 group = NULL, time = NULL,
-                 w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
-                 K = ncol(relab_matrix) - (!is.null(group)) - (!is.null(time)),
-                 S = diag(K),
+                 group = NULL,
+                 time = NULL,
+                 w = NULL,
+                 K = NULL,
+                 S = NULL,
                  normalized = FALSE){
+
+  if(is.null(w)){
+    w = rep(1/nrow(relab_matrix), nrow(relab_matrix))
+  }
+
+  if(is.null(K)){
+    K = ncol(relab_matrix) - (!is.null(group)) - (!is.null(time))
+  }
+
+  if(is.null(S)){
+    S = diag(K)
+  }
 
   relab_matrix_clean = relab_checker(relab_matrix, K = K,
                                      group = group,
