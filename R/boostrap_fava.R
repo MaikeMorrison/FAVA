@@ -48,16 +48,23 @@
 #' @importFrom dplyr filter
 #' @importFrom rlang .data
 #' @export
-Q_bootstrap <- function(matrices, n_replicates, K, seed, group,
-                        time, w, S, normalized = FALSE, save_replicates = TRUE) {
+Q_bootstrap <- function(matrices, n_replicates,
+                        seed = NULL,
+                        group = NULL,
+                        time = NULL,
+                        w = NULL,
+                        K = NULL,
+                        S = NULL,
+                        normalized = FALSE,
+                        save_replicates = TRUE) {
   . <- NULL # to please R command check
 
   # set seed
-  if (!missing(seed)) {
+  if (!is.null(seed)) {
     set.seed(seed)
   }
 
-  if(!missing(normalized) & (!missing(w) | !missing(S))){
+  if(normalized == TRUE && ((!is.null(w)) | (!is.null(S)))){
     stop("FAVA can be either normalized or weighted, but not both. Please specify `normalized = TRUE` if you wish to compute normalized FAVA OR provide the weighting parameters w and/or S.")
   }
 

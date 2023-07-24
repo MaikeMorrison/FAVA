@@ -404,7 +404,7 @@ fava <- function(relab_matrix,
 
 
   if(normalized){
-    fava_norm(relab_matrix = relab_matrix_clean)
+    fava_norm(relab_matrix = relab_matrix_clean$relab_matrix)
   }else{
     if(is.null(group)){
       (gini_simpson_pooled(relab_matrix_clean$relab_matrix, K, w, S) -

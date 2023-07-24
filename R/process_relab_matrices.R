@@ -60,7 +60,6 @@ relab_checker <- function(relab, K, rep = NULL, group = NULL, time = NULL) {
     # Normalize each row of the matrix by dividing by the rowsums
     relab <- relab / sums
   }
-  if(!is.null(group) | !is.null(time)){
     if(is.null(group)){
       group_return = NULL
     } else{
@@ -77,8 +76,6 @@ relab_checker <- function(relab, K, rep = NULL, group = NULL, time = NULL) {
     return(list("relab_matrix" = relab,
                 "group" = group_return,
                 "time" = time_return))
-  }
-  return(relab)
 }
 
 # relab_checker(relab = xue_microbiome_sample, group = "subject", time = "timepoint")
