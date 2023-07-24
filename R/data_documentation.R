@@ -8,7 +8,7 @@
 #' @format ## `xue_microbiome_sample`
 #' A data frame with 75 rows and 1,348 columns:
 #' \describe{
-#'   \item{subject}{Subject ID: XAA, XBA, or XCA}
+#'   \item{subject}{Subject ID: XBA, XDA, or XMA}
 #'   \item{timepoint}{Time (days) of sample collection}
 #'   \item{...}{Species names}
 #'   ...
@@ -23,3 +23,18 @@
 #' @format ## `xue_species_tree`
 #' A Newick tree.
 "xue_species_tree"
+
+
+#' Table of species information
+#'
+#' A data frame providing taxonomic information for the species included in xue_species_tree.
+#'
+#' @format ## `xue_species_info`
+#' #' A data frame with 1346 rows and 9 columns:
+#' \describe{
+#'   \item{species_id}{The species_id given in xue_microbiome_sample}
+#'   \item{kingdom, phylum, class, order, family, genus, species}{The corresponding taxonomic category for each species}
+#'   \item{species_id_number}{The numeric code associated with each species, as used in xue_species_tree}
+#' }
+"xue_species_info"
+

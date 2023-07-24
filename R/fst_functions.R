@@ -2,8 +2,8 @@
 # het - compute the heterozygosity of a compositional vector
 # hetMean
 # hetPooled
-# fst
-# fst_norm
+# fava
+# fava_norm
 # time_weights
 
 # S_checker ------------------------------------------------------------------
@@ -13,7 +13,7 @@
 S_checker <- function(S, K) {
 
   if(!isSymmetric(S)){
-    stop("S must be symmetric.")
+    warning("S is not symmetric.")
   }
   if(any(diag(S)!=1)){
     stop("All diagonal elements of S must be equal to 1.")
@@ -205,7 +205,7 @@ hetPooled <- function(Q,
 
 }
 
-# fst -----------------------------------------------------------------
+# fava -----------------------------------------------------------------
 #' Compute the Fst of a matrix of compositional vectors
 #'
 #' This function computes the population genetic statistic Fst on any matrix with rows that sum to 1. Values of 0 are achieved when each row is a permutation of (1,0,..., 0) and at least two categories have non-zero abundance across all rows. The value equals 1 when each row is identical.
@@ -228,34 +228,34 @@ hetPooled <- function(Q,
 #' Q_matrix = matrix(c(q1, q2, q3, q4),
 #'                   byrow = TRUE, nrow = 4)
 #'
-#' fst(Q_matrix)
+#' fava(Q_matrix)
 #'
 #'# Incoporating weights:
 #'
-#' # Compute Fst ignoring
+#' # Compute fava ignoring
 #' # rows 2 and 3
 #' row_weights = c(0.5, 0, 0, 0.5)
-#' fst(Q_matrix, w = row_weights)
+#' fava(Q_matrix, w = row_weights)
 #'
-#' # Compute Fst assuming that
+#' # Compute fava assuming that
 #' # categories 1 and 2 are identical:
 #' similarity_matrix = diag(4)
 #' similarity_matrix[1,2] = 1
 #' similarity_matrix[2,1] = 1
-#' fst(Q_matrix, S = similarity_matrix)
+#' fava(Q_matrix, S = similarity_matrix)
 #'
 #' # Assume categories 1 and 2 are identical AND
 #' # ignore rows 2 and 4:
 #' row_weights = c(0.5, 0, 0.5, 0)
-#' fst(Q_matrix, w = row_weights, S = similarity_matrix)
+#' fava(Q_matrix, w = row_weights, S = similarity_matrix)
 #' @export
-fst <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q)), K = ncol(Q)){
+fava <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q)), K = ncol(Q)){
   # S = as.matrix(S)
   Q = Q[,(ncol(Q)-K+1):ncol(Q)]
   (hetPooled(Q, K, w, S) - hetMean(Q, K, w, S))/hetPooled(Q, K, w, S)
 }
 
-# fst_norm -----------------------------------------------------------------
+# fava_norm -----------------------------------------------------------------
 #' Compute the normalized Fst of a matrix of compositional vectors
 #'
 #' This function computes the normalized Fst given the number of rows and the mean abundance of the most abundant category.
@@ -268,7 +268,7 @@ fst <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q)), K = ncol(Q)){
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(Q)}.
 #' @returns A numeric value between 0 and 1.
 #' @examples
-#' # Compute the weighted Fst of
+#' # Compute the weighted fava of
 #' # the following compositional vectors:
 #' q1 = c(1,   0,   0,   0)
 #' q2 = c(0.5, 0.5, 0,   0)
@@ -278,9 +278,9 @@ fst <- function(Q, w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q)), K = ncol(Q)){
 #' Q_matrix = matrix(c(q1, q2, q3, q4),
 #'                   byrow = TRUE, nrow = 4)
 #'
-#' fst_norm(Q_matrix)
+#' fava_norm(Q_matrix)
 #' @export
-fst_norm <- function(Q, K = ncol(Q)){
+fava_norm <- function(Q, K = ncol(Q)){
   Q = Q[,(ncol(Q)-K+1):ncol(Q)]
   I <- nrow(Q) # Here, I is the number of individuals (number of subpopulations)
   p <- colSums(Q) # yields vector of summed allele frequencies across populations
@@ -289,22 +289,22 @@ fst_norm <- function(Q, K = ncol(Q)){
   sig1.frac <- sig1 - floor(sig1)
 
   if (sig1 == I) {
-    FstMax <- 0
-    Fst <- 0
+    favaMax <- 0
+    fava <- 0
     ratio <- 0
   } else {
     if (sig1 <= 1) {
-      FstMax <- ((I - 1) * (1 - sig1 * (J - 1) * (2 - J * sig1))) /
+      favaMax <- ((I - 1) * (1 - sig1 * (J - 1) * (2 - J * sig1))) /
         (I - (1 - sig1 * (J - 1) * (2 - J * sig1)))
     } else {
-      FstMax <- (I * (I - 1) - sig1^2 + floor(sig1) - 2 * (I - 1) * sig1.frac + (2 * I - 1) * sig1.frac^2) / (I * (I - 1) - sig1^2 - floor(sig1) + 2 * sig1 - sig1.frac^2)
+      favaMax <- (I * (I - 1) - sig1^2 + floor(sig1) - 2 * (I - 1) * sig1.frac + (2 * I - 1) * sig1.frac^2) / (I * (I - 1) - sig1^2 - floor(sig1) + 2 * sig1 - sig1.frac^2)
     }
 
-    Fst <-
+    fava <-
       (sum(Q^2) / I - sum(colSums(Q / I)^2)) /
       (1 - sum(colSums(Q / I)^2))
 
-    Fst / FstMax
+    fava / favaMax
   }
 }
 
@@ -331,8 +331,6 @@ fst_norm <- function(Q, K = ncol(Q)){
 #' time_weights(times = time_vector)
 #' @export
 time_weights <- function(times, group){
-
-
 
   if(missing(group)){
     I = length(times)
@@ -369,9 +367,9 @@ time_weights <- function(times, group){
 
       wi <- c(wi, (time_name[2] - time_name[1])/(2*T))
       for(i in 2:(I-1)){
-        wi = c(di, (time_name[i+1] - time_name[i-1])/(2*T))
+        wi = c(wi, (time_name[i+1] - time_name[i-1])/(2*T))
       }
-      wi = c(di, (time_name[I] - time_name[I-1])/(2*T))
+      wi = c(wi, (time_name[I] - time_name[I-1])/(2*T))
     }
     return(wi)
   }
@@ -410,7 +408,7 @@ time_weights <- function(times, group){
 # }
 #
 #
-# fst <- function(Q) (Ht(Q) - Hs(Q))/Ht(Q)
+# fava <- function(Q) (Ht(Q) - Hs(Q))/Ht(Q)
 #
 #
 #

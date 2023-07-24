@@ -9,7 +9,7 @@
 
 A data frame with 75 rows and 1,348 columns:
 \describe{
-\item{subject}{Subject ID: XAA, XBA, or XCA}
+\item{subject}{Subject ID: XBA, XDA, or XMA}
 \item{timepoint}{Time (days) of sample collection}
 \item{...}{Species names}
 ...

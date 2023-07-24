@@ -4,7 +4,7 @@
 \alias{hetPooled}
 \title{Compute the pooled heterozygosity of the rows in a matrix of compositional vectors}
 \usage{
-hetPooled(Q, K = ncol(Q), w, S)
+hetPooled(Q, K = ncol(Q), w = rep(1/nrow(Q), nrow(Q)), S = diag(ncol(Q)))
 }
 \arguments{
 \item{Q}{A matrix with \code{I=nrow(Q)} rows, each containing \code{K=ncol(Q)} non-negative entries that sum to 1.}

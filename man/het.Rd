@@ -4,12 +4,14 @@
 \alias{het}
 \title{Compute the heterozygosity of a compositional vector}
 \usage{
-het(q, S = diag(length(q)))
+het(q, S = diag(length(q)), K = length(q))
 }
 \arguments{
 \item{q}{A vector with \code{K=length(q)} non-negative entries that sum to 1.}
 
 \item{S}{Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(q))}.}
+
+\item{K}{Optional; an integer specifying the number of categories in the data. Default is \code{K=length(q)}.}
 }
 \value{
 A numeric value between 0 and 1.

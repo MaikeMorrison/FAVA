@@ -46,7 +46,7 @@ window_list <- function(window_size, length, window_step = 1){
 #' @param window_step Optional; an integer specifying the distance between the first entry of adjacent windows. Default is \code{window_step=1}.
 #' @param group Optional; a string specifying the name of the column that describes which group each row (sample) belongs to. Use if \code{Q} is a
 #' single matrix containing multiple groups of samples you wish to compare, such as samples from different subjects.
-#' @param normalized Default is \code{normalized = FALSE}. If \code{normalized = TRUE}, then Fst is normalized by the theoretical upper bound conditional
+#' @param normalized Default is \code{normalized = FALSE}. If \code{normalized = TRUE}, then fava is normalized by the theoretical upper bound conditional
 #' on the most abundant category and the number of categories. This setting is recommended when there are fewer than 5 samples per window. Note that it is
 #' incompatible with weightings at this time.
 #' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} i
@@ -58,7 +58,7 @@ window_list <- function(window_size, length, window_step = 1){
 #' 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(Q))}.
 #' @param index Optional; the name of the column in \code{Q} containing an index for each sample. For example, if \code{Q} contains time series data,
 #' \code{index} would be the column containing the time of each sample.
-#' @returns A list of values of Fst for each window.
+#' @returns A list of values of fava for each window.
 #' @importFrom dplyr %>%
 #' @examples
 #' A = matrix(c(.3,.7,0,.1,0,.9,.2,.5,.3,.1,.8,.1,.3,.4,.3,.6,.4,0,0,.5,.5),
@@ -76,17 +76,17 @@ window_fava <- function(Q, K = ncol(Q), window_size, group,
 
     window_indices = window_list(window_size = window_size, length = nrow(Q), window_step = window_step)
 
-    fst_list = c()
+    fava_list = c()
     for(window in window_indices){
       if(normalized){
-        fst_list = c(fst_list, fst_norm(Q[window,]))
+        fava_list = c(fava_list, fava_norm(Q[window,]))
       }else{
-        fst_list = c(fst_list,
-                     fst(Q = Q[window,], w = w[window]/sum(w[window]), S = S))
+        fava_list = c(fava_list,
+                     fava(Q = Q[window,], w = w[window]/sum(w[window]), S = S))
       }
     }
 
-    output = cbind(data.frame(FAVA = fst_list, window_index = 1:length(fst_list)),
+    output = cbind(data.frame(FAVA = fava_list, window_index = 1:length(fava_list)),
           do.call(rbind, window_indices) %>% `colnames<-`(paste0("w", 1:window_size)))
 
     if(missing(index)){ return(output) }else{
@@ -102,7 +102,7 @@ window_fava <- function(Q, K = ncol(Q), window_size, group,
 
     # GROUPED DATA -------------------------------------------------------------
 
-    group_fst_list = list()
+    group_fava_list = list()
     i = 1
 
     for(element in dplyr::select(Q, {{ group }}) %>% unique %>% unlist){
@@ -110,26 +110,26 @@ window_fava <- function(Q, K = ncol(Q), window_size, group,
       window_indices = window_list(window_size = window_size, length = nrow(Q_group),
                                    window_step = window_step)
 
-      fst_list = c()
+      fava_list = c()
       for(window in window_indices){
         if(normalized){
-          fst_list = c(fst_list, fst_norm(Q_group[window,]))
+          fava_list = c(fava_list, fava_norm(Q_group[window,]))
         }else{
-          fst_list = c(fst_list,
-                       fst(Q = Q_group[window,],
+          fava_list = c(fava_list,
+                       fava(Q = Q_group[window,],
                            w = w[window]/sum(w[window]), S = S))
         }
       }
 
-      group_fst_list[[i]] = cbind(data.frame(group = element,
-                                             FAVA = fst_list,
-                                             window_index = 1:length(fst_list)),
+      group_fava_list[[i]] = cbind(data.frame(group = element,
+                                             FAVA = fava_list,
+                                             window_index = 1:length(fava_list)),
                                   do.call(rbind, window_indices) %>%
                                     `colnames<-`(paste0("w", 1:window_size)))
       i = i + 1
 
     }
-    output = do.call(rbind, group_fst_list)
+    output = do.call(rbind, group_fava_list)
 
     if(missing(index)){ return(output) }else{
 

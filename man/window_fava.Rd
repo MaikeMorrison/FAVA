@@ -32,7 +32,7 @@ single matrix containing multiple groups of samples you wish to compare, such as
 
 \item{window_step}{Optional; an integer specifying the distance between the first entry of adjacent windows. Default is \code{window_step=1}.}
 
-\item{normalized}{Default is \code{normalized = FALSE}. If \code{normalized = TRUE}, then Fst is normalized by the theoretical upper bound conditional
+\item{normalized}{Default is \code{normalized = FALSE}. If \code{normalized = TRUE}, then fava is normalized by the theoretical upper bound conditional
 on the most abundant category and the number of categories. This setting is recommended when there are fewer than 5 samples per window. Note that it is
 incompatible with weightings at this time.}
 
@@ -49,7 +49,7 @@ number of distinct elements of \code{group}.}
 \code{index} would be the column containing the time of each sample.}
 }
 \value{
-A list of values of Fst for each window.
+A list of values of fava for each window.
 }
 \description{
 This function computes FAVA in sliding window slices of a dataset.
