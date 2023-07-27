@@ -383,6 +383,11 @@ fava <- function(relab_matrix,
                  S = NULL,
                  normalized = FALSE){
 
+  if(normalized == TRUE && any(!sapply(list(time, w, S), is.null))){
+    stop("FAVA can be either normalized or weighted, but not both. Please specify `normalized = TRUE` if you wish to compute normalized FAVA OR provide the weighting parameters w and/or S.")
+  }
+
+
   if(is.null(w)){
     w = rep(1/nrow(relab_matrix), nrow(relab_matrix))
   }
@@ -408,22 +413,23 @@ fava <- function(relab_matrix,
   }
 
 
-  if(normalized == TRUE && (!all(w == rep(1/nrow(relab_matrix), nrow(relab_matrix))) | !all(S == diag(K)))){
-    stop("FAVA can be either normalized or weighted, but not both. Please specify `normalized = TRUE` if you wish to compute normalized FAVA OR provide the weighting parameters w and/or S.")
+  S = as.matrix(S)
+  S_checker(S = S, K = K)
+
+  if(!missing(w) && length(w) != nrow(relab_matrix)){
+    stop("Length of w must equal number of rows of relab_matrix.")
   }
 
-  # S = as.matrix(S)
 
 
-
-  if(normalized){
-    fava_norm(relab_matrix = relab_matrix_clean$relab_matrix)
-  }else{
-    if(is.null(group)){
-      (gini_simpson_pooled(relab_matrix_clean$relab_matrix, K, w, S) -
-         gini_simpson_mean(relab_matrix_clean$relab_matrix, K, w, S))/
-        gini_simpson_pooled(relab_matrix_clean$relab_matrix, K, w, S)
-    } else{
+  if(is.null(group)){
+    if(normalized){
+      fava_norm(relab_matrix = relab_matrix_clean$relab_matrix)
+    }else{
+      (gini_simpson_pooled_fast(relab_matrix_clean$relab_matrix, K, w, S) -
+         gini_simpson_mean_fast(relab_matrix_clean$relab_matrix, K, w, S))/
+        gini_simpson_pooled_fast(relab_matrix_clean$relab_matrix, K, w, S)
+    }} else{
       fava_list = c()
       for(subgroup in unique(relab_matrix_clean$group)){
 
@@ -434,12 +440,44 @@ fava <- function(relab_matrix,
         w_sub = w[include]
 
         fava_list = c(fava_list,
-                      (gini_simpson_pooled(relab_sub, K, w_sub, S) -
-                         gini_simpson_mean(relab_sub, K, w_sub, S))/
-                        gini_simpson_pooled(relab_sub, K, w_sub, S))
+                      ifelse(normalized,
+                             fava_norm(relab_matrix = relab_matrix_clean$relab_matrix),
+                             (gini_simpson_pooled_fast(relab_sub, K, w_sub, S) -
+                                gini_simpson_mean_fast(relab_sub, K, w_sub, S))/
+                               gini_simpson_pooled_fast(relab_sub, K, w_sub, S)))
       }
       names(fava_list) = unique(relab_matrix_clean$group)
       return(fava_list)
     }
-  }
+}
+
+
+
+
+# fast versions of functions to use in fava function:
+gini_simpson_fast <- function(q, S = diag(length(q)), K = length(q)){
+
+  1 - sum(q * c(S %*% q))
+}
+
+gini_simpson_mean_fast <- function(relab_matrix,
+                              K = ncol(relab_matrix),
+                              w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                              S = diag(ncol(relab_matrix))){
+  I = nrow(relab_matrix)
+
+  # Average Gini-Simpson index of each of the I subpopulations
+  sum(w *sapply(1:I, function(i){ gini_simpson_fast(q = unlist(relab_matrix[i,]), S = S) }))
+
+}
+
+gini_simpson_pooled_fast <- function(relab_matrix,
+                                K = ncol(relab_matrix),
+                                w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                                S = diag(ncol(relab_matrix))){
+
+  I = nrow(relab_matrix)
+
+  gini_simpson_fast(q = colSums(sweep(x = relab_matrix, MARGIN = 1, w, `*`)), S = S)
+
 }
