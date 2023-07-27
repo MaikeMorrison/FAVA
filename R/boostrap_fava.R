@@ -48,7 +48,7 @@
 #' @importFrom dplyr filter
 #' @importFrom rlang .data
 #' @export
-Q_bootstrap <- function(matrices, n_replicates,
+bootstrap_fava <- function(matrices, n_replicates,
                         seed = NULL,
                         group = NULL,
                         time = NULL,
@@ -69,13 +69,11 @@ Q_bootstrap <- function(matrices, n_replicates,
   }
 
   # If group provided, create a new matrices list
-  # which converts the long single matrix to a list of matrices.
+  # which converts the long single matrix to a list of matrices. -------------------------------
 
-
-  # MAIKE IS HERE
   if(!is.null(group)){
     # the true K, if K was not provided, will be nrow(Q) - 1 since one of the columns is group
-    if(is.null(K)){ K = ncol(matrices) - (!is.null(group)) - !is.null(time)}
+    if(is.null(K)){ K = ncol(matrices) - (!is.null(group)) - (!is.null(time))}
 
     relab_matrix_clean = relab_checker(matrices, K = K, group = group, time = time)
 
@@ -109,10 +107,16 @@ Q_bootstrap <- function(matrices, n_replicates,
     names <- "Q"
 
     # Clean Q matrix - isolate categories
-    matrices <- relab_checker(relab = matrices, K = K, group = group, time = time)$relab_matrix
+    # matrices <- relab_checker(relab = matrices, K = K, group = group, time = time)$relab_matrix
 
     bootstrap_matrices_Q <- list()
     matrix <- matrices
+
+    # Repeat rows if time or weight is provided
+    if((!is.null(w)) | (!is.null(time))){
+      matrix = relab_sample_weighter(relab = matrix, K = K, time = time, w = w)
+    }
+
     # Generate bootstrap data sets
     for (replicate in 1:n_replicates) {
       bootstrap_matrices_Q[[replicate]] <- matrix[purrr::rdunif(
@@ -124,12 +128,9 @@ Q_bootstrap <- function(matrices, n_replicates,
     # Compute statistics for these reps
     stats_Q <- lapply(
       X = bootstrap_matrices_Q,
-      FUN = function(matrix) fava(relab_matrix = matrix, w = w, K = K, S = S, normalized = normalized)
+      FUN = function(matrix) fava(relab_matrix = matrix, K = K, S = S, normalized = normalized)
     ) %>%
-      unlist() %>%
-      matrix(ncol = 3, byrow = TRUE) %>%
-      data.frame() %>%
-      `colnames<-`(c("Fst", "FstMax", "ratio"))
+      unlist()
 
 
     # Do computations if matrices = a list ---------------------------------------------
@@ -156,8 +157,11 @@ Q_bootstrap <- function(matrices, n_replicates,
       bs_list <- list()
       matrix <- matrices[[m]]
 
-      # Check format of matrix
-      matrix <- Q_checker(Q = matrix, K = K, rep = m)
+      # Repeat rows if time or weight is provided
+      if((!is.null(w)) | (!is.null(time))){
+        matrix = relab_sample_weighter(relab = matrix, K = K, time = time, w = w)
+      }
+
 
       # Generate bootstrap data sets
       for (replicate in 1:n_replicates) {
@@ -170,43 +174,40 @@ Q_bootstrap <- function(matrices, n_replicates,
       # Compute statistics for these reps
       stats <- lapply(
         X = bs_list,
-        FUN = function(matrix) Q_stat(Q = matrix, K = ncol(matrix))
+        FUN = function(matrix) fava(relab_matrix = matrix, K = K, S = S, normalized = normalized)
       ) %>%
-        unlist() %>%
-        matrix(ncol = 3, byrow = TRUE) %>%
-        data.frame() %>%
-        `colnames<-`(c("Fst", "FstMax", "ratio"))
+        unlist()
 
       # Sometimes, for values of Fst very close to 0 (i.e. order 10^-6, 10^-7), the
       # value of Fst ends up negative due to precision errors.
       # Find matrices for which this is the case, and replace them and their statistics
 
-      while (sum(stats$ratio < 0)) {
-        # Which bootstrap matrices have negative values for Fst/FstMax?
-        negatives <- which(stats$ratio < 0)
-
-        # Replace those bootstrap replicates with new, random bootstrap replicates
-        bs_list[negatives] <- lapply(
-          X = 1:length(negatives),
-          FUN = function(x) {
-            matrix[purrr::rdunif(
-              n = nrow(matrix),
-              a = 1, b = nrow(matrix)
-            ), ]
-          }
-        )
-
-        # Replace the corresponding entries of the statistics matrix
-        stats[negatives, ] <- lapply(
-          X = bs_list[negatives],
-          FUN = function(matrix) {
-            Q_stat(Q = matrix, K = ncol(matrix))
-          }
-        ) %>%
-          unlist() %>%
-          matrix(ncol = 3, byrow = TRUE) %>%
-          data.frame()
-      } # repeat this until there are no more errors
+      # while (any(stats < 0)) {
+      #   # Which bootstrap matrices have negative values for Fst/FstMax?
+      #   negatives <- which(stats$FAVA < 0)
+      #
+      #   # Replace those bootstrap replicates with new, random bootstrap replicates
+      #   bs_list[negatives] <- lapply(
+      #     X = 1:length(negatives),
+      #     FUN = function(x) {
+      #       matrix[purrr::rdunif(
+      #         n = nrow(matrix),
+      #         a = 1, b = nrow(matrix)
+      #       ), ]
+      #     }
+      #   )
+      #
+      #   # Replace the corresponding entries of the statistics matrix
+      #   stats[negatives, ] <- lapply(
+      #     X = bs_list[negatives],
+      #     FUN = function(matrix) {
+      #       Q_stat(Q = matrix, K = ncol(matrix))
+      #     }
+      #   ) %>%
+      #     unlist() %>%
+      #     matrix(ncol = 3, byrow = TRUE) %>%
+      #     data.frame()
+      # } # repeat this until there are no more errors
 
       # Name this dataset, based on the name of the matrices in the list or the entry number
       assign(paste0("stats_", names[m]), stats, pos = -1)
@@ -217,21 +218,23 @@ Q_bootstrap <- function(matrices, n_replicates,
   }
 
   # Make a dataset with all matrices' statistics:
-  all_stats <- cbind(
+  all_stats <- data.frame(
     Matrix =
       names %>%
       lapply(function(name) rep(name, n_replicates)) %>%
       unlist(),
-    mget(paste0("stats_", names)) %>%
-      do.call(what = rbind, args = .) %>%
-      rbind()
+    FAVA = mget(paste0("stats_", names)) %>%
+      do.call(what = c, args = .)
   )
+
+  stat_name = ifelse(normalized == TRUE, "Normalized FAVA",
+                     ifelse(any(!sapply(list(time, w, S), is.null)), "Weighted FAVA", "FAVA"))
 
   all_stats$Matrix <- factor(all_stats$Matrix, levels = unique(all_stats$Matrix))
 
   plot_ecdf <- ggplot2::ggplot(data = all_stats) +
-    ggplot2::stat_ecdf(ggplot2::aes(x = .data$ratio, color = .data$Matrix)) +
-    ggplot2::xlab(expression(F[ST]/F[ST]^{max})) +
+    ggplot2::stat_ecdf(ggplot2::aes(x = .data$FAVA, color = .data$Matrix)) +
+    ggplot2::xlab(stat_name) +
     ggplot2::ylab("Cumulative Probability") +
     ggplot2::xlim(0, 1) +
     ggplot2::theme_bw() +
@@ -239,10 +242,10 @@ Q_bootstrap <- function(matrices, n_replicates,
 
   plot_boxplot <- ggplot2::ggplot(
     data = all_stats,
-    ggplot2::aes(x = .data$Matrix, y = .data$ratio)
+    ggplot2::aes(x = .data$Matrix, y = .data$FAVA)
   ) +
     ggplot2::geom_boxplot() +
-    ggplot2::ylab(expression(F[ST]/F[ST]^{max})) +
+    ggplot2::ylab(stat_name) +
     ggplot2::xlab("") +
     ggplot2::theme_bw()
 
@@ -250,24 +253,25 @@ Q_bootstrap <- function(matrices, n_replicates,
     data = all_stats,
     ggplot2::aes(
       x = .data$Matrix,
-      y = round(.data$ratio, 5)
+      y = round(.data$FAVA, 5)
     )
   ) +
     ggplot2::geom_violin(scale = "width") +
     ggplot2::geom_boxplot(width = 0.3) +
-    ggplot2::ylab(expression(F[ST]/F[ST]^{max})) +
+    ggplot2::ylab(stat_name) +
     ggplot2::xlab("") +
-    ggplot2::theme_bw()
+    ggplot2::theme_bw() +
+    ggplot2::geom_jitter(alpha = 0.4, width = 0.05)
 
   if (is.data.frame(matrices) | is.array(matrices)) {
     test_kruskal_wallis <- "This statistical test can only be performed if a list of matrices is provided."
 
     test_pairwise_wilcox <- "This statistical test can only be performed if a list of matrices is provided."
   } else {
-    test_kruskal_wallis <- stats::kruskal.test(all_stats$ratio ~ all_stats$Matrix)
+    test_kruskal_wallis <- stats::kruskal.test(all_stats$FAVA ~ all_stats$Matrix)
 
     test_pairwise_wilcox <- stats::pairwise.wilcox.test(
-      x = all_stats$ratio,
+      x = all_stats$FAVA,
       g = all_stats$Matrix,
       paired = FALSE
     )
