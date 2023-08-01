@@ -89,20 +89,52 @@ relab_checker <- function(relab, K, rep = NULL, group = NULL, time = NULL) {
 
 # Repeat rows based on time series data, to be used
 # when generating boostrap replicates of matrices
-relab_sample_weighter = function(relab, K, time = NULL, w = NULL){
+relab_sample_weighter = function(relab, K, time = NULL, w = NULL, group = NULL){
 
-  relab_matrix_clean = relab_checker(relab = relab, K = K, time = time)
+  relab_matrix_clean = relab_checker(relab = relab, K = K, time = time, group = group)
 
-  if(is.null(w) & (!is.null(time))){
-    t = relab_matrix_clean$time
-    w = time_weights(t)
-    T = max(t) - min(t)
+  if(is.null(group)){
 
-    return(relab[rep(1:length(w), round(w*T*2)),])
-  }else  if(is.null(time) & !is.null(w)){
-    return(relab[rep(1:length(w), round(w*800)),])
-  } else{
-    warning("Please provide either time or w to relab_sample_weighter function.")
+    if(is.null(w) & (!is.null(time))){
+      t = relab_matrix_clean$time
+      w = time_weights(t)
+      T = max(t) - min(t)
+
+      return(relab[rep(1:length(w), round(w*T*2)),])
+    }else  if(is.null(time) & !is.null(w)){
+      return(relab[rep(1:length(w), round(w*800)),])
+    } else{
+      # warning("Please provide either time or w to relab_sample_weighter function.")
+      return(relab)
+    }
+
+  }else{
+    groups = unique(relab_matrix_clean$group)
+    df_list = vector(mode='list', length = length(groups))
+    i = 1
+    for(g in groups){
+      group_sub = relab_matrix_clean$group == g
+
+      if(is.null(w) & (!is.null(time))){
+
+        t_sub = (relab_matrix_clean$time)[group_sub]
+        w_sub = time_weights(t_sub)
+        T = max(t_sub) - min(t_sub)
+
+        df_list[[i]] = relab[rep(1:length(w_sub), round(w_sub*T*2)),]
+
+      }else  if(is.null(time) & !is.null(w)){
+        df_list[[i]] = relab[rep(1:length(w), round(w*800)),]
+      }else{
+        # warning("Please provide either time or w to relab_sample_weighter function.")
+        return(relab)
+      }
+      i = i + 1
+    }
+
+    return(do.call(rbind, df_list))
+
   }
+
 }
 

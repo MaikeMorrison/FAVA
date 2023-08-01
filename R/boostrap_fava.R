@@ -26,22 +26,32 @@
 #' \item \code{test_pairwise_wilcox}: Results of a Wilcoxon rank-sum test performed on the bootstrap distributions of FAVA. This test is a non-parameteric statistical test of whether \emph{each pairwise combination} of provided bootstrap distributions is identically distributed. The result is a matrix of p-values whose entries correspond to each pair of relative abundance matrices.
 #' }
 #' @examples
-#
-# # Generate 100 bootstrap replicates for each of the
-# bootstrap_2 <- Q_bootstrap(matrices = Q_4,
-#                            n_replicates = 100,
-#                            K = 2,
-#                            seed = 1,
-#                            group = "Pop")
-#
-# # To look at a plot of the distribution of
-# # Fst/FstMax for each Q matrix:
-# bootstrap_2$plot_violin
-#
-# # To determine if each of the 4 distibutions of
-# # Fst/FstMax is significantly different from
-# # each of the other distributions:
-# bootstrap_2$test_pairwise_wilcox
+#'
+#' # Generate 100 bootstrap replicates for each of the
+#' # 3 subjects included in the example data, xue_microbiome_sample.
+#' # In this example, we:
+#' # use the group argument so that each subject is analyzed,
+#' # provide a species similarity matrix to incorporate phylogenetic information,
+#' # and use the time argument so that samples are weighted by the amount of
+#' # time between the samples before and after it.
+#' boot_out = bootstrap_fava(matrices = xue_microbiome_sample,
+#'                n_replicates = 100,
+#'                seed = 1,
+#'                group = "subject",
+#'                time = "timepoint",
+#'                S = xue_species_similarity,
+#'                save_replicates = TRUE)
+#'
+#' # To look at a plot of the distribution of
+#' # FAVA for each Q matrix:
+#' boot_out$plot_violin
+#'
+#' # To determine if each of the 4 distibutions of
+#' # FAVA is significantly different from
+#' # each of the other distributions:
+#' boot_out$test_pairwise_wilcox
+#'
+#'
 #'
 #' @importFrom dplyr %>%
 #' @importFrom dplyr mutate
@@ -84,14 +94,13 @@ bootstrap_fava <- function(matrices, n_replicates,
     for(matrix in groups){
       matrix_list[[i]] <- dplyr::filter(dplyr::mutate(matrices, "group" = get(group)),
                                         group == matrix) %>%
-        select(-"group")
+        dplyr::select(-"group")
       i = i +1
     }
     names(matrix_list) <- groups
 
     matrices <- matrix_list
   }
-
 
 
 
@@ -283,7 +292,7 @@ bootstrap_fava <- function(matrices, n_replicates,
   ))
 
   return(list(
-    bootstrap_replicates = bootstrap_replicates,
+    bootstrap_replicates = ifelse(save_replicates, bootstrap_replicates, NULL),
     statistics = all_stats,
     plot_boxplot = plot_boxplot,
     plot_violin = plot_violin,
@@ -292,3 +301,4 @@ bootstrap_fava <- function(matrices, n_replicates,
     test_pairwise_wilcox = test_pairwise_wilcox
   ))
 }
+

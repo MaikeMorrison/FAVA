@@ -53,3 +53,32 @@ A named list containing the following entries:
 \description{
 Generates bootstrap replicate relative abundance matrices, computes fava (possibly weighted or normalized) for each bootstrap replicate, produces several plots of the bootstrap distributions of Fst (possibly weighted) and/or Fst/FstMax for each provided Q matrix, and runs two statistical tests comparing these bootstrap distributions. The tests comparing bootstrap distributions of Fst (possibly weighted) and/or Fst/FstMax facilitate statistical comparison of the variability in each of multiple Q matrices.
 }
+\examples{
+
+# Generate 100 bootstrap replicates for each of the
+# 3 subjects included in the example data, xue_microbiome_sample.
+# In this example, we:
+# use the group argument so that each subject is analyzed,
+# provide a species similarity matrix to incorporate phylogenetic information,
+# and use the time argument so that samples are weighted by the amount of
+# time between the samples before and after it.
+boot_out = bootstrap_fava(matrices = xue_microbiome_sample,
+               n_replicates = 100,
+               seed = 1,
+               group = "subject",
+               time = "timepoint",
+               S = xue_species_similarity,
+               save_replicates = TRUE)
+
+# To look at a plot of the distribution of
+# FAVA for each Q matrix:
+boot_out$plot_violin
+
+# To determine if each of the 4 distibutions of
+# FAVA is significantly different from
+# each of the other distributions:
+boot_out$test_pairwise_wilcox
+
+
+
+}
