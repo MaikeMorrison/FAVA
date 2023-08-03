@@ -47,20 +47,19 @@ Here are the first ten rows and the first seven columns of our example relative 
 knitr::kable(xue_microbiome_sample[1:10, 1:7])
 ```
 
-We can visualize all of the relative abundances using the `Q_plot` function:
+We can visualize all of the relative abundances using the `plot_relabund` function:
 ```{r}
-# generate a really big color palette
-# set.seed(5)
-# pal = c(MetBrewer::met.brewer("Johnson", 542))[sample(1:524)]
-# 
-# # make plot
-# Q_plot(Q = xue_microbiome_sample, 
-#        K = 524, 
-#        group = "subject", 
-#        arrange = "vertical") + 
-#   scale_color_manual(values = rep("white", 524)) +
-#   scale_fill_manual(values = pal)
+set.seed(1)
+species_palette = viridis::turbo(524)[sample(1:524)] %>%
+  `names<-`(colnames(xue_microbiome_sample)[-c(1:2)])
+
+plot_relaband(xue_microbiome_sample, group = "subject", time = "timepoint", arrange = "vertical") + 
+  ggplot2::scale_color_manual(values = species_palette) + 
+  ggplot2::scale_fill_manual(values = species_palette)
 ```
+
+This data set contains relative abundance samples from multiple subjects that were taken at uneven timepoints. We can account for this in our visualization by providing the column name that describes which group each sample belongs to (`group = "subject"`) as well as which time each sample corresponds to (`time= "timepoint"`). Providing a `group` results in a plot that has one facet for each subset. Providing 
+
 
 # 2 - Compute unweighted FAVA across all relative abundances for each subject
 

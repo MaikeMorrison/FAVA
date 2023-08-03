@@ -23,194 +23,137 @@
 #'   or \code{arrange = FALSE}, neither order is changed.
 #' @return A ggplot object containing a bar plot visualization of the relative abundance matrix.
 #' @examples
-#' plot_relaband(
-#'   # Make an example matrix of compositional data
-#'   # Each row is an individual. Rows sum to 1.
-#'   relab_matrix = matrix(c(
-#'     .4, .2, .4,
+#'
+#' # Make an example matrix of compositional data
+#' # Each row is an individual. Rows sum to 1.
+#' population_A = matrix(c(
 #'     .5, .3, .2,
+#'     .4, .2, .4,
 #'     .5, .4, .1,
 #'     .6, .1, .3,
-#'     .6, .3, .1
+#'     .2, 0, .8
 #'   ),
 #'   nrow = 5,
 #'   byrow = TRUE
-#'   ),
-#'  K = 3, # How many categories per vector?
-#'  arrange = TRUE
-#' ) +
+#'   )
+#'
+#'   plot_relabund(relab_matrix = population_A,
+#'               K = 3, # How many categories per vector?
+#'               arrange = FALSE
+#'               )
+#'   plot_relabund(relab_matrix = population_A,
+#'               K = 3, # How many categories per vector?
+#'               arrange = "horizontal"
+#'               )
+#'   plot_relabund(relab_matrix = population_A,
+#'               K = 3, # How many categories per vector?
+#'               arrange = "vertical"
+#'               )
+#'    plot_relabund(relab_matrix = population_A,
+#'               K = 3, # How many categories per vector?
+#'               arrange = TRUE  # could also be "both"
+#'               )
+#'
+#'
+#' # You can modify the plot as you would any ggplot2 object
+#' plot_relabund(relab_matrix = population_A,
+#'               K = 3, # How many categories per vector?
+#'               arrange = TRUE
+#'               ) +
 #'   # Below are example, optional modifications to the default plot
 #'   ggplot2::ggtitle("Population A") +
 #'   ggplot2::scale_fill_brewer("Blues") +
 #'   ggplot2::scale_color_brewer("Blues") +
 #'   ggplot2::xlab("Individuals")
 #'   # Note that both scale_fill and scale_color are needed to change the color of the bars.
+#'
+#'
+#'   # Plot a dataset which has 2 populations
+#'
+#'   population_B = matrix(c(
+#'     .9, 0, .1,
+#'     .6, .4, 0,
+#'     .7, 0, .3,
+#'     .3, .4, .3,
+#'     .5, .3, .2
+#'   ),
+#'   nrow = 5,
+#'   byrow = TRUE
+#'   )
+#'
+#'
+#'   populations_AB = cbind(data.frame(c("A", "A", "A", "A", "A",
+#'                                      "B", "B", "B", "B", "B")),
+#'                          rbind(population_A, population_B))
+#'   colnames(populations_AB) = c("population", "category_1", "category_2", "category_3")
+#'
+#'
+#'  plot_relabund(relab_matrix = populations_AB, group = "population")
+#'  plot_relabund(relab_matrix = populations_AB, group = "population", arrange = "vertical")
+#'  plot_relabund(relab_matrix = populations_AB, group = "population", arrange = "horizontal")
+#'  plot_relabund(relab_matrix = populations_AB, group = "population", arrange = "both")
+#'
+#'
 #' @importFrom dplyr %>%
 #' @importFrom dplyr arrange
 #' @importFrom dplyr select
 #' @importFrom rlang .data
 #' @export
-plot_relaband <- function(relab_matrix, group = NULL, time = NULL, w = NULL, K = NULL, arrange = FALSE) {
+plot_relabund <- function(relab_matrix, group = NULL, time = NULL, w = NULL, K = NULL, arrange = FALSE) {
+
+  relab_checker_out = relab_checker(relab = relab_matrix, K = K, group = group, time = time)
+
+  K = ncol(relab_checker_out$relab_matrix)
+
+  # Repeat rows to account for time or weight (w) if provided,
+  # otherwise return relab_matrix unaltered
+  relab_edited = relab_sample_weighter(relab = relab_matrix, K = K, time = time, w = w, group = group)
+
+  # Re-arrange rows or columns as specified by arrange
+  # otherwise return relab_matrix unaltered
+  relab_edited = arrange_categories(relab_matrix = relab_edited,
+                                    arrange = arrange,
+                                    K = K, group = group, time = time)
+
+
+  # Generate the data to plot
+  relab_plot = dplyr::mutate(relab_edited, ID = 1:nrow(relab_edited), .before = 1)
+
+  start = ncol(relab_plot) - K + 1
+
+  relab_plot_long = tidyr::pivot_longer(relab_plot, cols = start:ncol(relab_plot))
+
+
+  relab_plot_long$ID = factor(relab_plot_long$ID , levels = unique(relab_plot$ID), ordered = TRUE)
+  relab_plot_long$name = factor(relab_plot_long$name, levels = colnames(relab_plot)[start:ncol(relab_plot)] %>% rev, ordered = TRUE)
 
   if(!is.null(group)){
-
-    relab_checker_out = relab_checker(relab = relab_matrix, K = K, group = group, time = time)
 
     if(is.null(relab_checker_out$group)){
       stop("The group provided is not a column name in relab_matrix. Please provide a valid group.")
     }
 
-    # If group was provided but K was not, we assume group is the only
-    # descriptive column in the data set
-    if(is.null(K)) K = ncol(relab_matrix) - 1
-
-    # Repeat rows to account for time or weight (w) if provided,
-    # otherwise return relab_matrix unaltered
-    relab_edited = relab_sample_weighter(relab = relab_matrix, K = K, time = time, w = w, group = group)
-
-    # Re-arrange rows or columns as specified by arrange
-    # otherwise return relab_matrix unaltered
-    relab_edited = arrange_categories(relab_matrix = relab_edited,
-                       arrange = arrange,
-                       K = K, group = group, time = time)
-
-    # MAIKE WAS HERE
-
-    # Generate the data to plot
-    df <- data.frame(cbind(data.frame(Individuals = 1:nrow(relab_matrix)), relab_matrix)) %>%
-      tidyr::pivot_longer(cols = 3:(ncol(relab_matrix) + 1))
-    df$name <- factor(df$name, levels = unique(df$name) %>% rev())
-    df$Individuals = factor(df$Individuals)
-
-
-    ggplot2::ggplot(data = df, ggplot2::aes(fill = .data$name,
+    ggplot2::ggplot(data = relab_plot_long, ggplot2::aes(fill = .data$name,
                                             color = .data$name,
                                             y = .data$value,
-                                            x = .data$Individuals)) +
+                                            x = .data$ID)) +
       ggplot2::geom_bar(position = "stack", stat = "identity",
                         width = 1) + ggplot2::theme_void() + ggplot2::ylab("") +
       ggplot2::theme(legend.position = "none", strip.text = ggplot2::element_text(size = 12)) +
       ggplot2::facet_wrap(~ group, scales = "free_x")
-
-
   }else{
 
-    # Clean the matrices for plotting:
-    relab_matrix <- relab_matrix_checker(relab_matrix = relab_matrix, K = K)
+    ggplot2::ggplot(data = relab_plot_long, ggplot2::aes(fill = .data$name,
+                                                         color = .data$name,
+                                                         y = .data$value,
+                                                         x = .data$ID)) +
+      ggplot2::geom_bar(position = "stack", stat = "identity",
+                        width = 1) + ggplot2::theme_void() + ggplot2::ylab("") +
+      ggplot2::theme(legend.position = "none", strip.text = ggplot2::element_text(size = 12))
 
-    # Generate the data to plot
-    df <- data.frame(cbind(data.frame(Individuals = 1:nrow(relab_matrix)), relab_matrix)) %>%
-      tidyr::pivot_longer(cols = 2:(ncol(relab_matrix) + 1))
-    df$name <- factor(df$name, levels = unique(df$name) %>% rev())
-
-    # Re-order vertical bars if arrange == TRUE, "both", or "horizontal",
-    # Re-order categories if arrange == TRUE, "both" or "vertical"
-    if (!missing(arrange) & arrange !=FALSE){
-      if(arrange %in% c(TRUE, "both")){
-        clustermeans <- colMeans(relab_matrix) %>% sort() %>% rev
-        ordernames <- names(clustermeans)
-        relab_matrix <- data.frame(relab_matrix) %>%
-          dplyr::arrange(dplyr::across({{ ordernames }})) %>%
-          dplyr::select(names(which(clustermeans != 0)))
-
-        if(sum(clustermeans != 0) != K){
-          warning(paste0("Only plotting the ", sum(clustermeans != 0),
-                         " categories with non-zero abundances. If you are manually changing the fill or color of the plot, please provide ",
-                         sum(clustermeans != 0), " colors, instead of ", K, "."))
-        }
-
-      }else if(arrange == "vertical"){
-        clustermeans <- colMeans(relab_matrix) %>% sort() %>% rev
-        ordernames <- names(clustermeans)
-        relab_matrix <- data.frame(relab_matrix) %>%
-          # dplyr::arrange(dplyr::across({{ ordernames }})) %>%
-          dplyr::select(names(which(clustermeans != 0)))
-
-        if(sum(clustermeans != 0) != K){
-          warning(paste0("Only plotting the ", sum(clustermeans != 0),
-                         " categories with non-zero abundances. If you are manually changing the fill or color of the plot, please provide ",
-                         sum(clustermeans != 0), " colors, instead of ", K, "."))
-        }
-
-      }else if(arrange == "horizontal"){
-        clustermeans <- colMeans(relab_matrix) %>% sort() %>% rev
-        ordernames <- names(clustermeans)
-        relab_matrix <- data.frame(relab_matrix) %>%
-          dplyr::arrange(dplyr::across({{ ordernames }}))# %>%
-        # dplyr::select(names(which(clustermeans != 0)))
-      }else{
-        stop("The options for arrange are TRUE, vertical, horizontal, or both. TRUE and both are interchangeable.")
-      }
-
-    }
-
-    # Generate the data to plot
-    df <- data.frame(cbind(data.frame(Individuals = 1:nrow(relab_matrix)), relab_matrix)) %>%
-      tidyr::pivot_longer(cols = 2:(ncol(relab_matrix) + 1))
-    df$name <- factor(df$name, levels = unique(df$name) %>% rev())
-
-    # Generate the plot
-    ggplot2::ggplot(
-      data = df,
-      ggplot2::aes(fill = .data$name, color = .data$name, y = .data$value, x = .data$Individuals)
-    ) +
-      ggplot2::geom_bar(position = "stack", stat = "identity", width = 1) +
-      ggplot2::theme_void() +
-      ggplot2::ylab("") +
-      ggplot2::theme(legend.position = "none")
   }
-
 }
 
 
 
 
-# helper function: arrange
-
-arrange_categories <- function(relab_matrix, arrange, K, group, time){
-
-  relab_checker_out = relab_checker(relab = relab_matrix, K = K, group = group, time = time)
-
-  relab_matrix = relab_checker_out$relab_matrix
-
-  if (arrange !=FALSE){
-    clustermeans <- colMeans(relab_matrix) %>% sort() %>% rev
-    ordernames <- c(names(clustermeans))
-
-    if(sum(clustermeans != 0) != K){
-      warning(paste0("Only plotting the ", sum(clustermeans != 0),
-                     " categories with non-zero abundances. If you are manually changing the fill or color of the plot, please provide ",
-                     sum(clustermeans != 0), " colors, instead of ", K, "."))
-    }
-
-    if(arrange %in% c(TRUE, "both")){
-
-      relab_matrix <- data.frame(relab_matrix) %>%
-        dplyr::arrange(dplyr::across({{ ordernames }})) %>%
-        dplyr::select(c(names(which(clustermeans != 0))))
-
-    }else if(arrange == "vertical"){
-      relab_matrix <- data.frame(relab_matrix) %>%
-        # dplyr::arrange(dplyr::across({{ ordernames }})) %>%
-        dplyr::select(c(names(which(clustermeans != 0))))
-
-
-    }else if(arrange == "horizontal"){
-      relab_matrix <- data.frame(relab_matrix) %>%
-        dplyr::arrange(dplyr::across({{ ordernames }}))# %>%
-      # dplyr::select(c("group", names(which(clustermeans != 0))))
-    }else{
-      stop("The options for arrange are FALSE, TRUE, vertical, horizontal, or both. TRUE and both are interchangeable.")
-    }
-  }
-
-  if(!is.null(group)){
-    relab_matrix = relab_matrix %>% data.frame %>% dplyr::mutate(group = relab_checker_out$group, .before = 1)
-  }
-
-  if(!is.null(time)){
-    relab_matrix = relab_matrix %>% data.frame %>% dplyr::mutate(time = relab_checker_out$time, .before = 1)
-  }
-
-  return(relab_matrix %>% data.frame)
-}

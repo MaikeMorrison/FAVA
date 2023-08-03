@@ -6,10 +6,10 @@
 # rep - an optional parameter used if relab matrix is one of a list, in order to provide more useful warning messages
 # group - Optional; the group that each row of the relative matrix abundance corresponds to
 # time - Optional; the timepoint that each row of the relative abundance matrix corresponds to
-relab_checker <- function(relab, K, rep = NULL, group = NULL, time = NULL) {
+relab_checker <- function(relab, K = NULL, rep = NULL, group = NULL, time = NULL) {
   original_relab = relab
 
-  if(missing(K)){
+  if(is.null(K)){
       K = ncol(relab) - (!is.null(group)) - (!is.null(time))
   }
 
@@ -17,8 +17,7 @@ relab_checker <- function(relab, K, rep = NULL, group = NULL, time = NULL) {
   if (is.list(relab) && !is.data.frame(relab) && !is.array(relab)) {
     relab <- relab[[1]]
   }
-  # Check if relab matrix is in STRUCTURE/ADMIXTURE output form, or if it only contains columns of ancestry coefficients
-  # If it is in STRUCTURE/ADMIXTURE output form, extract the ancestry coefficients--the last K columns.
+  # If the matrix contains meta information, extract the last K columns.
   if (ncol(relab) > K) {
     relab <- relab[, (ncol(relab) - K + 1):ncol(relab)]
   }
@@ -89,7 +88,7 @@ relab_checker <- function(relab, K, rep = NULL, group = NULL, time = NULL) {
 
 # Repeat rows based on time series data, to be used
 # when generating boostrap replicates of matrices
-relab_sample_weighter = function(relab, K, time = NULL, w = NULL, group = NULL){
+relab_sample_weighter = function(relab, K = NULL, time = NULL, w = NULL, group = NULL){
 
   relab_matrix_clean = relab_checker(relab = relab, K = K, time = time, group = group)
 
@@ -121,10 +120,10 @@ relab_sample_weighter = function(relab, K, time = NULL, w = NULL, group = NULL){
         w_sub = time_weights(t_sub)
         T = max(t_sub) - min(t_sub)
 
-        df_list[[i]] = relab[rep(1:length(w_sub), round(w_sub*T*2)),]
+        df_list[[i]] = relab[group_sub,][rep(1:length(w_sub), round(w_sub*T*2)),]
 
       }else  if(is.null(time) & !is.null(w)){
-        df_list[[i]] = relab[rep(1:length(w), round(w*800)),]
+        df_list[[i]] = relab[group_sub,][rep(1:length(w), round(w*800)),]
       }else{
         # warning("Please provide either time or w to relab_sample_weighter function.")
         return(relab)
@@ -136,5 +135,68 @@ relab_sample_weighter = function(relab, K, time = NULL, w = NULL, group = NULL){
 
   }
 
+}
+
+
+# helper function: arrange
+
+arrange_categories <- function(relab_matrix, arrange, K = NULL, group = NULL, time = NULL){
+
+  relab_checker_out = relab_checker(relab = relab_matrix, K = K, group = group, time = time)
+
+  K = ncol(relab_checker_out$relab_matrix)
+
+  relab_matrix = relab_checker_out$relab_matrix
+
+  if(is.null(colnames(relab_matrix))){
+    colnames(relab_matrix) = paste0("cat_", 1:K)
+  }
+
+
+  if(any(colnames(relab_matrix) %in% as.character(1:1000))){
+    warning("relab_matrix has at least one numeric column name, which can cause errors when re-arranging the columns. The columns are being automatically renamed in order to avoid errors. If you wish to avoid this renaming, please rename the columns of relab_matrix.")
+    colnames(relab_matrix) = paste0("cat_", 1:K)
+  }
+
+  if (arrange !=FALSE){
+    clustermeans <- colMeans(relab_matrix) %>% sort() %>% rev
+    ordernames <- c(names(clustermeans))
+
+    if(sum(clustermeans != 0) != K){
+      warning(paste0("Only plotting the ", sum(clustermeans != 0),
+                     " categories with non-zero abundances. If you are manually changing the fill or color of the plot, you can provide ",
+                     sum(clustermeans != 0), " colors, instead of ", K, "."))
+    }
+
+    if(arrange %in% c(TRUE, "both")){
+
+      relab_matrix <- data.frame(relab_matrix) %>%
+        dplyr::arrange(dplyr::across({{ ordernames }})) %>%
+        dplyr::select(c(names(which(clustermeans != 0))))
+
+    }else if(arrange == "vertical"){
+      relab_matrix <- data.frame(relab_matrix) %>%
+        # dplyr::arrange(dplyr::across({{ ordernames }})) %>%
+        dplyr::select(c(names(which(clustermeans != 0))))
+
+
+    }else if(arrange == "horizontal"){
+      relab_matrix <- data.frame(relab_matrix) %>%
+        dplyr::arrange(dplyr::across({{ ordernames }}))# %>%
+      # dplyr::select(c("group", names(which(clustermeans != 0))))
+    }else{
+      stop("The options for arrange are FALSE, TRUE, vertical, horizontal, or both. TRUE and both are interchangeable.")
+    }
+  }
+
+  if(!is.null(group)){
+    relab_matrix = relab_matrix %>% data.frame %>% dplyr::mutate(group = relab_checker_out$group, .before = 1)
+  }
+
+  if(!is.null(time)){
+    relab_matrix = relab_matrix %>% data.frame %>% dplyr::mutate(time = relab_checker_out$time, .before = 1)
+  }
+
+  return(relab_matrix %>% data.frame)
 }
 

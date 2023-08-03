@@ -24,6 +24,18 @@
 #' A Newick tree.
 "xue_species_tree"
 
+#' Species similarity matrix for the species included in xue_microbiome_sample
+#'
+#' A similarity matrix, with entry (i,j) corresponding to the pairwise similarity
+#' between species i and species j. This similarity matrix was derived from a
+#' phylogenetic distance matrix, inferred from the tree xue_species_tree,
+#' using the expression s(i,j) = exp(-d(i,j)), where d(i,j) is the phylogenetic
+#' distance between species i and j.
+#'
+#' @format ## `xue_species_similarity`
+#' A dataframe with 524 rows and 524 columns, each corresponding to one species.
+"xue_species_similarity"
+
 
 #' Table of species information
 #'
