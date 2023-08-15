@@ -3,7 +3,7 @@
 
 # FAVA
 
-<a href='https://github.com/MaikeMorrison/FAVA'/><img src='../man/figures/FAVA_logo_2' height="150" align="right" style="float:right; height:150px;" />
+<a href='https://github.com/MaikeMorrison/FAVA'/><img src='man/figures/FAVA_logo_2.png' height="150" align="right" style="float:right; height:150px;" />
 
 <!-- badges: start -->
 <!-- badges: end -->
