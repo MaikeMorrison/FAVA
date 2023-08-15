@@ -58,11 +58,11 @@ FAVA can be used to quantify variability in many different contexts. For example
 
 * If each row corresponds to a replicate in a community assembly experiment, FAVA represents the repeatability of the community assembly. 
 
-* If each row represents a distinct individual, FAVA represents in the inter-individual variability in microbiome composition. 
+* If each row represents a distinct individual, FAVA represents the inter-individual variability in microbiome composition. 
 
 ### Overview
 
-In this tutorial, we will explain the data required to use the _FAVA_ R package ([Data specifications]). We will then conduct an example data analysis using example data from Xue et al. ([Example Analysis]). We will use visualize the microbiome composition of three subjects over time, use FAVA to quantify the temporal variability across these microbiome samples, and explore these dynamics at a finer resolution using sliding windows over time. 
+In this tutorial, we will explain the data required to use the _FAVA_ R package ([Data specifications]). We will then analyze example data from Xue et al. ([Example Analysis]). With this data set and the _FAVA_ R package, we visualize the microbiome composition of three subjects over time, use FAVA to quantify the temporal variability across these microbiome samples, and explore these dynamics at a finer resolution using sliding windows over time. 
 
 # Data specifications
 
@@ -98,7 +98,7 @@ my_data[,c(4:10)] = my_data[,c(4:10)]/rowSums(my_data[,c(4:10)])
 
 **Optional: species similarity matrix** 
 
-In order to compute a version of the FAVA variability statistic that accounts for the phylogenetic similarity between species, you must provide a matrix specifying the pairwise similarity of all species. Such a matrix can be easily generated from a phylogenetic tree of the species present in your samples. Microbiome analysis programs such as _phyloseq_ can generate a phylogenetic tree summarizing the evolutionary relationships among your sampled species. With a phylogenetic tree in hand, you must next convert the phylogenetic tree to a phylogenetic distance matrix using functions such as the function `cophenetic.phylo` in the _ape_ R package. If $D$ is the phylogenetic distance matrix, entry $D_{i,j}$ represents the phylogenetic distance between species $i$ and species $j$. Finally, you must convert the phylogenetic distance matrix to a similarity matrix, $S$. Whereas the distance between a species and itself is 0, the similarity between a species and itself is 1. For the example analysis here and in the manuscript, we use the transformation $S_{i,j}=\exp(-D_{i,j})$ to convert the phylogenetic distance matrix to a similarity matrix. Other transformations, such as $S_{i,j}=\frac{1}{D_{i,j}+1}$ or $S_{i,j}=1-\frac{D_{i,j}}{\max{(D_{i,j})}}$, are also suitable but result in a different mean similarity across species. It is important to confirm that the order and identity of the species in the similarity matrix match the order and identity of the species in your relative abundance matrix. Example code to generate a similarity matrix from a _phyloseq_ object is included below.
+In order to compute a version of the FAVA variability statistic that accounts for the phylogenetic similarity between species, you must provide a matrix specifying the pairwise similarity of all species. Such a matrix can be easily generated from a phylogenetic tree of the species present in your samples. Microbiome analysis programs such as _phyloseq_ can generate a phylogenetic tree summarizing the evolutionary relationships among your sampled species. With a phylogenetic tree in hand, you can then convert the phylogenetic tree to a phylogenetic distance matrix using functions such as `cophenetic.phylo` in the _ape_ R package. If $D$ is the phylogenetic distance matrix, entry $D_{i,j}$ represents the phylogenetic distance between species $i$ and species $j$. Finally, you can convert the phylogenetic distance matrix to a similarity matrix, $S$ using a simple transformation. Whereas the distance between a species and itself is 0, the similarity between a species and itself is 1. For the example analysis here and in the manuscript, we use the transformation $S_{i,j}=\exp(-D_{i,j})$. Other transformations, such as $S_{i,j}=\frac{1}{D_{i,j}+1}$ or $S_{i,j}=1-\frac{D_{i,j}}{\max{(D_{i,j})}}$, are also suitable but result in a different mean similarity across species. It is important to confirm that the order and identity of the species in the similarity matrix match the order and identity of the species in your relative abundance matrix. Example code to generate a similarity matrix from a _phyloseq_ object is included below.
 
 ```{r, eval = FALSE}
 tree = phy_tree(phyloseq_object)
@@ -122,7 +122,7 @@ all(colnames(my_data[,c(4:10)]) == colnames(similarity_matrix))
 
 # Example Analysis
 
-In this tutorial, we visualize the composition of time-series microbiome samples from three subjects (1). For each subject, we compute the total variability across the study period (2). We also explore how compositional variability changes over time using a sliding window analysis (3).
+In this tutorial, we visualize the composition of time-series microbiome samples from three subjects ([1 - Visualize relative abundances]). For each subject, we compute the total variability across the study period ([2 - Compute unweighted FAVA] and [3 - Compute weighted FAVA]). We also explore how compositional variability changes over time using a sliding window analysis ([4 - Sliding windows]). But first, we introduce the example data we will be analyzing ([0 - Example data]). 
 
 
 ### 0 - Example data
