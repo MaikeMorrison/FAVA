@@ -20,6 +20,8 @@ Suggests:
     knitr,
     rmarkdown,
     viridis,
+    kableExtra,
+    purrr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: 

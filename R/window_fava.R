@@ -32,7 +32,7 @@ window_list <- function(window_size, length, window_step = 1){
 #'
 #' This function computes FAVA in sliding window slices of a data set.
 #'
-#'#' @param relab_matrix  matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+#' @param relab_matrix  matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
 #' a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
 #' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
 #' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
@@ -45,7 +45,6 @@ window_list <- function(window_size, length, window_step = 1){
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.
 #' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equaling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.
 #' @param normalized Optional; should normalized FAVA be used? Default is \code{normalized = FALSE}; use \code{normalized = TRUE} to compute normalized FAVA. FAVA can only be normalized if it is not weighted.
-#' @param index Optional; the name of the column in \code{relab_matrix} containing an index for each sample. For example, if \code{relab_matrix} contains time series data, \code{index} would be the column containing the time of each sample.
 #' @returns A list of values of fava for each window.
 #' @importFrom dplyr %>%
 #' @examples
@@ -57,171 +56,116 @@ window_fava <- function(relab_matrix, window_size, window_step = 1,
                         group = NULL,
                         time = NULL, w = NULL,
                         K = NULL, S = NULL,
-                        normalized = NULL,
-                        index){
+                        normalized = FALSE){
 
 
-  relab_checker_out = relab_checker(relab = relab_matrix, K = K, group = group, time = time)
-
-  K = ncol(relab_checker_out$relab_matrix)
-
-
-
-
-
-
-
-
-  relab_matrix_full = relab_matrix
-  # UNGROUPED DATA ------------------------------------------------------------
-  if(missing(group)){
-    relab_matrix = relab_matrix[,(ncol(relab_matrix)-K+1):ncol(relab_matrix)]
-
+  if(is.null(group)){
     window_indices = window_list(window_size = window_size, length = nrow(relab_matrix), window_step = window_step)
 
-    fava_list = c()
-    for(window in window_indices){
-      if(normalized){
-        fava_list = c(fava_list, fava_norm(relab_matrix[window,]))
-      }else{
-        fava_list = c(fava_list,
-                      fava(relab_matrix = relab_matrix[window,], w = w[window]/sum(w[window]), S = S))
-      }
-    }
-
-    output = cbind(data.frame(FAVA = fava_list, window_index = 1:length(fava_list)),
-                   do.call(rbind, window_indices) %>% `colnames<-`(paste0("w", 1:window_size)))
-
-    if(missing(index)){ return(output) }else{
-
-      tidyr::pivot_longer(output, -c(FAVA, window_index),
-                          names_to = "window_number", values_to = "generic_index") %>%
-        left_join(data.frame(original_index = relab_matrix_full[,index] %>% unlist,
-                             generic_index = 1:nrow(relab_matrix_full))) %>%
-        select(-generic_index) %>%
-        pivot_wider(names_from = window_number, values_from = original_index)
-    }
-  }else{
-
-    # GROUPED DATA -------------------------------------------------------------
+    return(window_fava_sub(relab_matrix = relab_matrix,
+                           window_indices = window_indices, window_size = window_size,
+                    time = time, w = w, K = K, S = S, normalized = normalized))
+  } else{
 
     group_fava_list = list()
     i = 1
 
-    for(element in dplyr::select(relab_matrix, {{ group }}) %>% unique %>% unlist){
-      relab_matrix_group = dplyr::filter(relab_matrix, get(group) == element)[,(ncol(relab_matrix)-K+1):ncol(relab_matrix)]
-      window_indices = window_list(window_size = window_size, length = nrow(relab_matrix_group),
-                                   window_step = window_step)
+    relab_checker_out = relab_checker(relab = relab_matrix, K = K, group = group, time = time)
 
-      fava_list = c()
-      for(window in window_indices){
-        if(normalized){
-          fava_list = c(fava_list, fava_norm(relab_matrix_group[window,]))
-        }else{
-          fava_list = c(fava_list,
-                        fava(relab_matrix = relab_matrix_group[window,],
-                             w = w[window]/sum(w[window]), S = S))
-        }
-      }
+    for(element in unique(unlist(relab_matrix[,group]))){
 
-      group_fava_list[[i]] = cbind(data.frame(group = element,
-                                              FAVA = fava_list,
-                                              window_index = 1:length(fava_list)),
-                                   do.call(rbind, window_indices) %>%
-                                     `colnames<-`(paste0("w", 1:window_size)))
+      relab_matrix_group = relab_matrix[relab_checker_out$group == element,]
+
+      window_indices = window_list(window_size = window_size, length = nrow(relab_matrix_group), window_step = window_step)
+
+      group_fava_list[[i]] = dplyr::mutate(window_fava_sub(relab_matrix = relab_matrix_group,
+                                                           window_indices = window_indices, window_size = window_size,
+                                                           time = time, w = w, K = K, S = S, normalized = normalized),
+                                           group = element, .before = "FAVA")
+
       i = i + 1
-
     }
-    output = do.call(rbind, group_fava_list)
 
-    if(missing(index)){ return(output) }else{
-
-      tidyr::pivot_longer(output,
-                          -c(FAVA, window_index, group),
-                          names_to = "window_number",
-                          values_to = "generic_index") %>%
-        left_join(data.frame(group = unlist(relab_matrix[,group]),
-                             original_index = unlist(relab_matrix[,index])) %>%
-                    group_by(group) %>% mutate(generic_index = 1:n())) %>%
-        select(-generic_index) %>%
-        pivot_wider(names_from = window_number, values_from = original_index)
-    }
+    return(do.call(rbind, group_fava_list))
   }
 }
 
 
 # helper function: compute fava for given windows on a full data set
-window_fava_sub = function(relab_matrix, window_indices, normalized = FALSE, time = NULL, w = NULL, S = NULL){
-  if(!is.null(time))
+window_fava_sub = function(relab_matrix, window_indices, window_size,
+                           time = NULL, w = NULL,
+                           K = NULL, S = NULL,
+                           normalized = FALSE){
   fava_list = c()
   for(window in window_indices){
-    if(normalized){
-      fava_list = c(fava_list, fava_norm(relab_matrix_group[window,]))
-    }else{
-      fava_list = c(fava_list,
-                    fava(relab_matrix = relab_matrix_group[window,],
-                         w = w[window]/sum(w[window]), S = S))
+    if(!is.null(w)){
+      w_subset = w[window]/sum(w[window])
+    } else{
+      w_subset = NULL
     }
+
+    fava_list = c(fava_list,
+                  fava(relab_matrix = relab_matrix[window,],
+                       time = time, K = K, normalized = normalized,
+                       w = w_subset, S = S))
   }
 
-  group_fava_list[[i]] = cbind(data.frame(group = element,
-                                          FAVA = fava_list,
-                                          window_index = 1:length(fava_list)),
-                               do.call(rbind, window_indices) %>%
-                                 `colnames<-`(paste0("w", 1:window_size)))
-  i = i + 1
-
+  return(cbind(data.frame(FAVA = fava_list,
+                          window_index = 1:length(fava_list)),
+               do.call(rbind, window_indices) %>%
+                 `colnames<-`(paste0("w", 1:window_size))))
 }
 
-# window_plot -----------------------------------------------------------------
-#' Generate a plot of FAVA in sliding windows.
+
+#' # window_plot -----------------------------------------------------------------
+#' #' Generate a plot of FAVA in sliding windows.
+#' #'
+#' #' This function generates a plot of normalized or unnormalized, weighted or
+#' #' unweighted FAVA computed in sliding windows for one or many groups of samples.
+#' #'
+#' #' @param window_fava The output of \code{window_fava}.
+#' #' @param alpha Optional; number between 0 and 1 specifying the opacity of the horizontal
+#' #' lines plotted. Default is \code{alpha = 0.5}.
+#' #' @returns A ggplot2 object.
+#' #' @examples
+#' #' A = matrix(c(.3,.7,0,.1,0,.9,.2,.5,.3,.1,.8,.1,.3,.4,.3,.6,.4,0,0,.5,.5),
+#' #'            ncol = 3, byrow = TRUE)
+#' #' window_out = window_fava(relab_matrix = A, window_size = 4, normalized = TRUE)
+#' #' window_plot(window_fava = window_out, alpha = 0.8)
+#' #' @export
+#' window_plot <- function(window_fava, alpha = 0.5){
 #'
-#' This function generates a plot of normalized or unnormalized, weighted or
-#' unweighted FAVA computed in sliding windows for one or many groups of samples.
+#'   # If data has multiple groups ----------------------------------------
+#'   if("group" %in% colnames(window_fava)){
+#'     window_long = window_fava %>%
+#'       tidyr::pivot_longer(-c(.data$group, .data$FAVA, .data$window_index),
+#'                           values_to = "index", names_to = "window_count")
 #'
-#' @param window_fava The output of \code{window_fava}.
-#' @param alpha Optional; number between 0 and 1 specifying the opacity of the horizontal
-#' lines plotted. Default is \code{alpha = 0.5}.
-#' @returns A ggplot2 object.
-#' @examples
-#' A = matrix(c(.3,.7,0,.1,0,.9,.2,.5,.3,.1,.8,.1,.3,.4,.3,.6,.4,0,0,.5,.5),
-#'            ncol = 3, byrow = TRUE)
-#' window_out = window_fava(relab_matrix = A, window_size = 4, normalized = TRUE)
-#' window_plot(window_fava = window_out, alpha = 0.8)
-#' @export
-window_plot <- function(window_fava, alpha = 0.5){
-
-  # If data has multiple groups ----------------------------------------
-  if("group" %in% colnames(window_fava)){
-    window_long = window_fava %>%
-      tidyr::pivot_longer(-c(.data$group, .data$FAVA, .data$window_index),
-                          values_to = "index", names_to = "window_count")
-
-    ggplot2::ggplot() +
-      ggplot2::geom_line(ggplot2::aes(x = .data$index,
-                                      y = .data$FAVA,
-                                      color = .data$group,
-                                      group = paste0(.data$window_index, .data$group)),
-                         window_long, size = 1, alpha = alpha) +
-      ggplot2::theme_bw() +
-      ggplot2::ylab("FAVA") +
-      ggplot2::xlab("Index") +
-      ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(alpha = 1)))
-  }else{
-    # If data has only one group ----------------------------------------
-    window_long = window_fava %>%
-      tidyr::pivot_longer(-c(.data$FAVA, .data$window_index),
-                          values_to = "index", names_to = "window_count")
-
-    ggplot2::ggplot() +
-      ggplot2::geom_line(ggplot2::aes(x = .data$index,
-                                      y = .data$FAVA,
-                                      group = paste0(.data$window_index)),
-                         window_long, size = 1, alpha = alpha) +
-      ggplot2::theme_bw() +
-      ggplot2::ylab("FAVA") +
-      ggplot2::xlab("Index") +
-      ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(alpha = 1)))
-  }
-
-}
+#'     ggplot2::ggplot() +
+#'       ggplot2::geom_line(ggplot2::aes(x = .data$index,
+#'                                       y = .data$FAVA,
+#'                                       color = .data$group,
+#'                                       group = paste0(.data$window_index, .data$group)),
+#'                          window_long, size = 1, alpha = alpha) +
+#'       ggplot2::theme_bw() +
+#'       ggplot2::ylab("FAVA") +
+#'       ggplot2::xlab("Index") +
+#'       ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(alpha = 1)))
+#'   }else{
+#'     # If data has only one group ----------------------------------------
+#'     window_long = window_fava %>%
+#'       tidyr::pivot_longer(-c(.data$FAVA, .data$window_index),
+#'                           values_to = "index", names_to = "window_count")
+#'
+#'     ggplot2::ggplot() +
+#'       ggplot2::geom_line(ggplot2::aes(x = .data$index,
+#'                                       y = .data$FAVA,
+#'                                       group = paste0(.data$window_index)),
+#'                          window_long, size = 1, alpha = alpha) +
+#'       ggplot2::theme_bw() +
+#'       ggplot2::ylab("FAVA") +
+#'       ggplot2::xlab("Index") +
+#'       ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(alpha = 1)))
+#'   }
+#'
+#' }
