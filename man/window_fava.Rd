@@ -6,47 +6,33 @@
 \usage{
 window_fava(
   relab_matrix,
-  K = ncol(relab_matrix),
   window_size,
-  group,
   window_step = 1,
-  normalized = FALSE,
+  group = NULL,
   time = NULL,
   w = NULL,
+  K = NULL,
   S = NULL,
+  normalized = NULL,
   index
 )
 }
 \arguments{
-\item{relab_matrix}{A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
-a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
-If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
-the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
-each row must sum to 1.}
-
-\item{K}{Optional; number of categories which sum to 1 for each sample. Default is \code{K=ncol(relab_matrix)}.}
-
 \item{window_size}{An integer number specifying the number of samples per window.}
-
-\item{group}{Optional; a string specifying the name of the column that describes which group each row (sample) belongs to. Use if \code{relab_matrix} is a
-single matrix containing multiple groups of samples you wish to compare, such as samples from different subjects.}
 
 \item{window_step}{Optional; an integer specifying the distance between the first entry of adjacent windows. Default is \code{window_step=1}.}
 
-\item{normalized}{Default is \code{normalized = FALSE}. If \code{normalized = TRUE}, then fava is normalized by the theoretical upper bound conditional
-on the most abundant category and the number of categories. This setting is recommended when there are fewer than 5 samples per window. Note that it is
-incompatible with weightings at this time.}
+\item{group}{Optional; a string specifying the name of the column that describes which group each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.}
 
 \item{time}{Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.}
 
-\item{w}{Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} i
-n the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}. If \code{group} is specified,
-then \code{w} can contain the weights for multiple groups, concatenated in the same order as the rows of \code{relab_matrix}. In this case, \code{w} must sum to the
-number of distinct elements of \code{group}.}
+\item{w}{Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.}
 
-\item{S}{Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for
-\code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling
-0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.}
+\item{K}{Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.}
+
+\item{S}{Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equaling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.}
+
+\item{normalized}{Optional; should normalized FAVA be used? Default is \code{normalized = FALSE}; use \code{normalized = TRUE} to compute normalized FAVA. FAVA can only be normalized if it is not weighted.}
 
 \item{index}{Optional; the name of the column in \code{relab_matrix} containing an index for each sample. For example, if \code{relab_matrix} contains time series data, \code{index} would be the column containing the time of each sample.}
 }
@@ -54,7 +40,14 @@ number of distinct elements of \code{group}.}
 A list of values of fava for each window.
 }
 \description{
-This function computes FAVA in sliding window slices of a dataset.
+This function computes FAVA in sliding window slices of a data set.
+}
+\details{
+#' @param relab_matrix  matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
+If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
+the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
+each row must sum to 1.
 }
 \examples{
 A = matrix(c(.3,.7,0,.1,0,.9,.2,.5,.3,.1,.8,.1,.3,.4,.3,.6,.4,0,0,.5,.5),

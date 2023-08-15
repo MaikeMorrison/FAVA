@@ -10,12 +10,13 @@ output:
     toc_float:
       collapsed: false
       smooth_scroll: true
+vignette: >
+  %\VignetteIndexEntry{microbiome_tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-<!-- vignette: > -->
-<!--   %\VignetteIndexEntry{microbiome_tutorial} -->
-<!--   %\VignetteEngine{knitr::rmarkdown} -->
-<!--   %\VignetteEncoding{UTF-8} -->
+
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -66,12 +67,12 @@ In this tutorial, we will explain the data required to use the _FAVA_ R package 
 
 # Data specifications
 
-To use _FAVA_, your data must be in the form of a matrix, data frame, or tibble with rows corresponding to samples and columns corresponding to categories such as bacterial species. If metadata (e.g. sample ID, time point, subject, experimental condition, replicate, etc.) are included, these columns must be on the left-hand side of the matrix, while the categories comprising the composition of the sample (e.g., bacterial species) must be on the right-hand side of the matrix. If your dataset contains metadata, you must specify `K`, the number of categories. While these categories can represent many things, we will for simplicity use "species" in this document to refer to the categories comprising each relative abundance sample.
+To use _FAVA_, your data must be in the form of a matrix, data frame, or tibble with rows corresponding to samples and columns corresponding to categories such as bacterial species. If metadata (e.g. sample ID, time point, subject, experimental condition, replicate, etc.) are included, these columns must be on the left-hand side of the matrix, while the categories comprising the composition of the sample (e.g., bacterial species) must be on the right-hand side of the matrix. If your data set contains metadata, you must specify `K`, the number of categories. While these categories can represent many things, we will for simplicity use "species" in this document to refer to the categories comprising each relative abundance sample.
 
 Your matrix may contain samples from multiple groups you would like to analyze separately. In this case, you must provide the name of the column specifying the group each sample belongs to as the `group` parameter.
 
 ```{r, out.width = "1000px", echo = FALSE}
-knitr::include_graphics("../Figures/schematic_data_structure_1.png")
+knitr::include_graphics("../man/figures/schematic_data_structure_1.png")
 ```
 
 You must read your data into R using a function such as `read.csv` and confirm that each sample sums to 1. If you use _phyloseq_, you must extract the OTU table. _phyloseq_ users may also wish to join their OTU table with their sample data table. Sample code for these tasks is provided below. 
@@ -144,14 +145,17 @@ View(xue_microbiome_sample)
 str(xue_microbiome_sample)
 ```
 
-Here are the first ten rows and the first six columns of our example relative abundance matrix, `xue_microbiome_sample`:
-```{r}
-knitr::kable(xue_microbiome_sample[1:10, 1:6])
+Here are the first 40 rows and the first 20 columns of the relative abundance matrix, `xue_microbiome_sample`:
+```{r, echo = FALSE}
+knitr::kable(xue_microbiome_sample[1:40, 1:20]) %>%
+    kableExtra::scroll_box(width = "800px", height = "400px")
 ```
 
-We also provide a pairwise similarity matrix, `xue_species_similarity`, which contains the similarity of every pair of species included in `xue_microbiome_sample`. Here are the first ten rows and the first four columns of our example pairwise similarity matrix, `xue_species_similarity`:
-```{r}
-knitr::kable(xue_species_similarity[1:10, 1:4])
+
+We also provide a pairwise similarity matrix, `xue_species_similarity`, which contains the similarity of every pair of species included in `xue_microbiome_sample`. Here are the first 20 rows and the first 20 columns of our example pairwise similarity matrix, `xue_species_similarity`:
+```{r, echo = FALSE}
+knitr::kable(xue_species_similarity[1:20, 1:20])  %>%
+    kableExtra::scroll_box(width = "800px", height = "400px")
 ```
 And here we plot the similarity matrix as a heat map:
 ```{r, fig.height = 7}
