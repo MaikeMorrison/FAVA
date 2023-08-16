@@ -48,7 +48,7 @@ The _FAVA_ R package includes the following core functions:
 
 * `window_fava`: Compute FAVA in sliding windows along the rows of a relative abundance matrix
 
-The statistic FAVA summarizes the variability across the rows of a relative abundance matrix in a single index that ranges from 0 to 1. For typical microbiome data, the rows of each matrix represent microbiome samples and the entries of each row represent the relative abundance of a taxonomic category (e.g., OTU, species, or genus) or a functional category (e.g., gene family or enzyme abundance). Such matrices are often referred to as "OTU matrices." Taxonomic categories are usually inferred from 16S or metagenomic sequencing data, while functional categories are usually inferred from metagenomic sequencing data. You must obtain these relative abundances from your sequencing data before using the R package _FAVA_. 
+The statistic FAVA summarizes the variability across the rows of a relative abundance matrix in a single index that ranges from 0 to 1. For typical microbiome data, the rows of each matrix represent microbiome samples and the entries of each row represent the relative abundance of a taxonomic category (e.g., OTU, species, or genus) or a functional category (e.g., gene family or enzyme abundance). Such matrices are often referred to as "OTU tables." Taxonomic categories are usually inferred from 16S or metagenomic sequencing data, while functional categories are usually inferred from metagenomic sequencing data. You must obtain these relative abundances from your sequencing data before using the R package _FAVA_. 
 
 FAVA can be used to quantify variability in many different contexts. For example,
 
@@ -66,15 +66,15 @@ In this tutorial, we will explain the data required to use the _FAVA_ R package 
 
 # Data specifications
 
-To use _FAVA_, your data must be in the form of a matrix, data frame, or tibble with rows corresponding to samples and columns corresponding to categories such as bacterial species. If metadata (e.g. sample ID, time point, subject, experimental condition, replicate, etc.) are included, these columns must be on the left-hand side of the matrix, while the categories comprising the composition of the sample (e.g., bacterial species) must be on the right-hand side of the matrix. If your data set contains metadata, you must specify `K`, the number of categories. While these categories can represent many things, we will for simplicity use "species" in this document to refer to the categories comprising each relative abundance sample.
+To use _FAVA_, your data must be in the form of a matrix, data frame, or tibble with rows corresponding to samples and columns corresponding to categories such as bacterial species. If metadata (e.g. sample ID, time point, subject, experimental condition, replicate, etc.) are included, these columns must be on the left-hand side of the matrix, while the categories comprising the composition of the sample (e.g., bacterial species) must be on the right-hand side of the matrix. If your matrix contains metadata, you must specify `K`, the number of categories. While these categories can represent many things, we will for simplicity use "species" in this document to refer to the categories comprising each relative abundance sample.
 
-Your matrix may contain samples from multiple groups you would like to analyze separately. In this case, you must provide the name of the column specifying the group each sample belongs to as the `group` parameter.
+Your matrix may contain samples from multiple groups you would like to analyze separately. In this case, you must provide the name of the column specifying the group each sample belongs to as the `group` parameter. For example, to quantify variability across all samples from each experiment in the matrix pictured below, we would specify `group = "Experiment"`. 
 
 ```{r, out.width = "1000px", echo = FALSE}
 knitr::include_graphics("../man/figures/schematic_data_structure_1.png")
 ```
 
-You must read your data into R using a function such as `read.csv` and confirm that each sample sums to 1. If you use _phyloseq_, you must extract the OTU table. _phyloseq_ users may also wish to join their OTU table with their sample data table. Sample code for these tasks is provided below. 
+You can read your data into R using a function such as `read.csv`. If you use _phyloseq_, you can simply extract and transpose (pivot) the OTU table. _phyloseq_ users may also wish to join their OTU table with their sample data table. Sample code for these tasks is provided below. You may also want to confirm that the right $K$ rows of your matrix each sum to 1.
 
 ```{r, eval=FALSE}
 # Example code to read in a data set
@@ -98,12 +98,26 @@ my_data[,c(4:10)] = my_data[,c(4:10)]/rowSums(my_data[,c(4:10)])
 
 **Optional: species similarity matrix** 
 
-In order to compute a version of the FAVA variability statistic that accounts for the phylogenetic similarity between species, you must provide a matrix specifying the pairwise similarity of all species. Such a matrix can be easily generated from a phylogenetic tree of the species present in your samples. Microbiome analysis programs such as _phyloseq_ can generate a phylogenetic tree summarizing the evolutionary relationships among your sampled species. With a phylogenetic tree in hand, you can then convert the phylogenetic tree to a phylogenetic distance matrix using functions such as `cophenetic.phylo` in the _ape_ R package. If $D$ is the phylogenetic distance matrix, entry $D_{i,j}$ represents the phylogenetic distance between species $i$ and species $j$. Finally, you can convert the phylogenetic distance matrix to a similarity matrix, $S$ using a simple transformation. Whereas the distance between a species and itself is 0, the similarity between a species and itself is 1. For the example analysis here and in the manuscript, we use the transformation $S_{i,j}=\exp(-D_{i,j})$. Other transformations, such as $S_{i,j}=\frac{1}{D_{i,j}+1}$ or $S_{i,j}=1-\frac{D_{i,j}}{\max{(D_{i,j})}}$, are also suitable but result in a different mean similarity across species. It is important to confirm that the order and identity of the species in the similarity matrix match the order and identity of the species in your relative abundance matrix. Example code to generate a similarity matrix from a _phyloseq_ object is included below.
+In order to compute a version of the FAVA variability statistic that accounts for the phylogenetic similarity between species, you must provide a phylogenetic similarity matrix, $S$. Such a matrix can be generated from species sequence data via the four steps outlined below. We include example code to generate a similarity matrix from a _phyloseq_ object.
+
+1. **Generate a phylogenetic tree describing the relationships among the species present in your samples.** There are many platforms for such analysis, such as [this workflow using DADA2](https://f1000research.com/articles/5-1492/v2). 
+
+2. **Convert the phylogenetic tree to a distance matrix.** Phylogenetic tree objects can be easily converted to distance matrices using functions such as `cophenetic.phylo` in the _ape_ R package. If $D$ is the phylogenetic distance matrix, entry $D_{i,j}$ represents the phylogenetic distance between species $i$ and species $j$. 
+
+3. **Convert the phylogenetic distance matrix to a similarity matrix.** Whereas the distance between two identical species is 0, the similarity between two identical species is 1. We therefore use a simple transformation to convert the distance between species $i$ and $j$, $D_{i,j}$, to the similarity between species $i$ and $j$, $S_{i,j}$, mapping distances of 0 to similarities of 1. For the example analysis in this tutorial and in the accompanying paper, we use the transformation $S_{i,j}=\exp(-D_{i,j})$. Other transformations, such as $S_{i,j}=\frac{1}{D_{i,j}+1}$ or $S_{i,j}=1-\frac{D_{i,j}}{\max{(D_{i,j})}}$, are also suitable but result in a different mean similarity across species.
+
+4. **Ensure that the order and identity of the species in the similarity matrix match the order and identity of the species in your relative abundance matrix.** 
 
 ```{r, eval = FALSE}
+# (1) 
+# Here, we assume that you have already generated a phylogenetic tree
+# and that it is a part of your phyloseq object. 
 tree = phy_tree(phyloseq_object)
+
+# (2) 
 distance_matrix = ape::cophenetic.phylo(tree)
 
+# (3)
 # alternative similarity matrices:
 similarity_matrix = 1/(distance_matrix + 1)
 similarity_matrix = 1 - distance_matrix/max(distance_matrix)
@@ -111,23 +125,61 @@ similarity_matrix = 1 - distance_matrix/max(distance_matrix)
 # the similarity matrix we use:
 similarity_matrix = exp(-distance_matrix)
 
-# confirm that all diagonal elements are 1
-diag(similarity_matrix)
 
-# confirm that the entries of the similarity matrix
-# correspond to the categories of your data
-all(colnames(my_data[,c(4:10)]) == colnames(similarity_matrix))
+# (4)
+# Get the names of the species in your relative abundance matrix
+species_order = colnames(my_data[,c(4:10)])
+
+# Confirm that the entries of the similarity matrix
+# correspond to relative abundance matrix
+all(species_order == colnames(similarity_matrix))
+all(species_order == rownames(similarity_matrix))
+
+# If they do not, you can re-order the rows and columns of
+# your similarity matrix to match your data:
+similarity_matrix_reordered = similarity_matrix[species_order, species_order]
+
+# confirm that all diagonal elements are still 1
+diag(similarity_matrix_reordered)
 ```
 
 
+Having generated a properly formatted relative abundance matrix, and possibly a species similarity matrix as well, it's time to use _FAVA_! 
+
 # Example Analysis
 
-In this tutorial, we visualize the composition of time-series microbiome samples from three subjects ([1 - Visualize relative abundances]). For each subject, we compute the total variability across the study period ([2 - Compute unweighted FAVA] and [3 - Compute weighted FAVA]). We also explore how compositional variability changes over time using a sliding window analysis ([4 - Sliding windows]). But first, we introduce the example data we will be analyzing ([0 - Example data]). 
+As a guide for the application of _FAVA_ to microbiome data, we demonstrate each of the package's core functions using example data generated by Xue et al. (2023?). This data set contains time series microbiome samples from three human subjects who each took an antibiotic midway through the study period ([0 - Example data]). We first visualize the composition of these subject's microbiome communities over time ([1 - Visualize relative abundances]). For each subject, we next compute the total variability across the study period ([2 - Compute unweighted FAVA] and [3 - Compute weighted FAVA]). We also estimate the uncertainty in these variability measures, which allows us to perform statistical comparisons of each subject's temporal microbiome variability ([4 - Bootstrapping]). Finally, we explore how compositional variability changes over time using a sliding window analysis ([5 - Sliding windows]). 
 
 
 ### 0 - Example data
 
-In this tutorial, we analyze the microbiome composition data generated by Xue et al. (2023) which is also analyzed in the FAVA manuscript. This example data set is included under the name `xue_microbiome_sample` as part of the _FAVA_ R package. `xue_microbiome_sample` is a dataframe containing 77 microbiome samples generated by Xue et al. (2023), each from one of three subjects (XBA, XDA, and XMA) at a series of time points between study day 1 and day 64. Each row of `xue_microbiome_sample` represents a single microbiome sample. `xue_microbiome_sample` has 526 columns: 
+In this tutorial, we analyze longitudinal microbiome composition data generated by Xue et al. (2023?), data that is also analyzed in the paper (Morrison et al. 2023?). For example analyses, a subset of this data is provided under the name `xue_microbiome_sample` in the _FAVA_ R package. `xue_microbiome_sample` contains the relative abundances of bacterial species in samples from three subjects: XBA, XDA, and XMA. Each subject collected weekly samples for four weeks before and after a three week window of daily sampling, the middle of which contained a one-week antibiotic course (depicted below; dots correspond to sampling days, yellow dots correspond to sampling days coinciding with the antibiotic). 
+```{r,, echo = FALSE, fig.height=1}
+timeline_data = data.frame(Day = c(1,8,15,22:40, 43, 50, 57, 64)) %>%
+  mutate("Day type" = ifelse(Day >28 & Day < 35, "Antiobitic", "Regular")) 
+  
+timeline <- ggplot() + 
+  geom_segment(aes(x = 0, xend = 65, y = 0, yend = 0), color = "#666666") +
+  
+  geom_segment(aes(x = 1:64, xend = 1:64, y = rep(-1.5, 64), yend = rep(1.5, 64)), color = "#666666") +
+  geom_segment(aes(x = seq(from = 1, to = 64, by = 7), xend = seq(from = 1, to = 64, by = 7), 
+                   y = rep(-2, 10), yend = rep(2, 10)), size = 1, color = "#666666") + 
+  geom_text(aes(x = seq(from = 1, to = 64, by = 7), y = -4, label = seq(from = 1, to = 64, by = 7))) +
+  
+  geom_point(aes(x = Day, y = 0, color = `Day type`), timeline_data, size = 2) + 
+  
+  geom_text(aes(x = 66, y = -6, label = "Study\nday"), size = 3.5, hjust = 0, vjust = 0, lineheight = 1) +
+  geom_text(aes(x = 6, y = 7, label = "Sampling timeline"), size = 5) +
+  
+  theme_void() + 
+  ylim(-10, 10) +
+  xlim(0, 70)  + 
+  scale_color_manual(values = c("#FFB90F", "black")) +
+  theme(legend.position = "none") #, axis.title.x = element_text()) + xlab("Study day")
+timeline
+```
+
+Each row of `xue_microbiome_sample` represents a single microbiome sample. `xue_microbiome_sample` has 526 columns: 
 
 * `subject`: the subject each sample corresponds to 
   
@@ -151,13 +203,13 @@ knitr::kable(xue_microbiome_sample[1:40, 1:20]) %>%
 ```
 
 
-We also provide a pairwise similarity matrix, `xue_species_similarity`, which contains the similarity of every pair of species included in `xue_microbiome_sample`. Here are the first 20 rows and the first 20 columns of our example pairwise similarity matrix, `xue_species_similarity`:
+We also provide in the _FAVA_ R package a pairwise similarity matrix, `xue_species_similarity`, which contains the phylogenetic similarity of every pair of species included in `xue_microbiome_sample`. Here are the first 20 rows and the first 20 columns of our example pairwise similarity matrix, `xue_species_similarity`:
 ```{r, echo = FALSE}
 knitr::kable(xue_species_similarity[1:20, 1:20])  %>%
     kableExtra::scroll_box(width = "800px", height = "400px")
 ```
-And here we plot the similarity matrix as a heat map:
-```{r, fig.height = 7}
+Here is a heat map plot of the similarity matrix:
+```{r, fig.height = 7, echo = FALSE}
 ggplot(xue_species_similarity %>%
          data.frame() %>% 
          mutate(name2 = rownames(xue_species_similarity)) %>% 
@@ -180,27 +232,30 @@ Note that:
 
 * The columns and rows are in the same order (i.e., column 1 corresponds to the same species as row 1, etc.)
 
-* The ordering of the species in the similarity matrix, `xue_species_similarity`, matches the ordering in the data, `xue_microbiome_sample`.
+* The ordering of the species in the similarity matrix, `xue_species_similarity`, matches the ordering in the relative abundance matrix, `xue_microbiome_sample`.
 
 
 ### 1 - Visualize relative abundances
 
-We can visualize all of the relative abundances using the `plot_relabund` function:
+In order to visualize the community composition of each microbiome sample from each subject, we generate a stacked bar plot using the `plot_relabund` function from _FAVA_. Because `plot_relabund` returns a _ggplot2_ object, the resulting plot can be customized using other functions from _ggplot2_. 
 ```{r}
+# Make a color palette for all 524 species
 set.seed(1)
 species_palette = viridis::turbo(524)[sample(1:524)] %>%
   `names<-`(colnames(xue_microbiome_sample)[-c(1:2)])
 
+# Make a ggplot2 stacked bar plot
 plot_relabund(xue_microbiome_sample,
               group = "subject", 
               time = "timepoint", 
               arrange = "vertical",
               K = 524) + 
+# Specify a custom color scheme
   ggplot2::scale_color_manual(values = species_palette) + 
-  ggplot2::scale_fill_manual(values = species_palette)
+  ggplot2::scale_fill_manual(values = species_palette) 
 ```
 
-Our example data set contains relative abundance samples from multiple subjects that were taken at uneven timepoints. We can account for this in our visualization by providing the column name that describes which group each sample belongs to (`group = "subject"`) as well as which time each sample corresponds to (`time= "timepoint"`). Providing the `group` parameter results in a plot that has one facet for each subset. Providing the `time` parameter results in a plot where each sample may be repeated multiple times to reflect the number of days for which it informs the composition. Consider for reference the below plot which does not have the `time` parameter specified, and thus includes each sample exactly once.
+Our example data set contains relative abundance samples from multiple subjects that were taken at uneven timepoints. We account for these properties by specifying the column name that describes which group each sample belongs to (`group = "subject"`) as well as which sampling day each sample corresponds to (`time= "timepoint"`). Providing the `group` parameter results in a plot that has one facet for each group. Providing the `time` parameter results in a plot where each sample may be repeated multiple times to reflect the number of days for which it informs the composition. Since the sampling scheme (depicted above in [0 - Example data]) includes weekly samples at the beginning and end of the study and daily samples in the middle, the bars are narrower near the middle of each plot. Consider for reference the below plot which does not have the `time` parameter specified, and thus includes each sample exactly once.
 ```{r}
 plot_relabund(xue_microbiome_sample,
               group = "subject", 
@@ -210,7 +265,7 @@ plot_relabund(xue_microbiome_sample,
   ggplot2::scale_fill_manual(values = species_palette)
 ```
 
-Consider also the below plot which specifies neither `time` nor `group` and instead plots all samples in a single plot,
+Consider also the below plot which specifies neither `time` nor `group` and instead plots all samples in a single plot.
 ```{r}
 plot_relabund(xue_microbiome_sample,
               arrange = "vertical", 
@@ -219,10 +274,10 @@ plot_relabund(xue_microbiome_sample,
   ggplot2::scale_fill_manual(values = species_palette)
 ```
 
-In the above plots, we have specified `arrange = "vertical"`, which vertically arranges species from bottom to top in order of decreasing abundance. Specifying `arrange="horizontal"` horizontally arranges samples from left to right in order of increasing abundance of the most abundant species. Specifying `arrange=TRUE` or `arrange="both"` results in a plot with both types of ordering:
+In the above plots, we have specified `arrange = "vertical"`, which vertically arranges species from bottom to top in order of decreasing abundance. Specifying `arrange="horizontal"` horizontally arranges samples from left to right in order of increasing abundance of the most abundant species. Specifying `arrange=TRUE` or `arrange="both"` results in a plot with both types of ordering. `arrange="both"` is a useful option for highlighting patterns when the horizontal ordering of your samples does not correspond to a meaningful property of the data, such as sampling time. 
 ```{r}
 plot_relabund(xue_microbiome_sample,
-              arrange = "both", 
+              arrange = "both",
               K = 524) + 
   ggplot2::scale_color_manual(values = species_palette) + 
   ggplot2::scale_fill_manual(values = species_palette)
@@ -230,14 +285,14 @@ plot_relabund(xue_microbiome_sample,
 
 ### 2 - Compute unweighted FAVA
 
-This computation summarizes the variability across all rows from each group:
+The primary goal of the _FAVA_ R package is to compute the statistic FAVA, a measure of the variability across many relative abundance vectors, introduced in the paper Morrison et al. (2023?). This statistic is computed using the function `fava`, which takes a relative abundance matrix (`relab_matrix`) and computes the variability among all the rows at once, returning a single index between 0 and 1. If the relative abundance matrix contains metadata in addition to relative abundances, the number of species, `K`, must also be specified. If the matrix contains multiple groups we wish to separately analyze, we must also specify the name of the matrix column specifying group membership using the `group` parameter. In our example, this column is called "subject". The below code computes FAVA across all samples from each subject.
 ```{r}
 fava(relab_matrix = xue_microbiome_sample, 
      group = "subject", 
      K = 524)
 ```
 
-If `group` is not specified, FAVA is computed across all samples in the matrix:
+If `group` is not specified, FAVA is computed across all samples in the matrix. For our example, this is a measure of the variability across both time and subjects. 
 ```{r}
 fava(relab_matrix = xue_microbiome_sample, 
      K = 524)
@@ -245,8 +300,13 @@ fava(relab_matrix = xue_microbiome_sample,
 
 ### 3 - Compute weighted FAVA
 
-Providing a species similarity matrix `S` allows FAVA to account for the similarity among taxa. 
+The statistic FAVA can be weighted in two possible ways:
 
+1. Providing a species similarity matrix `S` allows FAVA to account for the similarity among taxa. 
+
+2. Providing a weighting vector `w`, or the name of the column corresponding to sampling times (which can be converted to a weighting vector according to equations 5 and 6 of Morrison et al. 2023), allows FAVA to assign non-uniform weights to the samples.
+
+**(1)** Here, we provide a phylogenetic similarity matrix (`S = xue_species_similarity`) to FAVA so that its computation can account for the varying levels of similarity between the species in the data.
 ```{r}
 fava(relab_matrix = xue_microbiome_sample, 
      group = "subject", 
@@ -254,7 +314,7 @@ fava(relab_matrix = xue_microbiome_sample,
      S = xue_species_similarity)
 ```
 
-If the data set corresponds to time series data, as our example does, providing the name of the matrix column that specifies the time each sample was collected allows FAVA to compute a weighting vector based on these sampling times and implement this weighting vector in the computation. In `xue_microbiome_sample`, the column is called "timepoint." 
+**(2)** If the data set corresponds to time series data, as our example does, providing the name of the matrix column that specifies the time each sample was collected allows FAVA to compute a weighting vector based on these sampling times and implement this weighting vector in the computation. In `xue_microbiome_sample`, the column is called "timepoint." 
 ```{r}
 fava(relab_matrix = xue_microbiome_sample, 
      group = "subject", 
@@ -262,9 +322,9 @@ fava(relab_matrix = xue_microbiome_sample,
      time = "timepoint")
 ```
 
-An arbitrary weighting vector can instead be provided to the `fava` function as the `w` parameter. You may provide either `w` or `time` but not both.  `w` must have length equal to the number of rows in your data set. If `w` provides the weights for one computation of FAVA (i.e., a single group) its entries must sum to 1. If `w` provides weights for multiple groups, each subset of `w` corresponding to a single group must sum to 1.  We can manually compute such a vector using the function `time_weights`. 
+An arbitrary weighting vector can instead be provided to the `fava` function as the `w` parameter. You may provide either `w` or `time` but not both.  `w` must have length equal to the number of rows in your data set. If `w` provides the weights for one computation of FAVA (i.e., a single group) its entries must sum to 1. If `w` provides weights for multiple groups, each subset of `w` corresponding to a single group must sum to 1.  We can manually compute a `w` vector from a vector of sampling times using the function `time_weights` that is used by `fava` when `time` is specified. 
 
-For example, consider only subject XMA We first create a data frame, `XMA`, containing only samples from subject XMA We then compute a weighting vector based on the times at which subject XMA collected samples, `XBA$timepoint`.
+For example, consider only subject XMA. We first create a data frame, `XMA`, containing only samples from subject XMA. We then compute a weighting vector based on the times at which subject XMA collected samples, `XBA$timepoint`.
 ```{r}
 XMA = filter(xue_microbiome_sample, subject == "XMA")
 XMA$timepoint
@@ -287,8 +347,11 @@ We can use this weighting vector to compute the temporal variability of subject 
 fava(relab_matrix = XMA, 
      K = 524, 
      w = weights)
-```
 
+fava(relab_matrix = XMA, 
+     K = 524, 
+     time = "timepoint")
+```
 
 You may incorporate both species similarity (specifying `S`) and uneven row weightings (specifying `w` or `time`) into the computation of FAVA. 
 ```{r}
@@ -304,29 +367,46 @@ We will specify both `S` and `time` in our analysis of this data set because it 
 
 ### 4 - Bootstrapping
 
+The preceding computation suggested that subject XDA had the most temporally variable microbiome across the entire study period, while subject XMA had much lower variability than either XDA or XBA. To determine if these differences in variability levels are statistically significant, we employ bootstrapping. Bootstrapping involves drawing rows with replacement from each relative abundance matrix in order to generate a replicate matrix (called a "bootstrap replicate") which has the same number of rows as the original matrix, but may omit some rows and include other rows multiple times. Generating many bootstrap replicates and computing FAVA on each produces a "bootstrap distribution" of FAVA for each matrix. Repeating this procedure for each of multiple matrices, as we do here for each subject, results in several bootstrap distributions which can be statistically compared. Bootstrapping thus allows for the statistical comparison multiple matrices. 
+
+In the below example, we generate 100 bootstrap replicates (`n_replicates = 100`) of the relative abundances for each subject (`group = "subject"`). We weight each FAVA computation by the sampling times (`time = "timepoint"`) and the species similarity (`S = xue_species_similarity`). Because bootstrapping is a random process, running the code multiple times would give slightly different results. Setting a random seed (`seed = 1`) makes this result repeatable. We specify `save_replicates = FALSE` so that `bootstrap_fava` does not save all 300 replicate matrices (100 for each of 3 subjects), which would make the resulting object quite large.
+
 ```{r}
 bootstrap_out = bootstrap_fava(matrices = xue_microbiome_sample, 
-                               n_replicates = 100, seed = 1, 
-                               group = "subject", time = "timepoint",
+                               n_replicates = 100, 
+                               seed = 1, 
+                               group = "subject", 
+                               time = "timepoint", 
+                               S = xue_species_similarity,
                                save_replicates = FALSE)
+```
 
+The resulting list, which we have named `bootstrap_out`, includes the value of FAVA for each bootstrap replicate (`statistics`), plots of each subject's bootstrap distribution of FAVA (`plot_boxplot`, `plot_violin`, and `plot_ecdf`), and the results of statistical tests comparing the distributions (`test_kruskal_wallis` and `test_pairwise_wilcox`). The entry `bootstrap_replicates` would contain all of the bootstrap replicate matrices if we had not specified `save_replicates = FALSE`.
+
+```{r}
+str(bootstrap_out, max.level = 1)
+```
+
+
+```{r}
 bootstrap_out$plot_violin
 
 bootstrap_out$test_pairwise_wilcox
 ```
 
-
+We can determine, based on a pairwise Wilcoxon rank sum test, that the three bootstrap distributions are significantly different. 
 
 ### 5 - Sliding windows
+
+Finally, in order to explore how temporal variability changes over the course of the study period for each subject, we compute FAVA in sliding windows. We here use sliding windows 6-samples wide separated by 1-sample increments, but those values can be customized using the `window_size` and `window_step` parameters. 
 
 #### Compute FAVA for each window
 ```{r}
 window_out = window_fava(relab_matrix = xue_microbiome_sample,
+                         window_size = 6, window_step = 1,
                          K = 524,
-                         w = time_weights(times = xue_microbiome_sample$timepoint,
-                              group = xue_microbiome_sample$subject),
+                         time = "timepoint",
                          S = xue_species_similarity,
-                         window_size = 6,
                          group = "subject")
 head(window_out)
 ```
@@ -338,3 +418,4 @@ window_plot(window_out) +
   ggplot2::facet_wrap(~ group)
 ```
 
+We see that each subject experiences an increase in variability when they are taking the antibiotic. Both subjects XDA and XMA return to FAVA values similar to their pre-antibiotic values, but subject XBA does not re-stabilize during the study period. 
