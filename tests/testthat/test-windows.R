@@ -101,4 +101,14 @@ test_that("window_fava works - unnormalized, grouped, generic weighting vector",
 # test_that("window_fava works the same when provided with time vs. equivalent weights"){
 # }
 
+window_out_grouped = window_fava(relab_matrix = Q, group = "subject", time = "timepoint",
+                                  K = 524, window_size = 8, window_step = 2)
 
+window_out_ungrouped = window_fava(relab_matrix = dplyr::filter(Q, subject == "XBA"),
+                                   time = "timepoint",
+                                 K = 524, window_size = 8, window_step = 2)
+
+test_that("window_plot works - grouped", {
+  expect_no_error(window_plot(window_out_grouped))
+  expect_no_error(window_plot(window_out_ungrouped))
+})

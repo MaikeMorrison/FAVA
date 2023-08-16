@@ -291,8 +291,12 @@ bootstrap_fava <- function(matrices, n_replicates,
     names
   ))
 
+  if(!save_replicates){
+    bootstrap_replicates = NULL
+  }
+
   return(list(
-    bootstrap_replicates = ifelse(save_replicates, bootstrap_replicates, NULL),
+    bootstrap_replicates = bootstrap_replicates,
     statistics = all_stats,
     plot_boxplot = plot_boxplot,
     plot_violin = plot_violin,

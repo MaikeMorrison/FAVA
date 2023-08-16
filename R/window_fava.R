@@ -60,7 +60,8 @@ window_fava <- function(relab_matrix, window_size, window_step = 1,
 
 
   if(is.null(group)){
-    window_indices = window_list(window_size = window_size, length = nrow(relab_matrix), window_step = window_step)
+    window_indices = window_list(window_size = window_size, length = nrow(relab_matrix),
+                                 window_step = window_step)
 
     return(window_fava_sub(relab_matrix = relab_matrix,
                            window_indices = window_indices, window_size = window_size,
@@ -117,55 +118,56 @@ window_fava_sub = function(relab_matrix, window_indices, window_size,
 }
 
 
-#' # window_plot -----------------------------------------------------------------
-#' #' Generate a plot of FAVA in sliding windows.
-#' #'
-#' #' This function generates a plot of normalized or unnormalized, weighted or
-#' #' unweighted FAVA computed in sliding windows for one or many groups of samples.
-#' #'
-#' #' @param window_fava The output of \code{window_fava}.
-#' #' @param alpha Optional; number between 0 and 1 specifying the opacity of the horizontal
-#' #' lines plotted. Default is \code{alpha = 0.5}.
-#' #' @returns A ggplot2 object.
-#' #' @examples
-#' #' A = matrix(c(.3,.7,0,.1,0,.9,.2,.5,.3,.1,.8,.1,.3,.4,.3,.6,.4,0,0,.5,.5),
-#' #'            ncol = 3, byrow = TRUE)
-#' #' window_out = window_fava(relab_matrix = A, window_size = 4, normalized = TRUE)
-#' #' window_plot(window_fava = window_out, alpha = 0.8)
-#' #' @export
-#' window_plot <- function(window_fava, alpha = 0.5){
+# window_plot -----------------------------------------------------------------
+#' Generate a plot of FAVA in sliding windows.
 #'
-#'   # If data has multiple groups ----------------------------------------
-#'   if("group" %in% colnames(window_fava)){
-#'     window_long = window_fava %>%
-#'       tidyr::pivot_longer(-c(.data$group, .data$FAVA, .data$window_index),
-#'                           values_to = "index", names_to = "window_count")
+#' This function generates a plot of normalized or unnormalized, weighted or
+#' unweighted FAVA computed in sliding windows across samples for one or many
+#' groups of samples.
 #'
-#'     ggplot2::ggplot() +
-#'       ggplot2::geom_line(ggplot2::aes(x = .data$index,
-#'                                       y = .data$FAVA,
-#'                                       color = .data$group,
-#'                                       group = paste0(.data$window_index, .data$group)),
-#'                          window_long, size = 1, alpha = alpha) +
-#'       ggplot2::theme_bw() +
-#'       ggplot2::ylab("FAVA") +
-#'       ggplot2::xlab("Index") +
-#'       ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(alpha = 1)))
-#'   }else{
-#'     # If data has only one group ----------------------------------------
-#'     window_long = window_fava %>%
-#'       tidyr::pivot_longer(-c(.data$FAVA, .data$window_index),
-#'                           values_to = "index", names_to = "window_count")
-#'
-#'     ggplot2::ggplot() +
-#'       ggplot2::geom_line(ggplot2::aes(x = .data$index,
-#'                                       y = .data$FAVA,
-#'                                       group = paste0(.data$window_index)),
-#'                          window_long, size = 1, alpha = alpha) +
-#'       ggplot2::theme_bw() +
-#'       ggplot2::ylab("FAVA") +
-#'       ggplot2::xlab("Index") +
-#'       ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(alpha = 1)))
-#'   }
-#'
-#' }
+#' @param window_fava The output of \code{window_fava}.
+#' @param alpha Optional; number between 0 and 1 specifying the opacity of the horizontal
+#' lines plotted. Default is \code{alpha = 0.5}.
+#' @returns A ggplot2 object.
+#' @examples
+#' A = matrix(c(.3,.7,0,.1,0,.9,.2,.5,.3,.1,.8,.1,.3,.4,.3,.6,.4,0,0,.5,.5),
+#'            ncol = 3, byrow = TRUE)
+#' window_out = window_fava(relab_matrix = A, window_size = 4, normalized = TRUE)
+#' window_plot(window_fava = window_out, alpha = 0.8)
+#' @export
+window_plot <- function(window_fava, alpha = 0.5){
+
+  # If data has multiple groups ----------------------------------------
+  if("group" %in% colnames(window_fava)){
+    window_long = window_fava %>%
+      tidyr::pivot_longer(-c(.data$group, .data$FAVA, .data$window_index),
+                          values_to = "index", names_to = "window_count")
+
+    ggplot2::ggplot() +
+      ggplot2::geom_line(ggplot2::aes(x = .data$index,
+                                      y = .data$FAVA,
+                                      color = .data$group,
+                                      group = paste0(.data$window_index, .data$group)),
+                         window_long, size = 1, alpha = alpha) +
+      ggplot2::theme_bw() +
+      ggplot2::ylab("FAVA") +
+      ggplot2::xlab("Index") +
+      ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(alpha = 1)))
+  }else{
+    # If data has only one group ----------------------------------------
+    window_long = window_fava %>%
+      tidyr::pivot_longer(-c(.data$FAVA, .data$window_index),
+                          values_to = "index", names_to = "window_count")
+
+    ggplot2::ggplot() +
+      ggplot2::geom_line(ggplot2::aes(x = .data$index,
+                                      y = .data$FAVA,
+                                      group = paste0(.data$window_index)),
+                         window_long, size = 1, alpha = alpha) +
+      ggplot2::theme_bw() +
+      ggplot2::ylab("FAVA") +
+      ggplot2::xlab("Index") +
+      ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(alpha = 1)))
+  }
+
+}
