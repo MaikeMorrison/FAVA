@@ -17,50 +17,50 @@ test_that("window_list works", {
 test_that("window_fava works - unnormalized, ungrouped", {
   expect_no_error(window_fava(relab_matrix = Q, normalized = FALSE,
                               K = 524, window_size = 20, window_step = 10))
-  expect_true(is.data.frame(window_fava(relab_matrix = Q, normalized = FALSE,
+  expect_true(is.list(window_fava(relab_matrix = Q, normalized = FALSE,
                                     K = 524, window_size = 20, window_step = 10)))
   expect_equal(window_fava(relab_matrix = Q, normalized = FALSE,
-                                        K = 524, window_size = 20, window_step = 10)[1,1],
+                                        K = 524, window_size = 20, window_step = 10)$window_data[1,1],
                fava(Q[1:20,], K = 524))
 })
 
 test_that("window_fava works - normalized, ungrouped", {
   expect_no_error(window_fava(relab_matrix = Q, normalized = TRUE,
                               K = 524, window_size = 20, window_step = 10))
-  expect_true(is.data.frame(window_fava(relab_matrix = Q, normalized = TRUE,
+  expect_true(is.list(window_fava(relab_matrix = Q, normalized = TRUE,
                                         K = 524, window_size = 20, window_step = 10)))
   expect_equal(window_fava(relab_matrix = Q, normalized = TRUE,
-                           K = 524, window_size = 20, window_step = 10)[1,1],
+                           K = 524, window_size = 20, window_step = 10)$window_data[1,1],
                fava(Q[1:20,], K = 524, normalized = TRUE))
 })
 
 test_that("window_fava works - unnormalized, grouped", {
   expect_no_error(window_fava(relab_matrix = Q, normalized = FALSE, group = "subject",
                               K = 524, window_size = 8, window_step = 2))
-  expect_true(is.data.frame(window_fava(relab_matrix = Q, normalized = FALSE, group = "subject",
+  expect_true(is.list(window_fava(relab_matrix = Q, normalized = FALSE, group = "subject",
                                         K = 524, window_size = 8, window_step = 2)))
   expect_equal(window_fava(relab_matrix = Q, normalized = FALSE, group = "subject",
-                           K = 524, window_size = 8, window_step = 2)[1,2],
+                           K = 524, window_size = 8, window_step = 2)$window_data[1,2],
                fava(Q[1:8,], K = 524))
 })
 
 test_that("window_fava works - normalized, grouped", {
   expect_no_error(window_fava(relab_matrix = Q, normalized = TRUE, group = "subject",
                               K = 524, window_size = 8, window_step = 2))
-  expect_true(is.data.frame(window_fava(relab_matrix = Q, normalized = TRUE, group = "subject",
+  expect_true(is.list(window_fava(relab_matrix = Q, normalized = TRUE, group = "subject",
                                         K = 524, window_size = 8, window_step = 2)))
   expect_equal(window_fava(relab_matrix = Q, normalized = TRUE, group = "subject",
-                           K = 524, window_size = 8, window_step = 2)[1,2],
+                           K = 524, window_size = 8, window_step = 2)$window_data[1,2],
                fava(Q[1:8,], K = 524, normalized = TRUE))
 })
 
 test_that("window_fava works - unnormalized, grouped, time-weighted", {
   expect_no_error(window_fava(relab_matrix = Q, group = "subject", time = "timepoint",
                               K = 524, window_size = 8, window_step = 2))
-  expect_true(is.data.frame(window_fava(relab_matrix = Q, group = "subject", time = "timepoint",
+  expect_true(is.list(window_fava(relab_matrix = Q, group = "subject", time = "timepoint",
                                         K = 524, window_size = 8, window_step = 2)))
-  expect_equal(window_fava(relab_matrix = Q, group = "subject", time = "timepoint",
-                           K = 524, window_size = 8, window_step = 2)[1,2],
+  expect_equal(as.numeric(window_fava(relab_matrix = Q, group = "subject", time = "timepoint",
+                           K = 524, window_size = 8, window_step = 2)$window_data[1,2]),
                fava(Q[1:8,], K = 524, time = "timepoint"))
 })
 
@@ -68,10 +68,10 @@ w = time_weights(times = Q$timepoint, group = Q$subject)
 test_that("window_fava works - unnormalized, grouped, generic weighting vector", {
   expect_no_error(window_fava(relab_matrix = Q, group = "subject", w = w,
                               K = 524, window_size = 8, window_step = 2))
-  expect_true(is.data.frame(window_fava(relab_matrix = Q, group = "subject", w = w,
+  expect_true(is.list(window_fava(relab_matrix = Q, group = "subject", w = w,
                                         K = 524, window_size = 8, window_step = 2)))
   expect_equal(window_fava(relab_matrix = Q, group = "subject", w = w,
-                           K = 524, window_size = 8, window_step = 2)[1,2],
+                           K = 524, window_size = 8, window_step = 2)$window_data[1,2],
                fava(Q[1:8,], K = 524, w = w[1:8]/sum(w[1:8])))
 
 })
@@ -109,6 +109,6 @@ window_out_ungrouped = window_fava(relab_matrix = dplyr::filter(Q, subject == "X
                                  K = 524, window_size = 8, window_step = 2)
 
 test_that("window_plot works - grouped", {
-  expect_no_error(window_plot(window_out_grouped))
-  expect_no_error(window_plot(window_out_ungrouped))
+  expect_no_error(window_plot(window_out_grouped$window_data))
+  expect_no_error(window_plot(window_out_ungrouped$window_data))
 })

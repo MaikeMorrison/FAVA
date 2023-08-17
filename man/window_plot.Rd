@@ -24,5 +24,6 @@ groups of samples.
 A = matrix(c(.3,.7,0,.1,0,.9,.2,.5,.3,.1,.8,.1,.3,.4,.3,.6,.4,0,0,.5,.5),
            ncol = 3, byrow = TRUE)
 window_out = window_fava(relab_matrix = A, window_size = 4, normalized = TRUE)
-window_plot(window_fava = window_out, alpha = 0.8)
+window_out$window_data
+window_out$window_plot
 }

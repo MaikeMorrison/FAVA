@@ -39,33 +39,45 @@ window_list <- function(window_size, length, window_step = 1){
 #' each row must sum to 1.
 #' @param window_size An integer number specifying the number of samples per window.
 #' @param window_step Optional; an integer specifying the distance between the first entry of adjacent windows. Default is \code{window_step=1}.
+#' @param index Optional; a string specifying the name of the column in \code{relab_matrix} containing an index for each sample. For example, if \code{relab_matrix} contains time series data, \code{index} would be the column containing the time of each sample. If \code{index} is not specified by \code{time} is, \code{time} is by default used as the index.
 #' @param group Optional; a string specifying the name of the column that describes which group each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.
 #' @param time Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.
 #' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
-#' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.
 #' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equaling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.
+#' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.
 #' @param normalized Optional; should normalized FAVA be used? Default is \code{normalized = FALSE}; use \code{normalized = TRUE} to compute normalized FAVA. FAVA can only be normalized if it is not weighted.
+#' @param alpha Optional; number between 0 and 1 specifying the opacity of the horizontal
+#' lines plotted. Default is \code{alpha = 0.5}.
 #' @returns A list of values of fava for each window.
 #' @importFrom dplyr %>%
 #' @examples
 #' A = matrix(c(.3,.7,0,.1,0,.9,.2,.5,.3,.1,.8,.1,.3,.4,.3,.6,.4,0,0,.5,.5),
 #'            ncol = 3, byrow = TRUE)
-#' window_fava(relab_matrix = A, window_size = 4, normalized = TRUE)
+#' window_out = window_fava(relab_matrix = A, window_size = 4, normalized = TRUE)
 #' @export
 window_fava <- function(relab_matrix, window_size, window_step = 1,
                         group = NULL,
+                        index = NULL,
                         time = NULL, w = NULL,
-                        K = NULL, S = NULL,
-                        normalized = FALSE){
+                        S = NULL,
+                        K = NULL, normalized = FALSE,
+                        alpha = 0.5){
 
+  # Should the plot say "Weighted" or "Normalized" on the y-axis?
+  y_axis = ifelse(!(is.null(time) & is.null(w) & is.null(S)),
+                  "Weighted FAVA",
+                  ifelse(normalized,
+                         "Normalized FAVA",
+                         "FAVA"))
 
   if(is.null(group)){
     window_indices = window_list(window_size = window_size, length = nrow(relab_matrix),
                                  window_step = window_step)
 
-    return(window_fava_sub(relab_matrix = relab_matrix,
+    window_data = window_fava_sub(relab_matrix = relab_matrix,
                            window_indices = window_indices, window_size = window_size,
-                    time = time, w = w, K = K, S = S, normalized = normalized))
+                    time = time, w = w, K = K, S = S, normalized = normalized)
+
   } else{
 
     group_fava_list = list()
@@ -87,10 +99,31 @@ window_fava <- function(relab_matrix, window_size, window_step = 1,
       i = i + 1
     }
 
-    return(do.call(rbind, group_fava_list))
+    window_data = do.call(rbind, group_fava_list)
   }
+
+  # If time is provided but index is not, make index same as time
+  if((!is.null(time)) & (is.null(index))) index = time
+
+  if((!is.null(time))){
+
+    window_data = tidyr::pivot_longer(window_data, cols = paste0("w", 1:window_size),
+                        names_to = "window_number", values_to = "generic_index") %>%
+      dplyr::left_join(data.frame(original_index = relab_matrix[,index] %>% unlist,
+                           generic_index = 1:nrow(relab_matrix))) %>%
+      dplyr::select(-generic_index) %>%
+      tidyr::pivot_wider(names_from = window_number, values_from = original_index)
+  }
+
+
+
+  return(list(window_data = window_data,
+              window_plot = window_plot(window_fava = window_data, alpha = alpha) +
+                ggplot2::ylab(y_axis)))
 }
 
+# To appease R command check
+utils::globalVariables(c("generic_index", "original_index", "window_number"))
 
 # helper function: compute fava for given windows on a full data set
 window_fava_sub = function(relab_matrix, window_indices, window_size,
@@ -133,7 +166,8 @@ window_fava_sub = function(relab_matrix, window_indices, window_size,
 #' A = matrix(c(.3,.7,0,.1,0,.9,.2,.5,.3,.1,.8,.1,.3,.4,.3,.6,.4,0,0,.5,.5),
 #'            ncol = 3, byrow = TRUE)
 #' window_out = window_fava(relab_matrix = A, window_size = 4, normalized = TRUE)
-#' window_plot(window_fava = window_out, alpha = 0.8)
+#' window_out$window_data
+#' window_out$window_plot
 #' @export
 window_plot <- function(window_fava, alpha = 0.5){
 

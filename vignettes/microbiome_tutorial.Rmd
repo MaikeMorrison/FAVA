@@ -398,7 +398,7 @@ We can determine, based on a pairwise Wilcoxon rank sum test, that the three boo
 
 ### 5 - Sliding windows
 
-Finally, in order to explore how temporal variability changes over the course of the study period for each subject, we compute FAVA in sliding windows. We here use sliding windows 6-samples wide separated by 1-sample increments, but those values can be customized using the `window_size` and `window_step` parameters. 
+Finally, in order to explore how temporal variability changes over the course of the study period for each subject, we compute FAVA in sliding windows. We here use sliding windows 6-samples wide separated by 1-sample increments, but those values can be customized using the `window_size` and `window_step` parameters. Like `bootstrap_fava`, the function `window_fava` returns a list of objects. `window_fava$window_data` is a data frame containing the value of FAVA for each sliding window. `window_fava$window_plot` plots the value of FAVA for each window as a horizontal line segment with length corresponding to the samples included and vertical position determined by the window's FAVA value. 
 
 #### Compute FAVA for each window
 ```{r}
@@ -408,13 +408,13 @@ window_out = window_fava(relab_matrix = xue_microbiome_sample,
                          time = "timepoint",
                          S = xue_species_similarity,
                          group = "subject")
-head(window_out)
+head(window_out$window_data) 
 ```
 
 #### Visualize FAVA in sliding windows
 ```{r}
-window_plot(window_out)
-window_plot(window_out) + 
+window_out$window_plot
+window_out$window_plot + 
   ggplot2::facet_wrap(~ group)
 ```
 
