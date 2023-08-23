@@ -99,13 +99,13 @@ my_data[,c(4:10)] = my_data[,c(4:10)]/rowSums(my_data[,c(4:10)])
 
 ### Optional: species similarity matrix
 
-In order to compute a version of the FAVA variability statistic that accounts for the phylogenetic similarity between species, you must provide a phylogenetic similarity matrix, $S$. Such a matrix can be generated from species sequence data via the four steps outlined below. We include example code to generate a similarity matrix from a _phyloseq_ object.
+In order to compute a version of the FAVA variability statistic that accounts for the phylogenetic similarity between species, you must provide a phylogenetic similarity matrix, $S$. Such a matrix can be generated from species sequence data via the four steps outlined below. We include example code to generate a similarity matrix from a _phyloseq_ object. This process is discussed at greater length in a supplement to this tutorial, [Generating a similarity matrix].
 
 1. **Generate a phylogenetic tree describing the relationships among the species present in your samples.** There are many platforms for such analysis, such as [this workflow using DADA2](https://f1000research.com/articles/5-1492/v2). 
 
 2. **Convert the phylogenetic tree to a distance matrix.** Phylogenetic tree objects can be easily converted to distance matrices using functions such as `cophenetic.phylo` in the _ape_ R package. If $D$ is the phylogenetic distance matrix, entry $D_{i,j}$ represents the phylogenetic distance between species $i$ and species $j$. 
 
-3. **Convert the phylogenetic distance matrix to a similarity matrix.** Whereas the distance between two identical species is 0, the similarity between two identical species is 1. We therefore use a simple transformation to convert the distance between species $i$ and $j$, $D_{i,j}$, to the similarity between species $i$ and $j$, $S_{i,j}$, mapping distances of 0 to similarities of 1. For the example analysis in this tutorial and in the accompanying paper, we use the transformation $S_{i,j}=\exp(-D_{i,j})$. Other transformations, such as $S_{i,j}=\frac{1}{D_{i,j}+1}$ or $S_{i,j}=1-\frac{D_{i,j}}{\max{(D_{i,j})}}$, are also suitable but result in a different mean similarity across species.
+3. **Convert the phylogenetic distance matrix to a similarity matrix.** Whereas the distance between two identical species is 0, the similarity between two identical species is 1. We therefore use a simple transformation to convert the distance between species $i$ and $j$, $D_{i,j}$, to the similarity between species $i$ and $j$, $S_{i,j}$, mapping distances of 0 to similarities of 1. For the example analysis in this tutorial and in the accompanying paper, we use the transformation $S_{i,j}=\exp(-D_{i,j})$. Other transformations, such as $S_{i,j}=\frac{1}{D_{i,j}+1}$ or $S_{i,j}=1-\frac{D_{i,j}}{\max{(D_{i,j})}}$, are also suitable but result in a different mean similarity across species. The choice of transformation is discussed at length in a supplement to this tutorial, [Generating a similarity matrix].
 
 4. **Ensure that the order and identity of the species in the similarity matrix match the order and identity of the species in your relative abundance matrix.** 
 
@@ -515,7 +515,7 @@ Next, we explore three transformations to convert the phylogenetic distance betw
 
 * Inverse: $S_{i,j}=\frac{1}{D_{i,j}+1}$
 
-These three transformations are plotted below for a maximum pairwise distance of approximately 3.7 $(\max{(D_{i,j})}\approx 3.7)$, the maximum distance of our example data. 
+These three transformations are plotted below for the maximum pairwise distance of our example data, approximately 3.7 $(\max{(D_{i,j})}\approx 3.7)$. 
 ```{r, echo = FALSE, fig.height = 8}
 pal = c("#157f1f", "#0a2463", "#3891a6")
 
@@ -554,7 +554,7 @@ These transformations result in very different pairwise similarity matrices. Bel
 
 **a.** Plotting each of the three similarity matrices as a heat map, with each pairwise similarity colored on a scale from 0 (dark purple) to 1 (bright yellow). Notice the consistent yellow diagonal in each plot, confirming that each species has similarity 1 with itself, regardless of transformation. 
 
-**b.** Plotting the distribution of pairwise similarity values (all entries of each matrix) for each transformation
+**b.** Plotting the distribution of pairwise similarity values (all entries of each matrix) for each transformation.
 
 **c.** Computing summary statistics (minimum, first quartile, median, mean, third quartile, maximum) across all pairwise similarities for each transformation.
 
@@ -606,7 +606,7 @@ summary(c(inverse_similarity))
 ```
 
 
-These summaries illuminate important differences among the transformations
+These summaries illuminate important differences among the transformations.
 
 * The **difference** transformation generally results in *high* pairwise similarities.
 
@@ -624,9 +624,11 @@ These summaries illuminate important differences among the transformations
     
     * The mean similarity between species on a scale of 0 to 1 (c) is just **0.14.** 
     
-* The **inverse** transformation is similar to the difference distribution for this range of phylogenetic distances (0-3.7), but will be more similar to the exponential distribution for data with a higher maximum phylogenetic distance ($\max{(D_{i,j})}$).  
+* The **inverse** transformation is similar to the difference distribution for the range of phylogenetic distances present in this data set ($D_{i,j}\in [0,3.7]$), but the transformation will be more similar to the exponential distribution when the maximum phylogenetic distance ($\max{(D_{i,j})}$) is larger (e.g., see the above plot of the transformation functions when $\max{(D_{i,j})}=100$).  
 
-    * Its distribution of pairwise similarities (b) has a narrow peak like the exponential transformation, but a center around 0.3 like the difference transformation. This shift is also reflected by its large mean similarity value of **0.32**, which is similar to that of the difference transformation (c). 
+    * Its distribution of pairwise similarities (b) has a narrow peak like the exponential transformation, but a center around 0.3 like the difference transformation. 
+    
+    * This shift is also reflected by its large mean similarity value of **0.32**, which is similar to that of the difference transformation (c). 
   
 Your choice of transformation depends on your desired distribution of pairwise similarities: 
 
@@ -634,12 +636,14 @@ Your choice of transformation depends on your desired distribution of pairwise s
 
 * Use the **exponential** transformation if you want only very closely related species to be treated as similar.
 
+* Use the **inverse** transformation if you want an intermediate between the difference and exponential transformations, though note that the shape depends on the value of $\max{(D_{i,j})}$.
+
 For the example analysis in this tutorial and in the accompanying paper, we use the exponential transformation because we wish to only account for similarities among very closely related species. However, this decision is informed by the biological processes at play in the data, so other choices may be more suitable for different data sets. 
 
 
 ### (3) How do these transformations influence the value of FAVA?
 
-We first compute FAVA across all samples for each subject using each of the three different similarity matrices (difference, exponential, and inverse). 
+We first compute FAVA across all samples for each subject using each of the three different similarity matrices (difference, exponential, and inverse). In each of these calculations, we weight samples based on their sampling time. 
 
 ```{r, echo = FALSE}
 rbind(fava(xue_microbiome_sample, group = "subject", time = "timepoint", S = difference_similarity),
@@ -654,7 +658,7 @@ rbind(fava(xue_microbiome_sample, group = "subject", time = "timepoint", S = dif
 
 ```
 
-We find that the exponential and inverse transformations yield very similar results. The difference transformation yields FAVA values much lower than the other transformations for subject XDA and XMA, but not for subject XBA. 
+We find that the exponential and inverse transformations yield very similar results. The difference transformation, on the other hand, yields FAVA values much lower than the other transformations for subject XDA and XMA, though not for XBA. 
 
 We next repeat the sliding window analysis for each of the three transformations. 
 
@@ -694,11 +698,11 @@ difference_window$window_plot + ylim(0,0.3) + ggtitle("Difference") +
 
 ```
 
-We find that the results across transformations are qualitatively the same, despite small differences: XBA has the highest peak variability and does not stabilize, while XDA and XMA both stabilize at FAVA values similar to their initial values. 
+We find that the results across transformations are qualitatively the same, despite small differences. Regardless of the transformation used to generate the similarity matrix, XBA has the highest peak variability and does not stabilize, while XDA and XMA both stabilize at FAVA values similar to their initial values. 
 
-In order to more easily compare the three transformations, we plot only the study day corresponding to the center of the sliding window 
+In order to more easily compare the three transformations, we plot each sliding window as a point, with the location along the x-axis corresponding to the center of the sliding window. 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.height=6}
 fava_window_transformation = rbind(mutate(difference_window$window_data, Transformation = "Difference"),
       mutate(exponential_window$window_data, Transformation = "Exponential"),
       mutate(inverse_window$window_data, Transformation = "Inverse"))
@@ -708,15 +712,32 @@ ggplot() +
                data.frame(x = rep(c(29, 34, 34, 29), 3),
                           y = rep(c(0, 0, 0.3, 0.3), 3),
                           group = rep(c("XBA", "XDA", "XMA"), each = 4)),
-               fill = "grey", alpha = 0.7) + 
-  geom_point(aes(x = w1 + (w6 - w1)/2, y = FAVA, color = Transformation), fava_window_transformation,
+               fill = "grey", alpha = 0.5) + 
+  geom_point(aes(x = (w6 + w1)/2, y = FAVA, color = Transformation), fava_window_transformation,
              alpha = 0.5, size = 2) + 
-  geom_line(aes(x = w1 + (w6 - w1)/2, y = FAVA, color = Transformation), fava_window_transformation,
+  geom_line(aes(x = (w6 + w1)/2, y = FAVA, color = Transformation), fava_window_transformation,
             size = 1, alpha = 0.5)  + 
   facet_wrap(~ group) +
   theme_bw()+ 
   scale_color_manual(values = pal) + 
-  xlab("Study day of sliding window center") +
-   ylab("Weighted FAVA")
+  xlab("Study day") +
+   ylab("Weighted FAVA") +
+  theme(legend.position = c(0.92, 0.8))
+```
+
+We find that the relative ordering of FAVA values for the three transformations depends on both subject and the window time relative to antibiotic. For windows overlapping with the antibiotic period (grey rectangle), the FAVA values generated from a difference-transformed similarity matrix are very different from those generated by the other two transformations---greater for subject XBA, and smaller for subjects XDA and XMA. For windows far from the antibiotic window, the results for each transformation are more similar. 
+
+**Maike to remove below section after talking with Katherine**
+
+I speculated that there could be an association between the amount of variability in a window and the disparity between methods (perhaps when there's more variability, the methods disagree more?), but the results are extremely inconsistent among subjects.
+
+```{r}
+fava_window_transformation %>% pivot_wider(names_from = Transformation, values_from = FAVA) %>% 
+  mutate("Difference - Exponential" = Difference - Exponential) %>%
+  ggplot(aes(x = Exponential, y = `Difference - Exponential`, color = abs((w6 + w1)/2 - 31.5))) + 
+  geom_smooth(method = "lm", color = "grey", alpha = 0.3) +
+  geom_point(size = 3, alpha = 0.8) + theme_bw() +
+  facet_wrap(~ group, scales = "free") +
+  scale_color_viridis_c(name = "Days from\nabx center")
 ```
 

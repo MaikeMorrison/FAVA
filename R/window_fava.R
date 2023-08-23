@@ -105,7 +105,7 @@ window_fava <- function(relab_matrix, window_size, window_step = 1,
   # If time is provided but index is not, make index same as time
   if((!is.null(time)) & (is.null(index))) index = time
 
-  if((!is.null(time))){
+  if((!is.null(index))){
 
     window_data = tidyr::pivot_longer(window_data, cols = paste0("w", 1:window_size),
                         names_to = "window_number", values_to = "generic_index") %>%
@@ -134,7 +134,7 @@ window_fava_sub = function(relab_matrix, window_indices, window_size,
   for(window in window_indices){
     if(!is.null(w)){
       w_subset = w[window]/sum(w[window])
-    } else{
+    }else{
       w_subset = NULL
     }
 

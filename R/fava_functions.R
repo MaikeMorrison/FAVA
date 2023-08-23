@@ -406,7 +406,7 @@ fava <- function(relab_matrix,
                                      group = group,
                                      time = time)
 
-  if(!is.null(group)){
+  if((!is.null(group)) & (is.null(w))){
     w = rep(1/table(relab_matrix_clean$group), table(relab_matrix_clean$group))
   }
 

@@ -31,7 +31,7 @@ each row must sum to 1.}
 
 \item{group}{Optional; a string specifying the name of the column that describes which group each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.}
 
-\item{index}{Optional; a string specifying the name of the column in \code{relab_matrix} containing an index for each sample. For example, if \code{relab_matrix} contains time series data, \code{index} would be the column containing the time of each sample. If \code{index} is not specified by \code{time} is, \code{time} is by default used as the index.}
+\item{index}{Optional; a string specifying the name of the column in \code{relab_matrix} containing an index for each sample. For example, if \code{relab_matrix} contains time series data, \code{index} would be the column containing the time of each sample. If \code{index} is not specified but \code{time} is, \code{time} is by default used as the index.}
 
 \item{time}{Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.}
 
