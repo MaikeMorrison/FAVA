@@ -457,8 +457,10 @@ fava <- function(relab_matrix,
                                 gini_simpson_mean_fast(relab_sub, K, w_sub, S))/
                                gini_simpson_pooled_fast(relab_sub, K, w_sub, S)))
       }
-      names(fava_list) = unique(relab_matrix_clean$group)
-      return(fava_list)
+      fava_df = data.frame(unique(relab_matrix_clean$group), fava_list)
+      colnames(fava_df) = c(group, "FAVA")
+      # names(fava_list) = unique(relab_matrix_clean$group)
+      return(fava_df)
     }
 }
 
