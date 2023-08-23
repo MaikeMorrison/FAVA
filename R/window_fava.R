@@ -39,7 +39,7 @@ window_list <- function(window_size, length, window_step = 1){
 #' each row must sum to 1.
 #' @param window_size An integer number specifying the number of samples per window.
 #' @param window_step Optional; an integer specifying the distance between the first entry of adjacent windows. Default is \code{window_step=1}.
-#' @param index Optional; a string specifying the name of the column in \code{relab_matrix} containing an index for each sample. For example, if \code{relab_matrix} contains time series data, \code{index} would be the column containing the time of each sample. If \code{index} is not specified by \code{time} is, \code{time} is by default used as the index.
+#' @param index Optional; a string specifying the name of the column in \code{relab_matrix} containing an index for each sample. For example, if \code{relab_matrix} contains time series data, \code{index} would be the column containing the time of each sample. If \code{index} is not specified but \code{time} is, \code{time} is by default used as the index.
 #' @param group Optional; a string specifying the name of the column that describes which group each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.
 #' @param time Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.
 #' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
@@ -91,7 +91,7 @@ window_fava <- function(relab_matrix, window_size, window_step = 1,
 
       window_indices = window_list(window_size = window_size, length = nrow(relab_matrix_group), window_step = window_step)
 
-      group_fava_list[[i]] = dplyr::mutate(window_fava_sub(relab_matrix = relab_matrix_group,
+      group_fava_list[[i]] = dplyr::mutate(window_fava_sub(relab_matrix = relab_matrix_group, group = group,
                                                            window_indices = window_indices, window_size = window_size,
                                                            time = time, w = w, K = K, S = S, normalized = normalized),
                                            group = element, .before = "FAVA")
@@ -128,7 +128,7 @@ utils::globalVariables(c("generic_index", "original_index", "window_number"))
 # helper function: compute fava for given windows on a full data set
 window_fava_sub = function(relab_matrix, window_indices, window_size,
                            time = NULL, w = NULL,
-                           K = NULL, S = NULL,
+                           K = NULL, S = NULL, group = NULL,
                            normalized = FALSE){
   fava_list = c()
   for(window in window_indices){
@@ -141,7 +141,7 @@ window_fava_sub = function(relab_matrix, window_indices, window_size,
     fava_list = c(fava_list,
                   fava(relab_matrix = relab_matrix[window,],
                        time = time, K = K, normalized = normalized,
-                       w = w_subset, S = S))
+                       w = w_subset, S = S, group = group))
   }
 
   return(cbind(data.frame(FAVA = fava_list,
