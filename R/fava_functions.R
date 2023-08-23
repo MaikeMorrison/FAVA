@@ -239,7 +239,7 @@ fava_norm <- function(relab_matrix, K = ncol(relab_matrix)){
 # An internal function to check if similarity matrices are up to spec and fix any issues automatically.
 # S - a similarity matrix
 # K - the number of taxa
-S_checker <- function(S, K) {
+S_checker <- function(S, K, relab_matrix = NULL) {
 
   if(!isSymmetric(S)){
     warning("S is not symmetric.")
@@ -255,6 +255,15 @@ S_checker <- function(S, K) {
   }
   if(any(S<0)){
     stop("All elements of S must be positive.")
+  }
+  if(!is.null(relab_matrix)){
+    taxa_names = colnames(relab_matrix)[(ncol(relab_matrix)-K + 1):ncol(relab_matrix)]
+    if(any(taxa_names!=colnames(S))){
+      stop("The column names of the similarity matrix S must match the names of the K categories in relab_matrix.")
+    }
+    if(any(taxa_names!=rownames(S))){
+      stop("The row names of the similarity matrix S must match the names of the K categories in relab_matrix.")
+    }
   }
 }
 
