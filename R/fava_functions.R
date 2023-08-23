@@ -259,10 +259,10 @@ S_checker <- function(S, K, relab_matrix = NULL) {
   if(!is.null(relab_matrix)){
     taxa_names = colnames(relab_matrix)[(ncol(relab_matrix)-K + 1):ncol(relab_matrix)]
     if(any(taxa_names!=colnames(S))){
-      stop("The column names of the similarity matrix S must match the names of the K categories in relab_matrix.")
+      warning("The column names of the similarity matrix S do not match the names of the K categories in relab_matrix.")
     }
     if(any(taxa_names!=rownames(S))){
-      stop("The row names of the similarity matrix S must match the names of the K categories in relab_matrix.")
+      warning("The row names of the similarity matrix S do not match the names of the K categories in relab_matrix.")
     }
   }
 }
@@ -425,7 +425,7 @@ fava <- function(relab_matrix,
 
 
   S = as.matrix(S)
-  S_checker(S = S, K = K)
+  S_checker(S = S, K = K, relab_matrix = relab_matrix)
 
   if(!missing(w) && length(w) != nrow(relab_matrix)){
     stop("Length of w must equal number of rows of relab_matrix.")

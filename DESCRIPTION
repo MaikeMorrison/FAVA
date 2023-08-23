@@ -18,6 +18,7 @@ Imports:
     tidyr
 Suggests: 
     knitr,
+    patchwork,
     rmarkdown,
     viridis,
     kableExtra,

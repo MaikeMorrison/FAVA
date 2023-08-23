@@ -1,3 +1,48 @@
+# relab_phyloseq ---------------------------------------------------------------
+#' Generate a relative abundance matrix with sample meta data and OTU abundances from a  phyloseq object.
+#'
+#' The R package phyloseq streamlines the storage and analysis of microbiome sequence data. This function takes a phyloseq object and extracts the OTU table and the sample meta data and combines them into one relative abundance matrix with rows corresponding to samples, meta data on the left-hand side, and OTU relative abundances on the right-hand side.
+#'
+#' @param phyloseq_object A phyloseq object containing both an OTU table (`otu_table`) and sample metadata (`sample_data`).
+#' @returns A data frame with rows representing samples and columns representing sample data categories or OTU relative abundances.
+#' @export
+relab_phyloseq <- function(phyloseq_object){
+  # if(is.null(phyloseq::sample_data(phyloseq_object))){
+  #   warning("phyloseq_object does not have sample_data")
+  #   return(t(phyloseq::otu_table(phyloseq_object)))
+  # }
+  # if(is.null(phyloseq::otu_table(phyloseq_object))){
+  #   stop("phyloseq_object does not include an otu_table")
+  # }
+  if(phyloseq::taxa_are_rows(phyloseq_object)){
+    output = cbind(phyloseq::sample_data(phyloseq_object),
+          t(phyloseq::otu_table(phyloseq_object)))
+  }else{
+    output = cbind(phyloseq::sample_data(phyloseq_object),
+          (phyloseq::otu_table(phyloseq_object)))
+  }
+
+  meta_cols = ncol(phyloseq::sample_data(phyloseq_object))
+  data_cols = (meta_cols+1):ncol(output)
+
+  relab_sums = rowSums(output[,data_cols])
+
+  if(any(relab_sums == 0)){
+    warning(paste0("The following samples summed to 0 and were excluded: ", paste0(names(which(relab_sums==0)), collapse = ", ")))
+    output = output[-which(relab_sums==0),]
+    relab_sums = rowSums(output[,data_cols])
+  }
+
+  if(!all(relab_sums==1)){
+    output[,data_cols] = output[,data_cols]/relab_sums
+    warning("Some of the sample abundances do not sum to exactly 1. Rounding the sum of each sample to 1 by dividing all entries by the sum of the sample.")
+  }
+
+  return(output)
+
+}
+
+
 
 # relab_checker ------------------------------------------------------------------
 # An internal function to check if relab matrices are up to spec and fix any issues automatically.

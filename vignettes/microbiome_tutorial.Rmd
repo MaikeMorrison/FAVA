@@ -75,17 +75,11 @@ Your matrix may contain samples from multiple groups you would like to analyze s
 knitr::include_graphics("../man/figures/schematic_data_structure_1.png")
 ```
 
-You can read your data into R using a function such as `read.csv`. If you use _phyloseq_, you can simply extract and transpose (pivot) the OTU table. _phyloseq_ users may also wish to join their OTU table with their sample data table. Sample code for these tasks is provided below. You may also want to confirm that the right $K$ rows of your matrix each sum to 1.
+You can read your data into R using a function such as `read.csv`. You may also want to confirm that the right $K$ rows of your matrix each sum to 1. Users of _phyloseq_ can use the _FAVA_ function `relab_phyloseq` to generate a relative abundance matrix from a _phyloseq_ object. `relab_phyloseq` combines an OTU table with metadata from the sample data table, creating a data frame with rows corresponding to samples, metadata columns on the left, and OTU relative abundance columns on the right. Sample code for these tasks is provided below. 
 
 ```{r, eval=FALSE}
 # Example code to read in a data set
 my_data = read.csv("Path_to/my_data.csv")
-
-# If your relative abundances are in a phyloseq object,
-# make one object combining the sample data (left-hand side)
-# and the OTU relative abundances (right-hand side)
-my_data = cbind(sample_data(phyloseq_object),  
-                t(otu_table(phyloseq_object)))
 
 # Confirm that your samples each sum to 1
 # if columns 4 through 10 contain the relevant categories
@@ -94,8 +88,12 @@ rowSums(my_data[,c(4:10)])
 
 # Example code to convert counts to relative abundances 
 my_data[,c(4:10)] = my_data[,c(4:10)]/rowSums(my_data[,c(4:10)])
-```
 
+# If your relative abundances are in a phyloseq object,
+# make one object combining the sample data (left-hand side)
+# and the OTU relative abundances (right-hand side)
+my_data = relab_phyloseq(phyloseq_object) 
+```
 
 ### Optional: species similarity matrix
 
@@ -113,7 +111,7 @@ In order to compute a version of the FAVA variability statistic that accounts fo
 # (1) 
 # Here, we assume that you have already generated a phylogenetic tree
 # and that it is a part of your phyloseq object. 
-tree = phy_tree(phyloseq_object)
+tree = phyloseq::phy_tree(phyloseq_object)
 
 # (2) 
 distance_matrix = ape::cophenetic.phylo(tree)
@@ -125,7 +123,6 @@ similarity_matrix = 1 - distance_matrix/max(distance_matrix)
 
 # the similarity matrix we use:
 similarity_matrix = exp(-distance_matrix)
-
 
 # (4)
 # Get the names of the species in your relative abundance matrix
