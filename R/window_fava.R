@@ -138,10 +138,16 @@ window_fava_sub = function(relab_matrix, window_indices, window_size,
       w_subset = NULL
     }
 
+    fava_out = fava(relab_matrix = relab_matrix[window,],
+                    time = time, K = K, normalized = normalized,
+                    w = w_subset, S = S, group = group)
+
+    if(is.data.frame(fava_out)){
+      fava_out = unlist(fava_out[,2])
+    }
+
     fava_list = c(fava_list,
-                  fava(relab_matrix = relab_matrix[window,],
-                       time = time, K = K, normalized = normalized,
-                       w = w_subset, S = S, group = group))
+                  fava_out)
   }
 
   return(cbind(data.frame(FAVA = fava_list,
