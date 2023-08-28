@@ -187,24 +187,31 @@ relab_sample_weighter = function(relab, K = NULL, time = NULL, w = NULL, group =
 
 arrange_categories <- function(relab_matrix, arrange, K = NULL, group = NULL, time = NULL){
 
+  if(arrange == FALSE){
+    relab_checker_out = relab_checker(relab = relab_matrix, K = K, group = group, time = time)
+    relab_matrix_clean = relab_checker_out$relab_matrix
+    relab_matrix_clean = relab_matrix_clean[,colSums(relab_matrix_clean) > 0]
+  }else{
+
   relab_checker_out = relab_checker(relab = relab_matrix, K = K, group = group, time = time)
 
   K = ncol(relab_checker_out$relab_matrix)
 
-  relab_matrix = relab_checker_out$relab_matrix
+  relab_matrix_clean = relab_checker_out$relab_matrix
+  relab_matrix_clean = relab_matrix_clean[,colSums(relab_matrix_clean) > 0]
 
-  if(is.null(colnames(relab_matrix))){
-    colnames(relab_matrix) = paste0("cat_", 1:K)
+  if(is.null(colnames(relab_matrix_clean))){
+    colnames(relab_matrix_clean) = paste0("cat_", 1:K)
   }
 
 
-  if(any(colnames(relab_matrix) %in% as.character(1:1000))){
+  if(any(colnames(relab_matrix_clean) %in% as.character(1:1000))){
     warning("relab_matrix has at least one numeric column name, which can cause errors when re-arranging the columns. The columns are being automatically renamed in order to avoid errors. If you wish to avoid this renaming, please rename the columns of relab_matrix.")
-    colnames(relab_matrix) = paste0("cat_", 1:K)
+    colnames(relab_matrix_clean) = paste0("cat_", 1:K)
   }
 
-  if (arrange !=FALSE){
-    clustermeans <- colMeans(relab_matrix) %>% sort() %>% rev
+
+    clustermeans <- colMeans(relab_matrix_clean) %>% sort() %>% rev
     ordernames <- c(names(clustermeans))
 
     if(sum(clustermeans != 0) != K){
@@ -215,33 +222,37 @@ arrange_categories <- function(relab_matrix, arrange, K = NULL, group = NULL, ti
 
     if(arrange %in% c(TRUE, "both")){
 
-      relab_matrix <- data.frame(relab_matrix) %>%
+      relab_matrix_clean <- data.frame(relab_matrix_clean) %>%
         dplyr::arrange(dplyr::across({{ ordernames }})) %>%
         dplyr::select(c(names(which(clustermeans != 0))))
 
     }else if(arrange == "vertical"){
-      relab_matrix <- data.frame(relab_matrix) %>%
+      relab_matrix_clean <- data.frame(relab_matrix_clean) %>%
         # dplyr::arrange(dplyr::across({{ ordernames }})) %>%
         dplyr::select(c(names(which(clustermeans != 0))))
 
 
     }else if(arrange == "horizontal"){
-      relab_matrix <- data.frame(relab_matrix) %>%
+      relab_matrix_clean <- data.frame(relab_matrix_clean) %>%
         dplyr::arrange(dplyr::across({{ ordernames }}))# %>%
       # dplyr::select(c("group", names(which(clustermeans != 0))))
     }else{
       stop("The options for arrange are FALSE, TRUE, vertical, horizontal, or both. TRUE and both are interchangeable.")
     }
+
   }
 
   if(!is.null(group)){
-    relab_matrix = relab_matrix %>% data.frame %>% dplyr::mutate(group = relab_checker_out$group, .before = 1)
+    relab_matrix_clean = relab_matrix_clean %>% data.frame %>% dplyr::mutate(group = relab_checker_out$group, .before = 1)
   }
 
   if(!is.null(time)){
-    relab_matrix = relab_matrix %>% data.frame %>% dplyr::mutate(time = relab_checker_out$time, .before = 1)
+    relab_matrix_clean = relab_matrix_clean %>% data.frame %>% dplyr::mutate(time = relab_checker_out$time, .before = 1)
   }
 
-  return(relab_matrix %>% data.frame)
+  return(relab_matrix_clean %>% data.frame)
+
+
+
 }
 

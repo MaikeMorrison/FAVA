@@ -110,7 +110,7 @@ plot_relabund <- function(relab_matrix, group = NULL, time = NULL, w = NULL, K =
   relab_edited = relab_sample_weighter(relab = relab_matrix, K = K, time = time, w = w, group = group)
 
   # Re-arrange rows or columns as specified by arrange
-  # otherwise return relab_matrix unaltered
+  # otherwise return relab_edited unaltered
   relab_edited = arrange_categories(relab_matrix = relab_edited,
                                     arrange = arrange,
                                     K = K, group = group, time = time)
@@ -119,7 +119,8 @@ plot_relabund <- function(relab_matrix, group = NULL, time = NULL, w = NULL, K =
   # Generate the data to plot
   relab_plot = dplyr::mutate(relab_edited, ID = 1:nrow(relab_edited), .before = 1)
 
-  start = ncol(relab_plot) - K + 1
+
+  start =  2 + (!is.null(group)) + (!is.null(time))
 
   relab_plot_long = tidyr::pivot_longer(relab_plot, cols = start:ncol(relab_plot))
 
