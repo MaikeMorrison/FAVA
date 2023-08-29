@@ -399,10 +399,6 @@ fava <- function(relab_matrix,
   }
 
 
-  if(is.null(w)){
-    w = rep(1/nrow(relab_matrix), nrow(relab_matrix))
-  }
-
   if(is.null(K)){
     K = ncol(relab_matrix) - (!is.null(group)) - (!is.null(time))
   }
@@ -417,6 +413,10 @@ fava <- function(relab_matrix,
 
   if((!is.null(group)) & (is.null(w))){
     w = rep(1/table(relab_matrix_clean$group), table(relab_matrix_clean$group))
+  }
+
+  if(is.null(w)){
+    w = rep(1/nrow(relab_matrix), nrow(relab_matrix))
   }
 
   if(!is.null(time)){
@@ -452,7 +452,7 @@ fava <- function(relab_matrix,
 
         fava_list = c(fava_list,
                       ifelse(normalized,
-                             fava_norm(relab_matrix = relab_matrix_clean$relab_matrix),
+                             fava_norm(relab_matrix = relab_sub),
                              (gini_simpson_pooled_fast(relab_sub, K, w_sub, S) -
                                 gini_simpson_mean_fast(relab_sub, K, w_sub, S))/
                                gini_simpson_pooled_fast(relab_sub, K, w_sub, S)))

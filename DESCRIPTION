@@ -15,7 +15,8 @@ Imports:
     dplyr,
     ggplot2,
     rlang,
-    tidyr
+    tidyr,
+    phyloseq
 Suggests: 
     knitr,
     patchwork,
@@ -23,6 +24,7 @@ Suggests:
     viridis,
     kableExtra,
     purrr,
+    ape,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: 
