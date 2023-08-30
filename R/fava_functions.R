@@ -347,7 +347,7 @@ time_weights <- function(times, group = NULL){
 #' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
 #' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
 #' each row must sum to 1.
-#' @param group Optional; a string specifying the name of the column that describes which group each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.
+#' @param group Optional; a string (or vector of strings) specifying the name(s) of the column(s) that describes which group(s) each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.
 #' @param time Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.
 #' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.
@@ -407,11 +407,35 @@ fava <- function(relab_matrix,
     S = diag(K)
   }
 
+  # Modify relab_matrix if there are multiple groups
+  multiple_groups = FALSE
+  if(length(group) > 1){
+    relab_grouping_vars = dplyr::select(relab_matrix, dplyr::all_of(group))
+
+    relab_grouping_vars$grouping_var_multiple = apply(relab_grouping_vars, 1, paste, collapse = "_")
+
+    relab_matrix = dplyr::mutate(relab_matrix,
+                                 grouping_var_multiple = relab_grouping_vars$grouping_var_multiple,
+                                 .before = 1)
+
+    group = "grouping_var_multiple"
+
+    multiple_groups = TRUE
+  }
+
+
   relab_matrix_clean = relab_checker(relab_matrix, K = K,
                                      group = group,
                                      time = time)
 
+
+  if(!is.null(time)){
+    w = time_weights(times = relab_matrix_clean$time, group = relab_matrix_clean$group)
+  }
+
+  w_default = FALSE
   if((!is.null(group)) & (is.null(w))){
+    w_default = TRUE
     w = rep(1/table(relab_matrix_clean$group), table(relab_matrix_clean$group))
   }
 
@@ -419,9 +443,6 @@ fava <- function(relab_matrix,
     w = rep(1/nrow(relab_matrix), nrow(relab_matrix))
   }
 
-  if(!is.null(time)){
-    w = time_weights(times = relab_matrix_clean$time, group = relab_matrix_clean$group)
-  }
 
 
   S = as.matrix(S)
@@ -448,7 +469,11 @@ fava <- function(relab_matrix,
 
         relab_sub = relab_matrix_clean$relab_matrix[include,]
 
-        w_sub = w[names(w) == subgroup]
+        if(w_default){
+          w_sub = w[names(w) == subgroup]
+        } else{
+          w_sub = w[include]
+        }
 
         fava_list = c(fava_list,
                       ifelse(normalized,
@@ -460,6 +485,10 @@ fava <- function(relab_matrix,
       fava_df = data.frame(unique(relab_matrix_clean$group), fava_list)
       colnames(fava_df) = c(group, "FAVA")
       # names(fava_list) = unique(relab_matrix_clean$group)
+
+      if(multiple_groups){
+        fava_df = dplyr::left_join(distinct(relab_grouping_vars), fava_df)
+      }
       return(fava_df)
     }
 }

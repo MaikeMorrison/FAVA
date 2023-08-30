@@ -114,6 +114,14 @@ test_that("grouped fava works - normalized", {
                           FAVA = c(1, 0, 1, fava_norm(D))))
 })
 
+test_that("grouped fava works - real data", {
+  expect_equal(fava(xue_microbiome_sample, group = "subject", K = 524),
+               data.frame(subject = c("XBA", "XDA", "XMA"),
+                          FAVA = c(fava(filter(xue_microbiome_sample, subject == "XBA"), K = 524),
+                                   fava(filter(xue_microbiome_sample, subject == "XDA"), K = 524),
+                                   fava(filter(xue_microbiome_sample, subject == "XMA"), K = 524))))
+})
+
 
 # time series data works -----------------------------------------------------
 
@@ -168,4 +176,8 @@ test_groups = xue_microbiome_sample %>%
   mutate(Abx = ifelse(timepoint < 29, "Before", ifelse(timepoint > 34, "After", "During")),
          .before = 1)
 
-fava(test_groups, group = "Abx", K = 524)
+test_that("fava works with multiple groups", {
+  expect_no_error(fava(test_groups, group = c("subject", "Abx"), K = 524))
+  expect_equal(fava(test_groups, group = c("subject", "Abx"), K = 524)[[1,4]],
+               fava(filter(test_groups, Abx == "Before", subject == "XBA"), K = 524))
+})
