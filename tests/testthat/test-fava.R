@@ -162,3 +162,10 @@ test_that("time series fava works - grouped, S", {
                           FAVA = c(1, 0, 1)))
 })
 
+# MULTIPLE GROUPS ---------------------------------------------------------------
+library(dplyr)
+test_groups = xue_microbiome_sample %>%
+  mutate(Abx = ifelse(timepoint < 29, "Before", ifelse(timepoint > 34, "After", "During")),
+         .before = 1)
+
+fava(test_groups, group = "Abx", K = 524)

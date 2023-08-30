@@ -448,7 +448,7 @@ fava <- function(relab_matrix,
 
         relab_sub = relab_matrix_clean$relab_matrix[include,]
 
-        w_sub = w[include]
+        w_sub = w[names(w) == subgroup]
 
         fava_list = c(fava_list,
                       ifelse(normalized,
