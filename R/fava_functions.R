@@ -208,7 +208,7 @@ gini_simpson_mean <- function(relab_matrix,
                   gini_simpson_mean_fast(relab_sub, K, w_sub, S))
     }
     gs_df = data.frame(unique(relab_matrix_clean$group), gs_list)
-    colnames(gs_df) = c(group, "Mean_Gini-Simpson")
+    colnames(gs_df) = c(group, "gini_simpson_mean")
     # names(gs_list) = unique(relab_matrix_clean$group)
 
     if(multiple_groups){
@@ -333,7 +333,7 @@ gini_simpson_pooled <- function(relab_matrix,
                   gini_simpson_pooled_fast(relab_sub, K, w_sub, S))
     }
     gs_df = data.frame(unique(relab_matrix_clean$group), gs_list)
-    colnames(gs_df) = c(group, "Pooled_Gini-Simpson")
+    colnames(gs_df) = c(group, "gini_simpson_pooled")
     # names(gs_list) = unique(relab_matrix_clean$group)
 
     if(multiple_groups){
