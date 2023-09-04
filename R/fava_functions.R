@@ -1,4 +1,85 @@
 
+# Function to process relab matrix and return correct grouping columns, w, K, S, etc.
+
+process_relab <- function(relab_matrix,
+                          K = NULL,
+                          S = NULL,
+                          w = NULL,
+                          time = NULL,
+                          group = NULL){
+
+  # Define K if not provided
+  if(is.null(K)){
+    K = ncol(relab_matrix) - (length(group)) - (!is.null(time))
+  }
+
+  # Define S if not provided
+  if(is.null(S)){
+    S = diag(K)
+  }
+
+  # Modify relab_matrix if there are multiple groups
+  multiple_groups = FALSE
+  relab_grouping_vars = NULL
+  if(length(group) > 1){
+    relab_grouping_vars = dplyr::select(relab_matrix, dplyr::all_of(group))
+
+    relab_grouping_vars$grouping_var_multiple = apply(relab_grouping_vars, 1, paste, collapse = "_")
+
+    relab_matrix = dplyr::mutate(relab_matrix,
+                                 grouping_var_multiple = relab_grouping_vars$grouping_var_multiple,
+                                 .before = 1)
+
+    group = "grouping_var_multiple"
+
+    multiple_groups = TRUE
+  }
+
+
+  relab_matrix_clean = relab_checker(relab_matrix,
+                                     K = K,
+                                     group = group,
+                                     time = time)
+
+  if(any(is.na(relab_matrix_clean$group))){
+    stop("There is at least one NA in a grouping column.")
+  }
+
+
+  if(!is.null(time)){
+    w = time_weights(times = relab_matrix_clean$time, group = relab_matrix_clean$group)
+  }
+
+  w_default = FALSE
+  if((!is.null(group)) & (is.null(w))){
+    w_default = TRUE
+    w = rep(1/table(relab_matrix_clean$group), table(relab_matrix_clean$group))
+  }
+
+  if(is.null(w)){
+    w = rep(1/nrow(relab_matrix), nrow(relab_matrix))
+  }
+
+  S = as.matrix(S)
+  S_checker(S = S, K = K, relab_matrix = relab_matrix)
+
+  if(!missing(w) & length(w) != nrow(relab_matrix)){
+    stop("Length of w must equal number of rows of relab_matrix.")
+  }
+
+  return(list(K = K,
+              S = S,
+              w = w,
+              w_default = w_default,
+              time = time,
+              group = group,
+              multiple_groups = multiple_groups,
+              relab_matrix_clean = relab_matrix_clean,
+              relab_grouping_vars = relab_grouping_vars))
+
+}
+
+
 
 # gini_simpson -----------------------------------------------------------------
 #' Compute the Gini-Simpson index of a compositional vector
@@ -36,10 +117,16 @@ gini_simpson <- function(q, S = diag(length(q)), K = length(q)){
 #'
 #' This function computes the mean Gini-Simpson index, a statistical measure of variability also known as the Gini-Simpson index, of a set of vectors of non-negative entries which sum to 1. The function returns a number between 0 and 1 which quantifies the mean variability of the vectors. Values of 0 are achieved when each vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when the vectors are equal to (1/K, 1/K, ..., 1/K).
 #'
-#' @param relab_matrix A matrix with \code{I=nrow(relab_matrix)} rows, each containing \code{K=ncol(relab_matrix)} non-negative entries that sum to 1.
+#' @param relab_matrix  matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+#' a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
+#' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
+#' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
+#' each row must sum to 1.
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.
-#' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean variability across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
 #' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.
+#' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
+#' @param time Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.
+#' @param group Optional; a string (or vector of strings) specifying the name(s) of the column(s) that describes which group(s) each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.
 #' @returns A numeric value between 0 and 1.
 #' @examples
 #' # To compute the mean Gini-Simpson index of
@@ -78,24 +165,74 @@ gini_simpson <- function(q, S = diag(length(q)), K = length(q)){
 #' gini_simpson_mean(relative_abundances, w = row_weights, S = similarity_matrix)
 #' @export
 gini_simpson_mean <- function(relab_matrix,
-                    K = ncol(relab_matrix),
-                    w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
-                    S = diag(ncol(relab_matrix))){
-  # K, w, and S are optional arguments
+                              K = NULL,
+                              S = NULL,
+                              w = NULL,
+                              time = NULL,
+                              group = NULL
+                    # K = ncol(relab_matrix),
+                    # w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                    # S = diag(ncol(relab_matrix))
+                    ){
 
-  # S = as.matrix(S)
-  I = nrow(relab_matrix)
-  # S_checker(S = S, K = K)
+  process_out = process_relab(relab_matrix = relab_matrix, K = K, S = S, w = w, time = time, group = group)
 
+  K = process_out$K
+  S = process_out$S
+  w = process_out$w
+  time = process_out$time
+  group = process_out$group
 
-  if(!missing(w) && length(w) != nrow(relab_matrix)){
-    stop("Length of w must equal number of rows of relab_matrix.")
+  w_default = process_out$w_default
+  multiple_groups = process_out$multiple_groups
+  relab_matrix_clean = process_out$relab_matrix_clean
+  relab_grouping_vars = process_out$relab_grouping_vars
+
+  if(is.null(group)){
+    gini_simpson_mean_fast(relab_matrix_clean$relab_matrix, K, w, S)
+  } else{
+    gs_list = c()
+    for(subgroup in unique(relab_matrix_clean$group)){
+
+      include = relab_matrix_clean$group == subgroup
+
+      relab_sub = relab_matrix_clean$relab_matrix[include,]
+
+      if(w_default){
+        w_sub = w[names(w) == subgroup]
+      } else{
+        w_sub = w[include]
+      }
+
+      gs_list = c(gs_list,
+                  gini_simpson_mean_fast(relab_sub, K, w_sub, S))
+    }
+    gs_df = data.frame(unique(relab_matrix_clean$group), gs_list)
+    colnames(gs_df) = c(group, "Mean_Gini-Simpson")
+    # names(gs_list) = unique(relab_matrix_clean$group)
+
+    if(multiple_groups){
+      gs_df = dplyr::left_join(dplyr::distinct(relab_grouping_vars), gs_df)
+    }
+    return(gs_df)
   }
 
-  relab_matrix = relab_matrix[,(ncol(relab_matrix)-K+1):ncol(relab_matrix)]
-
-  # Average Gini-Simpson index of each of the I subpopulations
-  sum(w *sapply(1:I, function(i){ gini_simpson(q = unlist(relab_matrix[i,]), S = S) }))
+  # OLD VERSION BELOW
+  # # K, S, w, time, and group are optional arguments
+  #
+  # # S = as.matrix(S)
+  # I = nrow(relab_matrix)
+  # # S_checker(S = S, K = K)
+  #
+  #
+  # if(!missing(w) && length(w) != nrow(relab_matrix)){
+  #   stop("Length of w must equal number of rows of relab_matrix.")
+  # }
+  #
+  # relab_matrix = relab_matrix[,(ncol(relab_matrix)-K+1):ncol(relab_matrix)]
+  #
+  # # Average Gini-Simpson index of each of the I subpopulations
+  # sum(w *sapply(1:I, function(i){ gini_simpson(q = unlist(relab_matrix[i,]), S = S) }))
 
 }
 
@@ -104,10 +241,16 @@ gini_simpson_mean <- function(relab_matrix,
 #'
 #' This function computes the Gini-Simpson index of a "pooled" vector equal to \code{colMeans(relab_matrix)}. Values of 0 are achieved when this pooled vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when this pooled vector is equal to (1/K, 1/K, ..., 1/K).
 #'
-#' @param relab_matrix A matrix with \code{I=nrow(relab_matrix)} rows, each containing \code{K=ncol(relab_matrix)} non-negative entries that sum to 1.
+#' @param relab_matrix  matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+#' a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
+#' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
+#' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
+#' each row must sum to 1.
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.
-#' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
 #' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.
+#' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
+#' @param time Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.
+#' @param group Optional; a string (or vector of strings) specifying the name(s) of the column(s) that describes which group(s) each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.
 #' @returns A numeric value between 0 and 1.
 #' @examples
 #' # To compute the pooled Gini-Simpson index of
@@ -147,32 +290,82 @@ gini_simpson_mean <- function(relab_matrix,
 #' gini_simpson_pooled(relative_abundances, w = row_weights, S = similarity_matrix)
 #' @export
 gini_simpson_pooled <- function(relab_matrix,
-                      K = ncol(relab_matrix),
-                      w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
-                      S = diag(ncol(relab_matrix))){
-  # w and S are optional arguments
+                                K = NULL,
+                                S = NULL,
+                                w = NULL,
+                                time = NULL,
+                                group = NULL
+                      # K = ncol(relab_matrix),
+                      # w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                      # S = diag(ncol(relab_matrix))
+                      ){
 
-  I = nrow(relab_matrix)
+  process_out = process_relab(relab_matrix = relab_matrix, K = K, S = S, w = w, time = time, group = group)
 
-  # S = as.matrix(S)
-  # S_checker(S = S, K = K)
+  K = process_out$K
+  S = process_out$S
+  w = process_out$w
+  time = process_out$time
+  group = process_out$group
 
-  if(missing(S)){
-    S = diag(K)
+  w_default = process_out$w_default
+  multiple_groups = process_out$multiple_groups
+  relab_matrix_clean = process_out$relab_matrix_clean
+  relab_grouping_vars = process_out$relab_grouping_vars
+
+  if(is.null(group)){
+    gini_simpson_pooled_fast(relab_matrix_clean$relab_matrix, K, w, S)
+  } else{
+    gs_list = c()
+    for(subgroup in unique(relab_matrix_clean$group)){
+
+      include = relab_matrix_clean$group == subgroup
+
+      relab_sub = relab_matrix_clean$relab_matrix[include,]
+
+      if(w_default){
+        w_sub = w[names(w) == subgroup]
+      } else{
+        w_sub = w[include]
+      }
+
+      gs_list = c(gs_list,
+                  gini_simpson_pooled_fast(relab_sub, K, w_sub, S))
+    }
+    gs_df = data.frame(unique(relab_matrix_clean$group), gs_list)
+    colnames(gs_df) = c(group, "Pooled_Gini-Simpson")
+    # names(gs_list) = unique(relab_matrix_clean$group)
+
+    if(multiple_groups){
+      gs_df = dplyr::left_join(dplyr::distinct(relab_grouping_vars), gs_df)
+    }
+    return(gs_df)
   }
 
-  if(missing(w)){
-    w = rep(1, I)/I
-  }
-
-
-  if(!missing(w) && length(w) != nrow(relab_matrix)){
-    stop("Length of w must equal number of rows of relab_matrix.")
-  }
-
-  relab_matrix = relab_matrix[,(ncol(relab_matrix)-K+1):ncol(relab_matrix)]
-
-  gini_simpson(q = colSums(sweep(x = relab_matrix, MARGIN = 1, w, `*`)), S = S)
+  # OLD VERSION BELOW
+  # # w and S are optional arguments
+  #
+  # I = nrow(relab_matrix)
+  #
+  # # S = as.matrix(S)
+  # # S_checker(S = S, K = K)
+  #
+  # if(missing(S)){
+  #   S = diag(K)
+  # }
+  #
+  # if(missing(w)){
+  #   w = rep(1, I)/I
+  # }
+  #
+  #
+  # if(!missing(w) && length(w) != nrow(relab_matrix)){
+  #   stop("Length of w must equal number of rows of relab_matrix.")
+  # }
+  #
+  # relab_matrix = relab_matrix[,(ncol(relab_matrix)-K+1):ncol(relab_matrix)]
+  #
+  # gini_simpson(q = colSums(sweep(x = relab_matrix, MARGIN = 1, w, `*`)), S = S)
 
 }
 
@@ -347,11 +540,11 @@ time_weights <- function(times, group = NULL){
 #' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
 #' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
 #' each row must sum to 1.
-#' @param group Optional; a string (or vector of strings) specifying the name(s) of the column(s) that describes which group(s) each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.
-#' @param time Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.
-#' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.
 #' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.
+#' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
+#' @param time Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.
+#' @param group Optional; a string (or vector of strings) specifying the name(s) of the column(s) that describes which group(s) each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.
 #' @param normalized Optional; should normalized FAVA be used? Default is \code{normalized = FALSE}; use \code{normalized = TRUE} to compute normalized FAVA. FAVA can only be normalized if it is not weighted.
 #' @returns A numeric value between 0 and 1.
 #' @examples
@@ -387,70 +580,29 @@ time_weights <- function(times, group = NULL){
 #' fava(relative_abundances, w = row_weights, S = similarity_matrix)
 #' @export
 fava <- function(relab_matrix,
-                 group = NULL,
-                 time = NULL,
-                 w = NULL,
                  K = NULL,
                  S = NULL,
+                 w = NULL,
+                 time = NULL,
+                 group = NULL,
                  normalized = FALSE){
 
   if(normalized == TRUE && any(!sapply(list(time, w, S), is.null))){
     stop("FAVA can be either normalized or weighted, but not both. Please specify `normalized = TRUE` if you wish to compute normalized FAVA OR provide the weighting parameters w and/or S.")
   }
 
+  process_out = process_relab(relab_matrix = relab_matrix, K = K, S = S, w = w, time = time, group = group)
 
-  if(is.null(K)){
-    K = ncol(relab_matrix) - (!is.null(group)) - (!is.null(time))
-  }
+  K = process_out$K
+  S = process_out$S
+  w = process_out$w
+  time = process_out$time
+  group = process_out$group
 
-  if(is.null(S)){
-    S = diag(K)
-  }
-
-  # Modify relab_matrix if there are multiple groups
-  multiple_groups = FALSE
-  if(length(group) > 1){
-    relab_grouping_vars = dplyr::select(relab_matrix, dplyr::all_of(group))
-
-    relab_grouping_vars$grouping_var_multiple = apply(relab_grouping_vars, 1, paste, collapse = "_")
-
-    relab_matrix = dplyr::mutate(relab_matrix,
-                                 grouping_var_multiple = relab_grouping_vars$grouping_var_multiple,
-                                 .before = 1)
-
-    group = "grouping_var_multiple"
-
-    multiple_groups = TRUE
-  }
-
-
-  relab_matrix_clean = relab_checker(relab_matrix, K = K,
-                                     group = group,
-                                     time = time)
-
-
-  if(!is.null(time)){
-    w = time_weights(times = relab_matrix_clean$time, group = relab_matrix_clean$group)
-  }
-
-  w_default = FALSE
-  if((!is.null(group)) & (is.null(w))){
-    w_default = TRUE
-    w = rep(1/table(relab_matrix_clean$group), table(relab_matrix_clean$group))
-  }
-
-  if(is.null(w)){
-    w = rep(1/nrow(relab_matrix), nrow(relab_matrix))
-  }
-
-
-
-  S = as.matrix(S)
-  S_checker(S = S, K = K, relab_matrix = relab_matrix)
-
-  if(!missing(w) && length(w) != nrow(relab_matrix)){
-    stop("Length of w must equal number of rows of relab_matrix.")
-  }
+  w_default = process_out$w_default
+  multiple_groups = process_out$multiple_groups
+  relab_matrix_clean = process_out$relab_matrix_clean
+  relab_grouping_vars = process_out$relab_grouping_vars
 
 
 
@@ -487,7 +639,7 @@ fava <- function(relab_matrix,
       # names(fava_list) = unique(relab_matrix_clean$group)
 
       if(multiple_groups){
-        fava_df = dplyr::left_join(distinct(relab_grouping_vars), fava_df)
+        fava_df = dplyr::left_join(dplyr::distinct(relab_grouping_vars), fava_df)
       }
       return(fava_df)
     }

@@ -59,14 +59,14 @@
 #' @importFrom rlang .data
 #' @export
 bootstrap_fava <- function(matrices, n_replicates,
-                        seed = NULL,
-                        group = NULL,
-                        time = NULL,
-                        w = NULL,
-                        K = NULL,
-                        S = NULL,
-                        normalized = FALSE,
-                        save_replicates = TRUE) {
+                           seed = NULL,
+                           group = NULL,
+                           time = NULL,
+                           w = NULL,
+                           K = NULL,
+                           S = NULL,
+                           normalized = FALSE,
+                           save_replicates = TRUE) {
   . <- NULL # to please R command check
 
   # set seed
@@ -135,9 +135,21 @@ bootstrap_fava <- function(matrices, n_replicates,
     }
 
     # Compute statistics for these reps
-    stats_Q <- lapply(
+    fava_Q <- lapply(
       X = bootstrap_matrices_Q,
       FUN = function(matrix) fava(relab_matrix = matrix, K = K, S = S, normalized = normalized)
+    ) %>%
+      unlist()
+
+    gini_simpson_mean_Q <- lapply(
+      X = bootstrap_matrices_Q,
+      FUN = function(matrix) gini_simpson_mean(relab_matrix = matrix, K = K, S = S)
+    ) %>%
+      unlist()
+
+    gini_simpson_pooled_Q <- lapply(
+      X = bootstrap_matrices_Q,
+      FUN = function(matrix) gini_simpson_pooled(relab_matrix = matrix, K = K, S = S)
     ) %>%
       unlist()
 
@@ -181,45 +193,29 @@ bootstrap_fava <- function(matrices, n_replicates,
       }
 
       # Compute statistics for these reps
-      stats <- lapply(
+      fava <- lapply(
         X = bs_list,
         FUN = function(matrix) fava(relab_matrix = matrix, K = K, S = S, normalized = normalized)
       ) %>%
         unlist()
 
-      # Sometimes, for values of Fst very close to 0 (i.e. order 10^-6, 10^-7), the
-      # value of Fst ends up negative due to precision errors.
-      # Find matrices for which this is the case, and replace them and their statistics
+      gini_simpson_mean <- lapply(
+        X = bs_list,
+        FUN = function(matrix) gini_simpson_mean(relab_matrix = matrix, K = K, S = S)
+      ) %>%
+        unlist()
 
-      # while (any(stats < 0)) {
-      #   # Which bootstrap matrices have negative values for Fst/FstMax?
-      #   negatives <- which(stats$FAVA < 0)
-      #
-      #   # Replace those bootstrap replicates with new, random bootstrap replicates
-      #   bs_list[negatives] <- lapply(
-      #     X = 1:length(negatives),
-      #     FUN = function(x) {
-      #       matrix[purrr::rdunif(
-      #         n = nrow(matrix),
-      #         a = 1, b = nrow(matrix)
-      #       ), ]
-      #     }
-      #   )
-      #
-      #   # Replace the corresponding entries of the statistics matrix
-      #   stats[negatives, ] <- lapply(
-      #     X = bs_list[negatives],
-      #     FUN = function(matrix) {
-      #       Q_stat(Q = matrix, K = ncol(matrix))
-      #     }
-      #   ) %>%
-      #     unlist() %>%
-      #     matrix(ncol = 3, byrow = TRUE) %>%
-      #     data.frame()
-      # } # repeat this until there are no more errors
+      gini_simpson_pooled <- lapply(
+        X = bs_list,
+        FUN = function(matrix) gini_simpson_pooled(relab_matrix = matrix, K = K, S = S)
+      ) %>%
+        unlist()
+
 
       # Name this dataset, based on the name of the matrices in the list or the entry number
-      assign(paste0("stats_", names[m]), stats, pos = -1)
+      assign(paste0("fava_", names[m]), fava, pos = -1)
+      assign(paste0("gini_simpson_mean_", names[m]), gini_simpson_mean, pos = -1)
+      assign(paste0("gini_simpson_pooled_", names[m]), gini_simpson_pooled, pos = -1)
       assign(paste0("bootstrap_matrices_", names[m]), bs_list, pos = -1)
     }
   } else {
@@ -232,7 +228,11 @@ bootstrap_fava <- function(matrices, n_replicates,
       names %>%
       lapply(function(name) rep(name, n_replicates)) %>%
       unlist(),
-    FAVA = mget(paste0("stats_", names)) %>%
+    FAVA = mget(paste0("fava_", names)) %>%
+      do.call(what = c, args = .),
+    gini_simpson_mean = mget(paste0("gini_simpson_mean_", names)) %>%
+      do.call(what = c, args = .),
+    gini_simpson_pooled = mget(paste0("gini_simpson_pooled_", names)) %>%
       do.call(what = c, args = .)
   )
 
@@ -293,6 +293,11 @@ bootstrap_fava <- function(matrices, n_replicates,
 
   if(!save_replicates){
     bootstrap_replicates = NULL
+  }
+
+  # Set name to match group name, if applicable
+  if(!is.null(group)){
+    colnames(all_stats)[1] = group
   }
 
   return(list(

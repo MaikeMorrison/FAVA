@@ -88,6 +88,7 @@ gABCD = rbind(A, B, C, D) %>%
 test_that("grouped fava works - unweighted", {
   expect_equal(fava(gAB, group = "g"), data.frame(g = c("A", "B"),
                                                   FAVA = c(1, 0)))
+  expect_no_error(fava(gABCD, group = "g"))
 })
 
 test_that("grouped fava works - similarity", {
@@ -180,4 +181,21 @@ test_that("fava works with multiple groups", {
   expect_no_error(fava(test_groups, group = c("subject", "Abx"), K = 524))
   expect_equal(fava(test_groups, group = c("subject", "Abx"), K = 524)[[1,4]],
                fava(filter(test_groups, Abx == "Before", subject == "XBA"), K = 524))
+  expect_equal(fava(test_groups, group = c("subject", "Abx"), K = 524)[[2,4]],
+               fava(filter(test_groups, Abx == "During", subject == "XBA"), K = 524))
+  expect_equal(fava(test_groups, group = c("subject", "Abx"), K = 524)[[3,4]],
+               fava(filter(test_groups, Abx == "After", subject == "XBA"), K = 524))
+})
+
+test_groups_2 = test_groups
+test_groups_2$Actinomyces_sp_58647 = test_groups_2$Actinomyces_sp_58647 + 0.2
+
+test_that("fava works with multiple groups when renormalizing", {
+  expect_warning(fava(test_groups_2, group = c("subject", "Abx"), K = 524))
+  expect_equal(fava(test_groups_2, group = c("subject", "Abx"), K = 524)[[1,4]],
+               fava(filter(test_groups_2, Abx == "Before", subject == "XBA"), K = 524))
+  expect_equal(fava(test_groups_2, group = c("subject", "Abx"), K = 524)[[2,4]],
+               fava(filter(test_groups_2, Abx == "During", subject == "XBA"), K = 524))
+  expect_equal(fava(test_groups_2, group = c("subject", "Abx"), K = 524)[[3,4]],
+               fava(filter(test_groups_2, Abx == "After", subject == "XBA"), K = 524))
 })
