@@ -8,8 +8,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The *FAVA* R package implements the statistic FAVA, an
-![F\_{ST}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;F_%7BST%7D "F_{ST}")-based
+The *FAVA* R package implements the statistic FAVA, an $F_{ST}$-based
 Assessment of Variability across vectors of relative Abundances, as well
 as a suite of helper functions which enable the visualization and
 statistical analysis of relative abundance data. The *FAVA* R package
@@ -38,7 +37,7 @@ You can install the development version of FAVA from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("MaikeMorrison/FAVA")
+devtools::install_github("MaikeMorrison/FAVA", build_vignettes = TRUE)
 ```
 
 ## Tutorial
