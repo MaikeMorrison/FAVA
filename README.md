@@ -38,7 +38,7 @@ You can install the development version of FAVA from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("MaikeMorrison/FAVA")
+devtools::install_github("MaikeMorrison/FAVA", build_vignettes = TRUE)
 ```
 
 ## Tutorial
