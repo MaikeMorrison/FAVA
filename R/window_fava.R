@@ -185,15 +185,15 @@ window_plot <- function(window_fava, alpha = 0.5){
   # If data has multiple groups ----------------------------------------
   if("group" %in% colnames(window_fava)){
     window_long = window_fava %>%
-      tidyr::pivot_longer(-c(.data$group, .data$FAVA, .data$window_index),
+      tidyr::pivot_longer(-c(group, FAVA, window_index),
                           values_to = "index", names_to = "window_count")
 
     ggplot2::ggplot() +
-      ggplot2::geom_line(ggplot2::aes(x = .data$index,
-                                      y = .data$FAVA,
-                                      color = .data$group,
-                                      group = paste0(.data$window_index, .data$group)),
-                         window_long, size = 1, alpha = alpha) +
+      ggplot2::geom_line(ggplot2::aes(x = index,
+                                      y = FAVA,
+                                      color = group,
+                                      group = paste0(window_index, group)),
+                         window_long, linewidth = 1, alpha = alpha) +
       ggplot2::theme_bw() +
       ggplot2::ylab("FAVA") +
       ggplot2::xlab("Index") +
@@ -201,14 +201,14 @@ window_plot <- function(window_fava, alpha = 0.5){
   }else{
     # If data has only one group ----------------------------------------
     window_long = window_fava %>%
-      tidyr::pivot_longer(-c(.data$FAVA, .data$window_index),
+      tidyr::pivot_longer(-c(FAVA, window_index),
                           values_to = "index", names_to = "window_count")
 
     ggplot2::ggplot() +
-      ggplot2::geom_line(ggplot2::aes(x = .data$index,
-                                      y = .data$FAVA,
-                                      group = paste0(.data$window_index)),
-                         window_long, size = 1, alpha = alpha) +
+      ggplot2::geom_line(ggplot2::aes(x = index,
+                                      y = FAVA,
+                                      group = paste0(window_index)),
+                         window_long, linewidth = 1, alpha = alpha) +
       ggplot2::theme_bw() +
       ggplot2::ylab("FAVA") +
       ggplot2::xlab("Index") +

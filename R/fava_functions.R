@@ -11,11 +11,10 @@ process_relab <- function(relab_matrix,
   # Arrange data by time if not already
   if(!is.null(time)){
     if(!is.null(group)){
-      relab_matrix = dplyr::arrange(relab_matrix, get(group), get(time))
+      relab_matrix = dplyr::arrange(relab_matrix, {{ group }}, {{ time }})
     } else{
-      relab_matrix = dplyr::arrange(relab_matrix, get(time))
-    }
-  }
+      relab_matrix = dplyr::arrange(relab_matrix, {{ group }}, {{ time }})
+  }}
 
   # Define K if not provided
   if(is.null(K)){

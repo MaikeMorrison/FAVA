@@ -127,7 +127,7 @@ test_that("grouped fava works - real data", {
 # time series data works -----------------------------------------------------
 
 tABC = gABC %>%
-  mutate(.before = 1, time = c(1,2,3,
+  mutate(.before = 1, timepoint = c(1,2,3,
                                1,2,3,
                                1,2,3))
 
@@ -135,38 +135,45 @@ wtime = time_weights(c(1,2,3))
 
 test_that("time series fava works - ungrouped", {
   expect_equal(fava(data.frame(C) %>%
-                      mutate(time = c(1,2,3),
+                      mutate(timepoint = c(1,2,3),
                              .before = 1),
-                    time = "time"),
+                    time = "timepoint"),
+               fava(C, w = wtime))
+
+  # And in the wrong order:
+  expect_equal(fava(data.frame(C) %>%
+                      mutate(timepoint = c(3,2,1),
+                             .before = 1),
+                    time = "timepoint"),
                fava(C, w = wtime))
 
   expect_equal(fava(data.frame(C) %>%
-                      mutate(time = c(1,2,3),
+                      mutate(timepoint = c(1,2,3),
                              .before = 1),
-                    time = "time", S = S),
+                    time = "timepoint", S = S),
                fava(C, w = wtime, S = S))
 
   expect_equal(fava(data.frame(D) %>%
-                      mutate(time = c(1,2,3),
+                      mutate(timepoint = c(1,2,3),
                              .before = 1),
-                    time = "time"),
+                    time = "timepoint"),
                fava(D, w = wtime))
 
   expect_equal(fava(data.frame(D) %>%
-                      mutate(time = c(1,2,3),
+                      mutate(timepoint = c(1,2,3),
                              .before = 1),
-                    time = "time", S = S),
+                    time = "timepoint", S = S),
                fava(D, w = wtime, S = S))
 })
 
 test_that("time series fava works - grouped", {
-  expect_equal(fava(tABC, group = "g", time = "time"),
+  expect_equal(fava(tABC, group = "g", time = "timepoint"),
                data.frame(g = c("A", "B", "C"),
                           FAVA = c(1, 0, fava(C, w = wtime))))
 })
 
 test_that("time series fava works - grouped, S", {
-  expect_equal(fava(tABC, group = "g", time = "time", S = S),
+  expect_equal(fava(tABC, group = "g", time = "timepoint", S = S),
                data.frame(g = c("A", "B", "C"),
                           FAVA = c(1, 0, 1)))
 })
