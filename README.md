@@ -12,7 +12,7 @@ The *FAVA* R package implements the statistic FAVA, an $F_{ST}$-based
 Assessment of Variability across vectors of relative Abundances, as well
 as a suite of helper functions which enable the visualization and
 statistical analysis of relative abundance data. The *FAVA* R package
-package accompanies the paper, “FAVA: a tool to quantify compositional
+accompanies the paper, “FAVA: a tool to quantify compositional
 variability in microbial communities” by Morrison et al. (2023?).
 
 The *FAVA* R package includes the following core functions:
