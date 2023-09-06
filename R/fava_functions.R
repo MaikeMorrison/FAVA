@@ -8,6 +8,15 @@ process_relab <- function(relab_matrix,
                           time = NULL,
                           group = NULL){
 
+  # Arrange data by time if not already
+  if(!is.null(time)){
+    if(!is.null(group)){
+      relab_matrix = dplyr::arrange(relab_matrix, get(group), get(time))
+    } else{
+      relab_matrix = dplyr::arrange(relab_matrix, get(time))
+    }
+  }
+
   # Define K if not provided
   if(is.null(K)){
     K = ncol(relab_matrix) - (length(group)) - (!is.null(time))
