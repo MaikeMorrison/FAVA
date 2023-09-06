@@ -70,10 +70,14 @@ window_fava <- function(relab_matrix, window_size, window_step = 1,
                          "Normalized FAVA",
                          "FAVA"))
 
-  # # Arrange data by time if not already
-  # if(!is.null(time)){
-  #   relab_matrix = dplyr::arrange(relab_matrix, get(time))
-  # }
+  # Arrange data by time if not already
+  if(!is.null(time)){
+    if(!is.null(group)){
+      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[group]], .data[[time]])
+    } else{
+      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[time]])
+    }}
+
 
   if(is.null(group)){
     window_indices = window_list(window_size = window_size, length = nrow(relab_matrix),

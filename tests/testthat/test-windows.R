@@ -64,6 +64,18 @@ test_that("window_fava works - unnormalized, grouped, time-weighted", {
                fava(Q[1:8,], K = 524, time = "timepoint"))
 })
 
+set.seed(1)
+ransamp = sample(1:77,77)
+test_that("window_fava works - unnormalized, grouped, time-weighted and out of order", {
+  expect_no_error(window_fava(relab_matrix = Q[ransamp,], group = "subject", time = "timepoint",
+                              K = 524, window_size = 8, window_step = 2))
+  expect_true(is.list(window_fava(relab_matrix = Q[ransamp,], group = "subject", time = "timepoint",
+                                  K = 524, window_size = 8, window_step = 2)))
+  expect_equal(as.numeric(window_fava(relab_matrix = Q[ransamp,], group = "subject", time = "timepoint",
+                                      K = 524, window_size = 8, window_step = 2)$window_data[1,2]),
+               fava(Q[1:8,], K = 524, time = "timepoint"))
+})
+
 w = time_weights(times = Q$timepoint, group = Q$subject)
 test_that("window_fava works - unnormalized, grouped, generic weighting vector", {
   expect_no_error(window_fava(relab_matrix = Q, group = "subject", w = w,
