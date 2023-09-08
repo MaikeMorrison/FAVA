@@ -37,7 +37,7 @@ library(patchwork)
 
 # Introduction
 
-The _FAVA_ R package implements the statistic FAVA, an $F_{ST}$-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The _FAVA_ R package package accompanies the paper, "FAVA: a tool to quantify compositional variability in microbial communities" by Morrison et al. (2023?). This tutorial provides a guide to the usage of the _FAVA_ R package for the analysis of microbiome data. 
+The _FAVA_ R package implements the statistic FAVA, an $F_{ST}$-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The _FAVA_ R package package accompanies the paper, "FAVA: a tool to quantify compositional variability in microbial communities" by Morrison et al. (2023?). This tutorial provides a guide to the usage of the _FAVA_ R package for the analysis of microbiome data.
 
 The _FAVA_ R package includes the following core functions:
 
@@ -49,27 +49,27 @@ The _FAVA_ R package includes the following core functions:
 
 * `window_fava`: Compute FAVA in sliding windows across the rows of a relative abundance matrix
 
-The statistic FAVA summarizes the variability across the rows of a relative abundance matrix in a single index that ranges from 0 to 1. For typical microbiome data, the rows of each matrix represent microbiome samples and the entries of each row represent the relative abundance of a taxonomic category (e.g., OTU, species, or genus) or a functional category (e.g., gene family or enzyme abundance). Such matrices are often referred to as "OTU tables." Taxonomic categories are usually inferred from 16S or metagenomic sequencing data, while functional categories are usually inferred from metagenomic sequencing data. You must obtain these relative abundances from your sequencing data before using the R package _FAVA_. 
+The statistic FAVA summarizes the variability across the rows of a relative abundance matrix in a single index that ranges from 0 to 1. For typical microbiome data, the rows of each matrix represent microbiome samples and the entries of each row represent the relative abundance of a taxonomic category (e.g., OTU, species, or genus) or a functional category (e.g., gene family or enzyme abundance). Such matrices are often referred to as "OTU tables." Taxonomic categories are usually inferred from 16S or metagenomic sequencing data, while functional categories are usually inferred from metagenomic sequencing data. You must obtain these relative abundances from your sequencing data before using the R package _FAVA_.
 
 FAVA can be used to quantify variability in many different contexts. For example,
 
-* If each row corresponds to a time point, FAVA represents the temporal stability of the community. 
+* If each row corresponds to a time point, FAVA represents the temporal stability of the community.
 
-* If each row corresponds to a spatial sampling location, FAVA represents the spatial heterogeneity of the community. 
+* If each row corresponds to a spatial sampling location, FAVA represents the spatial heterogeneity of the community.
 
-* If each row corresponds to a replicate in a community assembly experiment, FAVA represents the repeatability of the community assembly. 
+* If each row corresponds to a replicate in a community assembly experiment, FAVA represents the repeatability of the community assembly.
 
-* If each row represents a distinct individual, FAVA represents the inter-individual variability in microbiome composition. 
+* If each row represents a distinct individual, FAVA represents the inter-individual variability in microbiome composition.
 
 ## Overview
 
-In this tutorial, we will explain the data required to use the _FAVA_ R package ([Data specifications]). We will then analyze example data from Xue et al. ([Example Analysis]). With this data set and the _FAVA_ R package, we visualize the microbiome composition of three subjects over time, use FAVA to quantify the temporal variability across these microbiome samples, and explore these dynamics at a finer resolution using sliding windows over time. 
+In this tutorial, we will explain the data required to use the _FAVA_ R package ([Data specifications]). We will then analyze example data from Xue et al. ([Example Analysis]). With this data set and the _FAVA_ R package, we visualize the microbiome composition of three subjects over time, use FAVA to quantify the temporal variability across these microbiome samples, and explore these dynamics at a finer resolution using sliding windows over time.
 
 # Data specifications
 
 To use _FAVA_, your data must be in the form of a matrix, data frame, or tibble with rows corresponding to samples and columns corresponding to categories such as bacterial species. If metadata (e.g. sample ID, time point, subject, experimental condition, replicate, etc.) are included, these columns must be on the left-hand side of the matrix, while the categories comprising the composition of the sample (e.g., bacterial species) must be on the right-hand side of the matrix. If your matrix contains metadata, you must specify `K`, the number of categories. While these categories can represent many things, we will for simplicity use "species" in this document to refer to the categories comprising each relative abundance sample.
 
-Your matrix may contain samples from multiple groups you would like to analyze separately. In this case, you must provide the name of the column specifying the group each sample belongs to as the `group` parameter. For example, to quantify variability across all samples from each experiment in the matrix pictured below, we would specify `group = "Experiment"`. 
+Your matrix may contain samples from multiple groups you would like to analyze separately. In this case, you must provide the name of the column specifying the group each sample belongs to as the `group` parameter. For example, to quantify variability across all samples from each experiment in the matrix pictured below, we would specify `group = "Experiment"`.
 
 ```{r, out.width = "1000px", echo = FALSE}
 knitr::include_graphics("../man/figures/schematic_data_structure_1.png")
@@ -84,7 +84,7 @@ my_data = read.csv("Path_to/my_data.csv")
 # If your relative abundances are in a phyloseq object,
 # make one object combining the sample data (left-hand side)
 # and the OTU relative abundances (right-hand side)
-my_data = cbind(sample_data(phyloseq_object),  
+my_data = cbind(sample_data(phyloseq_object),
                 t(otu_table(phyloseq_object)))
 
 # Confirm that your samples each sum to 1
@@ -92,7 +92,7 @@ my_data = cbind(sample_data(phyloseq_object),
 # and columns 1, 2, and 3 contain metadata
 rowSums(my_data[,c(4:10)])
 
-# Example code to convert counts to relative abundances 
+# Example code to convert counts to relative abundances
 my_data[,c(4:10)] = my_data[,c(4:10)]/rowSums(my_data[,c(4:10)])
 ```
 
@@ -101,21 +101,21 @@ my_data[,c(4:10)] = my_data[,c(4:10)]/rowSums(my_data[,c(4:10)])
 
 In order to compute a version of the FAVA variability statistic that accounts for the phylogenetic similarity between species, you must provide a phylogenetic similarity matrix, $S$. Such a matrix can be generated from species sequence data via the four steps outlined below. We include example code to generate a similarity matrix from a _phyloseq_ object. This process is discussed at greater length in a supplement to this tutorial, [Generating a similarity matrix].
 
-1. **Generate a phylogenetic tree describing the relationships among the species present in your samples.** There are many platforms for such analysis, such as [this workflow using DADA2](https://f1000research.com/articles/5-1492/v2). 
+1. **Generate a phylogenetic tree describing the relationships among the species present in your samples.** There are many platforms for such analysis, such as [this workflow using DADA2](https://f1000research.com/articles/5-1492/v2).
 
-2. **Convert the phylogenetic tree to a distance matrix.** Phylogenetic tree objects can be easily converted to distance matrices using functions such as `cophenetic.phylo` in the _ape_ R package. If $D$ is the phylogenetic distance matrix, entry $D_{i,j}$ represents the phylogenetic distance between species $i$ and species $j$. 
+2. **Convert the phylogenetic tree to a distance matrix.** Phylogenetic tree objects can be easily converted to distance matrices using functions such as `cophenetic.phylo` in the _ape_ R package. If $D$ is the phylogenetic distance matrix, entry $D_{i,j}$ represents the phylogenetic distance between species $i$ and species $j$.
 
 3. **Convert the phylogenetic distance matrix to a similarity matrix.** Whereas the distance between two identical species is 0, the similarity between two identical species is 1. We therefore use a simple transformation to convert the distance between species $i$ and $j$, $D_{i,j}$, to the similarity between species $i$ and $j$, $S_{i,j}$, mapping distances of 0 to similarities of 1. For the example analysis in this tutorial and in the accompanying paper, we use the transformation $S_{i,j}=\exp(-D_{i,j})$. Other transformations, such as $S_{i,j}=\frac{1}{D_{i,j}+1}$ or $S_{i,j}=1-\frac{D_{i,j}}{\max{(D_{i,j})}}$, are also suitable but result in a different mean similarity across species. The choice of transformation is discussed at length in a supplement to this tutorial, [Generating a similarity matrix].
 
-4. **Ensure that the order and identity of the species in the similarity matrix match the order and identity of the species in your relative abundance matrix.** 
+4. **Ensure that the order and identity of the species in the similarity matrix match the order and identity of the species in your relative abundance matrix.**
 
 ```{r, eval = FALSE}
-# (1) 
+# (1)
 # Here, we assume that you have already generated a phylogenetic tree
-# and that it is a part of your phyloseq object. 
+# and that it is a part of your phyloseq object.
 tree = phy_tree(phyloseq_object)
 
-# (2) 
+# (2)
 distance_matrix = ape::cophenetic.phylo(tree)
 
 # (3)
@@ -145,47 +145,47 @@ diag(similarity_matrix_reordered)
 ```
 
 
-Having generated a properly formatted relative abundance matrix, and possibly a species similarity matrix as well, it's time to use _FAVA_! 
+Having generated a properly formatted relative abundance matrix, and possibly a species similarity matrix as well, it's time to use _FAVA_!
 
 # Example analysis
 
-As a guide for the application of _FAVA_ to microbiome data, we demonstrate each of the package's core functions using example data generated by Xue et al. (2023?). This data set contains time series microbiome samples from three human subjects who each took an antibiotic midway through the study period ([0 - Example data]). We first visualize the composition of these subject's microbiome communities over time ([1 - Visualize relative abundances]). For each subject, we next compute the total variability across the study period ([2 - Compute unweighted FAVA] and [3 - Compute weighted FAVA]). We also estimate the uncertainty in these variability measures, which allows us to perform statistical comparisons of each subject's temporal microbiome variability ([4 - Bootstrapping]). Finally, we explore how compositional variability changes over time using a sliding window analysis ([5 - Sliding windows]). 
+As a guide for the application of _FAVA_ to microbiome data, we demonstrate each of the package's core functions using example data generated by Xue et al. (2023?). This data set contains time series microbiome samples from three human subjects who each took an antibiotic midway through the study period ([0 - Example data]). We first visualize the composition of these subject's microbiome communities over time ([1 - Visualize relative abundances]). For each subject, we next compute the total variability across the study period ([2 - Compute unweighted FAVA] and [3 - Compute weighted FAVA]). We also estimate the uncertainty in these variability measures, which allows us to perform statistical comparisons of each subject's temporal microbiome variability ([4 - Bootstrapping]). Finally, we explore how compositional variability changes over time using a sliding window analysis ([5 - Sliding windows]).
 
 
 ## 0 - Example data
 
-In this tutorial, we analyze longitudinal microbiome composition data generated by Xue et al. (2023?), data that is also analyzed in the paper (Morrison et al. 2023?). For example analyses, a subset of this data is provided under the name `xue_microbiome_sample` in the _FAVA_ R package. `xue_microbiome_sample` contains the relative abundances of bacterial species in samples from three subjects: XBA, XDA, and XMA. Each subject collected weekly samples for four weeks before and after a three week window of daily sampling, the middle of which contained a one-week antibiotic course (depicted below; dots correspond to sampling days, yellow dots correspond to sampling days coinciding with the antibiotic). 
+In this tutorial, we analyze longitudinal microbiome composition data generated by Xue et al. (2023?), data that is also analyzed in the paper (Morrison et al. 2023?). For example analyses, a subset of this data is provided under the name `xue_microbiome_sample` in the _FAVA_ R package. `xue_microbiome_sample` contains the relative abundances of bacterial species in samples from three subjects: XBA, XDA, and XMA. Each subject collected weekly samples for four weeks before and after a three week window of daily sampling, the middle of which contained a one-week antibiotic course (depicted below; dots correspond to sampling days, yellow dots correspond to sampling days coinciding with the antibiotic).
 ```{r,, echo = FALSE, fig.height=1}
 timeline_data = data.frame(Day = c(1,8,15,22:40, 43, 50, 57, 64)) %>%
-  mutate("Day type" = ifelse(Day >28 & Day < 35, "Antiobitic", "Regular")) 
-  
-timeline <- ggplot() + 
+  mutate("Day type" = ifelse(Day >28 & Day < 35, "Antiobitic", "Regular"))
+
+timeline <- ggplot() +
   geom_segment(aes(x = 0, xend = 65, y = 0, yend = 0), color = "#666666") +
-  
+
   geom_segment(aes(x = 1:64, xend = 1:64, y = rep(-1.5, 64), yend = rep(1.5, 64)), color = "#666666") +
-  geom_segment(aes(x = seq(from = 1, to = 64, by = 7), xend = seq(from = 1, to = 64, by = 7), 
-                   y = rep(-2, 10), yend = rep(2, 10)), size = 1, color = "#666666") + 
+  geom_segment(aes(x = seq(from = 1, to = 64, by = 7), xend = seq(from = 1, to = 64, by = 7),
+                   y = rep(-2, 10), yend = rep(2, 10)), size = 1, color = "#666666") +
   geom_text(aes(x = seq(from = 1, to = 64, by = 7), y = -4, label = seq(from = 1, to = 64, by = 7))) +
-  
-  geom_point(aes(x = Day, y = 0, color = `Day type`), timeline_data, size = 2) + 
-  
+
+  geom_point(aes(x = Day, y = 0, color = `Day type`), timeline_data, size = 2) +
+
   geom_text(aes(x = 66, y = -6, label = "Study\nday"), size = 3.5, hjust = 0, vjust = 0, lineheight = 1) +
   geom_text(aes(x = 6, y = 7, label = "Sampling timeline"), size = 5) +
-  
-  theme_void() + 
+
+  theme_void() +
   ylim(-10, 10) +
-  xlim(0, 70)  + 
+  xlim(0, 70)  +
   scale_color_manual(values = c("#FFB90F", "black")) +
   theme(legend.position = "none") #, axis.title.x = element_text()) + xlab("Study day")
 timeline
 ```
 
-Each row of `xue_microbiome_sample` represents a single microbiome sample. `xue_microbiome_sample` has 526 columns: 
+Each row of `xue_microbiome_sample` represents a single microbiome sample. `xue_microbiome_sample` has 526 columns:
 
-* `subject`: the subject each sample corresponds to 
-  
+* `subject`: the subject each sample corresponds to
+
 * `timepoint`: the study day when each sample was collected
-  
+
 * `Actinomyces_sp_58647`, ..., `Xenorhabdus_bovienii_57960`: the relative abundance of the corresponding bacterial species (there are 524 species in total)
 
 You can explore the structure of this data using the following functions:
@@ -212,17 +212,17 @@ knitr::kable(xue_species_similarity[1:20, 1:20])  %>%
 Here is a heat map plot of the similarity matrix:
 ```{r, fig.height = 7, echo = FALSE}
 ggplot(xue_species_similarity %>%
-         data.frame() %>% 
-         mutate(name2 = rownames(xue_species_similarity)) %>% 
-         pivot_longer(cols = 1:524, 
-                      values_to = "Similarity")) + 
-  geom_raster(aes(x = name, 
-                  y = name2, 
-                  fill = Similarity)) + 
+         data.frame() %>%
+         mutate(name2 = rownames(xue_species_similarity)) %>%
+         pivot_longer(cols = 1:524,
+                      values_to = "Similarity")) +
+  geom_raster(aes(x = name,
+                  y = name2,
+                  fill = Similarity)) +
   theme_minimal() + scale_fill_viridis_c() +
-  theme(axis.text.y = element_text(size = 2), 
-        axis.text.x = element_text(size = 2, 
-                                   angle = -90, 
+  theme(axis.text.y = element_text(size = 2),
+        axis.text.x = element_text(size = 2,
+                                   angle = -90,
                                    hjust = 0),
         axis.title = element_blank())
 ```
@@ -238,7 +238,7 @@ Note that:
 
 ## 1 - Visualize relative abundances
 
-In order to visualize the community composition of each microbiome sample from each subject, we generate a stacked bar plot using the `plot_relabund` function from _FAVA_. Because `plot_relabund` returns a _ggplot2_ object, the resulting plot can be customized using other functions from _ggplot2_. 
+In order to visualize the community composition of each microbiome sample from each subject, we generate a stacked bar plot using the `plot_relabund` function from _FAVA_. Because `plot_relabund` returns a _ggplot2_ object, the resulting plot can be customized using other functions from _ggplot2_.
 ```{r}
 # Make a color palette for all 524 species
 set.seed(1)
@@ -247,40 +247,40 @@ species_palette = viridis::turbo(524)[sample(1:524)] %>%
 
 # Make a ggplot2 stacked bar plot
 plot_relabund(xue_microbiome_sample,
-              group = "subject", 
-              time = "timepoint", 
+              group = "subject",
+              time = "timepoint",
               arrange = "vertical",
-              K = 524) + 
+              K = 524) +
 # Specify a custom color scheme
-  ggplot2::scale_color_manual(values = species_palette) + 
-  ggplot2::scale_fill_manual(values = species_palette) 
+  ggplot2::scale_color_manual(values = species_palette) +
+  ggplot2::scale_fill_manual(values = species_palette)
 ```
 
-Our example data set contains relative abundance samples from multiple subjects that were taken at uneven timepoints. We account for these properties by specifying the column name that describes which group each sample belongs to (`group = "subject"`) as well as which sampling day each sample corresponds to (`time= "timepoint"`). Providing the `group` parameter results in a plot that has one facet for each group. Providing the `time` parameter results in a plot where each sample may be repeated multiple times to reflect the number of days for which it informs the composition. Since the sampling scheme (depicted above in [0 - Example data]) includes weekly samples at the beginning and end of the study and daily samples in the middle, the bars are narrower near the middle of each plot. Consider for reference the plot below which does not have the `time` parameter specified, and thus includes each sample exactly once.
+Our example data set contains relative abundance samples from multiple subjects that were taken at uneven time points. We account for these properties by specifying the column name that describes which group each sample belongs to (`group = "subject"`) as well as which sampling day each sample corresponds to (`time= "timepoint"`). Providing the `group` parameter results in a plot that has one facet for each group. Providing the `time` parameter results in a plot where each sample may be repeated multiple times to reflect the number of days for which it informs the composition. Since the sampling scheme (depicted above in [0 - Example data]) includes weekly samples at the beginning and end of the study and daily samples in the middle, the bars are narrower near the middle of each plot. Consider for reference the plot below which does not have the `time` parameter specified, and thus includes each sample exactly once.
 ```{r}
 plot_relabund(xue_microbiome_sample,
-              group = "subject", 
-              arrange = "vertical", 
-              K = 524) + 
-  ggplot2::scale_color_manual(values = species_palette) + 
+              group = "subject",
+              arrange = "vertical",
+              K = 524) +
+  ggplot2::scale_color_manual(values = species_palette) +
   ggplot2::scale_fill_manual(values = species_palette)
 ```
 
 Consider also the plot below which specifies neither `time` nor `group` and instead plots all samples in a single plot.
 ```{r}
 plot_relabund(xue_microbiome_sample,
-              arrange = "vertical", 
-              K = 524) + 
-  ggplot2::scale_color_manual(values = species_palette) + 
+              arrange = "vertical",
+              K = 524) +
+  ggplot2::scale_color_manual(values = species_palette) +
   ggplot2::scale_fill_manual(values = species_palette)
 ```
 
-In the above plots, we have specified `arrange = "vertical"`, which vertically arranges species from bottom to top in order of decreasing abundance. Specifying `arrange="horizontal"` horizontally arranges samples from left to right in order of increasing abundance of the most abundant species. Specifying `arrange=TRUE` or `arrange="both"` results in a plot with both types of ordering. `arrange="both"` is a useful option for highlighting patterns when the horizontal ordering of your samples does not correspond to a meaningful property of the data, such as sampling time. 
+In the above plots, we have specified `arrange = "vertical"`, which vertically arranges species from bottom to top in order of decreasing abundance. Specifying `arrange="horizontal"` horizontally arranges samples from left to right in order of increasing abundance of the most abundant species. Specifying `arrange=TRUE` or `arrange="both"` results in a plot with both types of ordering. `arrange="both"` is a useful option for highlighting patterns when the horizontal ordering of your samples does not correspond to a meaningful property of the data, such as sampling time.
 ```{r}
 plot_relabund(xue_microbiome_sample,
               arrange = "both",
-              K = 524) + 
-  ggplot2::scale_color_manual(values = species_palette) + 
+              K = 524) +
+  ggplot2::scale_color_manual(values = species_palette) +
   ggplot2::scale_fill_manual(values = species_palette)
 ```
 
@@ -288,14 +288,14 @@ plot_relabund(xue_microbiome_sample,
 
 The primary goal of the _FAVA_ R package is to compute the statistic FAVA, a measure of the variability across many relative abundance vectors, introduced in the paper Morrison et al. (2023?). This statistic is computed using the function `fava`, which takes a relative abundance matrix (`relab_matrix`) and computes the variability across all the rows at once, returning a single index between 0 and 1. If the relative abundance matrix contains metadata in addition to relative abundances, the number of species, `K`, must also be specified. If the matrix contains multiple groups we wish to separately analyze, we must also specify the name of the matrix column specifying group membership using the `group` parameter. In our example, this column is called "subject". The code below computes FAVA across all samples from each subject.
 ```{r}
-fava(relab_matrix = xue_microbiome_sample, 
-     group = "subject", 
+fava(relab_matrix = xue_microbiome_sample,
+     group = "subject",
      K = 524)
 ```
 
-If `group` is not specified, FAVA is computed across all samples in the matrix. For our example, this is a measure of the variability across both time and subjects. 
+If `group` is not specified, FAVA is computed across all samples in the matrix. For our example, this is a measure of the variability across both time and subjects.
 ```{r}
-fava(relab_matrix = xue_microbiome_sample, 
+fava(relab_matrix = xue_microbiome_sample,
      K = 524)
 ```
 
@@ -303,27 +303,27 @@ fava(relab_matrix = xue_microbiome_sample,
 
 The statistic FAVA can be weighted in two possible ways:
 
-1. Providing a species similarity matrix `S` allows FAVA to account for the similarity among taxa. 
+1. Providing a species similarity matrix `S` allows FAVA to account for the similarity among taxa.
 
 2. Providing a weighting vector `w`, or the name of the column corresponding to sampling times (which can be converted to a weighting vector according to equations 5 and 6 of Morrison et al. 2023), allows FAVA to assign non-uniform weights to the samples.
 
 **(1)** Here, we provide a phylogenetic similarity matrix (`S = xue_species_similarity`) to FAVA so that its computation can account for the varying levels of similarity between the species in the data.
 ```{r}
-fava(relab_matrix = xue_microbiome_sample, 
-     group = "subject", 
-     K = 524, 
+fava(relab_matrix = xue_microbiome_sample,
+     group = "subject",
+     K = 524,
      S = xue_species_similarity)
 ```
 
-**(2)** If the data set corresponds to time series data, as our example does, providing the name of the matrix column that specifies the time each sample was collected allows FAVA to compute a weighting vector based on these sampling times and implement this weighting vector in the computation. In `xue_microbiome_sample`, the column is called "timepoint." 
+**(2)** If the data set corresponds to time series data, as our example does, providing the name of the matrix column that specifies the time each sample was collected allows FAVA to compute a weighting vector based on these sampling times and implement this weighting vector in the computation. In `xue_microbiome_sample`, the column is called "time point."
 ```{r}
-fava(relab_matrix = xue_microbiome_sample, 
-     group = "subject", 
-     K = 524, 
+fava(relab_matrix = xue_microbiome_sample,
+     group = "subject",
+     K = 524,
      time = "timepoint")
 ```
 
-An arbitrary weighting vector can instead be provided to the `fava` function as the `w` parameter. You may provide either `w` or `time` but not both.  `w` must have length equal to the number of rows in your data set. If `w` provides the weights for one computation of FAVA (i.e., a single group) its entries must sum to 1. If `w` provides weights for multiple groups, each subset of `w` corresponding to a single group must sum to 1.  We can manually compute a `w` vector from a vector of sampling times using the function `time_weights` that is used by `fava` when `time` is specified. 
+An arbitrary weighting vector can instead be provided to the `fava` function as the `w` parameter. You may provide either `w` or `time` but not both.  `w` must have length equal to the number of rows in your data set. If `w` provides the weights for one computation of FAVA (i.e., a single group) its entries must sum to 1. If `w` provides weights for multiple groups, each subset of `w` corresponding to a single group must sum to 1.  We can manually compute a `w` vector from a vector of sampling times using the function `time_weights` that is used by `fava` when `time` is specified.
 
 For example, consider only subject XMA. We first create a data frame, `XMA`, containing only samples from subject XMA. We then compute a weighting vector based on the times at which subject XMA collected samples, `XBA$timepoint`.
 ```{r}
@@ -337,49 +337,49 @@ sum(weights)
 
 When we plot each sample's weight based on when that sample was collected, we see that the daily samples during the middle of the study period have lower weights than the weekly samples during the beginning and end of the study. We see that the subject missed a day of sampling in the middle of the study, and the samples before and after this missed day have slightly higher weights than the other daily samples.
 ```{r}
-ggplot(mapping = aes(x = XMA$timepoint, 
-                     y = weights)) + 
-  geom_bar(stat = "identity") + 
+ggplot(mapping = aes(x = XMA$timepoint,
+                     y = weights)) +
+  geom_bar(stat = "identity") +
   theme_bw() +
   xlab("Study day") +
   ylab("Weight")
 ```
 
-We can use this weighting vector to compute the temporal variability of subject XMA. Note that we get the same value of FAVA as when we specified the `time` parameter above. 
+We can use this weighting vector to compute the temporal variability of subject XMA. Note that we get the same value of FAVA as when we specified the `time` parameter above.
 ```{r}
-fava(relab_matrix = XMA, 
-     K = 524, 
+fava(relab_matrix = XMA,
+     K = 524,
      w = weights)
 
-fava(relab_matrix = XMA, 
-     K = 524, 
+fava(relab_matrix = XMA,
+     K = 524,
      time = "timepoint")
 ```
 
-You may incorporate both species similarity (specifying `S`) and uneven row weightings (specifying `w` or `time`) into the computation of FAVA. 
+You may incorporate both species similarity (specifying `S`) and uneven row weightings (specifying `w` or `time`) into the computation of FAVA.
 ```{r}
-fava(relab_matrix = xue_microbiome_sample, 
-     group = "subject", 
-     K = 524, 
+fava(relab_matrix = xue_microbiome_sample,
+     group = "subject",
+     K = 524,
      time = "timepoint",
      S = xue_species_similarity)
 ```
 
-We will specify both `S` and `time` in our analysis of this data set because it contains many species, some very similar and some very distantly related, and because the sampling scheme is uneven, containing some weekly samples and some daily samples. 
+We will specify both `S` and `time` in our analysis of this data set because it contains many species, some very similar and some very distantly related, and because the sampling scheme is uneven, containing some weekly samples and some daily samples.
 
 
 ## 4 - Bootstrapping
 
-The preceding computation suggested that subject XDA had the most temporally variable microbiome across the entire study period, while subject XMA had much lower variability than either XDA or XBA. To determine if these differences in variability levels are statistically significant, we employ bootstrapping. Bootstrapping involves drawing rows with replacement from each relative abundance matrix in order to generate a replicate matrix (called a "bootstrap replicate") which has the same number of rows as the original matrix, but may omit some rows and include other rows multiple times. Generating many bootstrap replicates and computing FAVA on each produces a "bootstrap distribution" of FAVA for each matrix. Repeating this procedure for each of multiple matrices, as we do here for each subject, results in several bootstrap distributions which can be statistically compared. Bootstrapping thus allows for the statistical comparison of multiple matrices. 
+The preceding computation suggested that subject XDA had the most temporally variable microbiome across the entire study period, while subject XMA had much lower variability than either XDA or XBA. To determine if these differences in variability levels are statistically significant, we employ bootstrapping. Bootstrapping involves drawing rows with replacement from each relative abundance matrix in order to generate a replicate matrix (called a "bootstrap replicate") which has the same number of rows as the original matrix, but may omit some rows and include other rows multiple times. Generating many bootstrap replicates and computing FAVA on each produces a "bootstrap distribution" of FAVA for each matrix. Repeating this procedure for each of multiple matrices, as we do here for each subject, results in several bootstrap distributions which can be statistically compared. Bootstrapping thus allows for the statistical comparison of multiple matrices.
 
 In the below example, we generate 100 bootstrap replicates (`n_replicates = 100`) of the relative abundances for each subject (`group = "subject"`). We weight each FAVA computation by the sampling times (`time = "timepoint"`) and the species similarity (`S = xue_species_similarity`). Because bootstrapping is a random process, running the code multiple times would give slightly different results. Setting a random seed (`seed = 1`) makes this result repeatable. We specify `save_replicates = FALSE` so that `bootstrap_fava` does not save all 300 replicate matrices (100 for each of 3 subjects), which would make the resulting object quite large.
 
 ```{r}
-bootstrap_out = bootstrap_fava(matrices = xue_microbiome_sample, 
-                               n_replicates = 100, 
-                               seed = 1, 
-                               group = "subject", 
-                               time = "timepoint", 
+bootstrap_out = bootstrap_fava(matrices = xue_microbiome_sample,
+                               n_replicates = 100,
+                               seed = 1,
+                               group = "subject",
+                               time = "timepoint",
                                S = xue_species_similarity,
                                save_replicates = FALSE)
 ```
@@ -396,11 +396,11 @@ bootstrap_out$plot_violin
 bootstrap_out$test_pairwise_wilcox
 ```
 
-We can determine, based on a pairwise Wilcoxon rank sum test, that the three bootstrap distributions are significantly different. 
+We can determine, based on a pairwise Wilcoxon rank sum test, that the three bootstrap distributions are significantly different.
 
 ## 5 - Sliding windows
 
-Finally, in order to explore how temporal variability changes over the course of the study period for each subject, we compute FAVA in sliding windows. We here use sliding windows 6-samples wide separated by 1-sample increments, but those values can be customized using the `window_size` and `window_step` parameters. Like `bootstrap_fava`, the function `window_fava` returns a list of objects. `window_fava$window_data` is a data frame containing the value of FAVA for each sliding window. `window_fava$window_plot` plots the value of FAVA for each window as a horizontal line segment with length corresponding to the samples included and vertical position determined by the window's FAVA value. 
+Finally, in order to explore how temporal variability changes over the course of the study period for each subject, we compute FAVA in sliding windows. We here use sliding windows 6-samples wide separated by 1-sample increments, but those values can be customized using the `window_size` and `window_step` parameters. Like `bootstrap_fava`, the function `window_fava` returns a list of objects. `window_fava$window_data` is a data frame containing the value of FAVA for each sliding window. `window_fava$window_plot` plots the value of FAVA for each window as a horizontal line segment with length corresponding to the samples included and vertical position determined by the window's FAVA value.
 
 ### Compute FAVA for each window
 ```{r}
@@ -410,21 +410,21 @@ window_out = window_fava(relab_matrix = xue_microbiome_sample,
                          time = "timepoint",
                          S = xue_species_similarity,
                          group = "subject")
-head(window_out$window_data) 
+head(window_out$window_data)
 ```
 
 ### Visualize FAVA in sliding windows
 ```{r}
 window_out$window_plot
-window_out$window_plot + 
+window_out$window_plot +
   ggplot2::facet_wrap(~ group)
 ```
 
-We see that each subject experiences an increase in variability when they are taking the antibiotic. Both subjects XDA and XMA return to FAVA values similar to their pre-antibiotic values, but subject XBA does not re-stabilize during the study period. 
+We see that each subject experiences an increase in variability when they are taking the antibiotic. Both subjects XDA and XMA return to FAVA values similar to their pre-antibiotic values, but subject XBA does not re-stabilize during the study period.
 
 # Conclusion
 
-This concludes the tutorial on the application of the _FAVA_ R package to analysis of microbiome data. We hope you found it helpful! For guidance on specific functions, access the documentation by typing `?` into the R console (e.g., `?fava`). To see all available functions, type `?FAVA::`. For more details on the FAVA statistic, see the paper by Morrison et al. (2023?). 
+This concludes the tutorial on the application of the _FAVA_ R package to analysis of microbiome data. We hope you found it helpful! For guidance on specific functions, access the documentation by typing `?` into the R console (e.g., `?fava`). To see all available functions, type `?FAVA::`. For more details on the FAVA statistic, see the paper by Morrison et al. (2023?).
 
 
 
@@ -450,7 +450,7 @@ In this section, we provide more detail on how to generate a similarity matrix f
 
 ### (1) Convert a phylogenetic tree to a pairwise phylogenetic distance matrix
 
-We begin with a phylogenetic tree, `xue_species_tree`, which describes the evolutionary relationships among the species based on their sequence data. In R, a tree is stored as a list describing the nodes, edges, and tips of the phylogenetic tree: 
+We begin with a phylogenetic tree, `xue_species_tree`, which describes the evolutionary relationships among the species based on their sequence data. In R, a tree is stored as a list describing the nodes, edges, and tips of the phylogenetic tree:
 
 ```{r}
 str(xue_species_tree)
@@ -483,17 +483,17 @@ knitr::kable(distance_matrix[1:40, 1:20]) %>%
 Here is a heat map plot of the distance matrix:
 ```{r, fig.height = 7, echo = FALSE}
 ggplot(distance_matrix %>%
-         data.frame() %>% 
-         mutate(name2 = rownames(distance_matrix)) %>% 
-         pivot_longer(cols = 1:524, 
-                      values_to = "Distance")) + 
-  geom_raster(aes(x = name, 
-                  y = name2, 
-                  fill = Distance)) + 
+         data.frame() %>%
+         mutate(name2 = rownames(distance_matrix)) %>%
+         pivot_longer(cols = 1:524,
+                      values_to = "Distance")) +
+  geom_raster(aes(x = name,
+                  y = name2,
+                  fill = Distance)) +
   theme_minimal() + scale_fill_viridis_c() +
-  theme(axis.text.y = element_text(size = 2), 
-        axis.text.x = element_text(size = 2, 
-                                   angle = -90, 
+  theme(axis.text.y = element_text(size = 2),
+        axis.text.x = element_text(size = 2,
+                                   angle = -90,
                                    hjust = 0),
         axis.title = element_blank())
 ```
@@ -515,29 +515,29 @@ Next, we explore three transformations to convert the phylogenetic distance betw
 
 * Inverse: $S_{i,j}=\frac{1}{D_{i,j}+1}$
 
-These three transformations are plotted below for the maximum pairwise distance of our example data, approximately 3.7 $(\max{(D_{i,j})}\approx 3.7)$. 
+These three transformations are plotted below for the maximum pairwise distance of our example data, approximately 3.7 $(\max{(D_{i,j})}\approx 3.7)$.
 ```{r, echo = FALSE, fig.height = 8}
 pal = c("#157f1f", "#0a2463", "#3891a6")
 
-(data.frame(Distance = seq(from = 0, to = max(distance_matrix), by = 0.05)) %>% 
+(data.frame(Distance = seq(from = 0, to = max(distance_matrix), by = 0.05)) %>%
   mutate(Exponential = exp(-Distance), Inverse = 1/(Distance+1), Difference = 1-Distance/max(Distance)) %>%
   pivot_longer(-Distance, names_to = "Transformation", values_to = "Similarity") %>%
-  ggplot(aes(x = Distance, y = Similarity, color = Transformation)) + geom_line(size = 3) + 
-  theme_bw() + scale_color_manual(values = pal)) / 
+  ggplot(aes(x = Distance, y = Similarity, color = Transformation)) + geom_line(size = 3) +
+  theme_bw() + scale_color_manual(values = pal)) /
   ggplot() + geom_density(aes(x = c(distance_matrix)), fill = "grey") + theme_bw() +
   xlab("Distance") + ylab("Density") +
   ggtitle("Distribution of pairwise phylogenetic distances between species (distance_matrix)") +
   plot_layout(heights = c(3,2))
 ```
 
-We see from the above density plot and the summary at the end of the preceding section that the phylogenetic distance between most species is between about 2 and 3. In this region, the exponential transformation yields much lower similarities than ether the difference or the inverse similarities. 
+We see from the above density plot and the summary at the end of the preceding section that the phylogenetic distance between most species is between about 2 and 3. In this region, the exponential transformation yields much lower similarities than either the difference or the inverse similarities.
 
 Note that the relative shapes of these transformations changes as $\max{(D_{i,j})}$ increases. Consider the below plot, with $\max{(D_{i,j})}=100$.
 ```{r, echo = FALSE}
-data.frame(Distance = seq(from = 0, to = 100, by = 0.05)) %>% 
+data.frame(Distance = seq(from = 0, to = 100, by = 0.05)) %>%
   mutate(Exponential = exp(-Distance), Inverse = 1/(Distance+1), Difference = 1-Distance/max(Distance)) %>%
   pivot_longer(-Distance, names_to = "Transformation", values_to = "Similarity") %>%
-  ggplot(aes(x = Distance, y = Similarity, color = Transformation)) + geom_line(size = 3) + 
+  ggplot(aes(x = Distance, y = Similarity, color = Transformation)) + geom_line(size = 3) +
   theme_bw()+ scale_color_manual(values = pal)
 ```
 
@@ -552,7 +552,7 @@ inverse_similarity = 1/(distance_matrix + 1)
 
 These transformations result in very different pairwise similarity matrices. Below, we visualize and summarize these matrices by:
 
-**a.** Plotting each of the three similarity matrices as a heat map, with each pairwise similarity colored on a scale from 0 (dark purple) to 1 (bright yellow). Notice the consistent yellow diagonal in each plot, confirming that each species has similarity 1 with itself, regardless of transformation. 
+**a.** Plotting each of the three similarity matrices as a heat map, with each pairwise similarity colored on a scale from 0 (dark purple) to 1 (bright yellow). Notice the consistent yellow diagonal in each plot, confirming that each species has similarity 1 with itself, regardless of transformation.
 
 **b.** Plotting the distribution of pairwise similarity values (all entries of each matrix) for each transformation.
 
@@ -564,17 +564,17 @@ These transformations result in very different pairwise similarity matrices. Bel
 ```{r, fig.height = 7, echo = FALSE}
 similarity_heatmap <- function(matrix){
   ggplot(matrix %>%
-         data.frame() %>% 
-         mutate(name2 = rownames(matrix)) %>% 
-         pivot_longer(cols = 1:524, 
-                      values_to = "Similarity")) + 
-  geom_raster(aes(x = name, 
-                  y = name2, 
-                  fill = Similarity)) + 
+         data.frame() %>%
+         mutate(name2 = rownames(matrix)) %>%
+         pivot_longer(cols = 1:524,
+                      values_to = "Similarity")) +
+  geom_raster(aes(x = name,
+                  y = name2,
+                  fill = Similarity)) +
   theme_minimal() + scale_fill_viridis_c(limits = c(0,1)) +
-  theme(axis.text.y = element_text(size = 2), 
-        axis.text.x = element_text(size = 2, 
-                                   angle = -90, 
+  theme(axis.text.y = element_text(size = 2),
+        axis.text.x = element_text(size = 2,
+                                   angle = -90,
                                    hjust = 0),
         axis.title = element_blank())
 }
@@ -589,12 +589,12 @@ similarity_heatmap(inverse_similarity) + ggtitle("Inverse similarity matrix")
 data.frame(Difference = c(difference_similarity),
            Exponential = c(exponential_similarity),
            Inverse = c(inverse_similarity)) %>%
-  pivot_longer(cols = 1:3, 
+  pivot_longer(cols = 1:3,
                names_to = "Transformation", values_to = "Similarity") %>%
-  ggplot(aes(x = Similarity, fill = Transformation)) + 
-  geom_density(alpha = 0.5) + theme_bw() + 
-  ylab("Density") + 
-  # ggtitle("Distributions of pairwise similarities between species for each transformation")+ 
+  ggplot(aes(x = Similarity, fill = Transformation)) +
+  geom_density(alpha = 0.5) + theme_bw() +
+  ylab("Density") +
+  # ggtitle("Distributions of pairwise similarities between species for each transformation")+
   scale_fill_manual(values = pal)
 ```
 
@@ -611,26 +611,26 @@ These summaries illuminate important differences among the transformations.
 * The **difference** transformation generally results in *high* pairwise similarities.
 
   * The heat map (a) is dominated by turquoise (values between 0.25 and 0.5), with bands of purple (groups of species with low similarity to most other species) and blocks of yellow (groups of species with high similarity to one another).
-  
+
   * The distribution of pairwise similarities (b) has a broad peak between 0.2 and 0.4, and a heavy tail (i.e., high similarity values are fairly abundant).
-  
-  * The mean similarity between species on a scale of 0 to 1 (c) is **0.36.** 
-  
-* The **exponential** transformation generally results in *low* pairwise similarities. 
 
-    * The heat map (a) is dominated by dark purple (similarity values close to 0), except for small blocks of high similarity, corresponding to closely related species. 
-    
-    * The distribution of pairwise similarities (b) has a narrow peak between 0 and 0.1. 
-    
-    * The mean similarity between species on a scale of 0 to 1 (c) is just **0.14.** 
-    
-* The **inverse** transformation is similar to the difference distribution for the range of phylogenetic distances present in this data set ($D_{i,j}\in [0,3.7]$), but the transformation will be more similar to the exponential distribution when the maximum phylogenetic distance ($\max{(D_{i,j})}$) is larger (e.g., see the above plot of the transformation functions when $\max{(D_{i,j})}=100$).  
+  * The mean similarity between species on a scale of 0 to 1 (c) is **0.36.**
 
-    * Its distribution of pairwise similarities (b) has a narrow peak like the exponential transformation, but a center around 0.3 like the difference transformation. 
-    
-    * This shift is also reflected by its large mean similarity value of **0.32**, which is similar to that of the difference transformation (c). 
-  
-Your choice of transformation depends on your desired distribution of pairwise similarities: 
+* The **exponential** transformation generally results in *low* pairwise similarities.
+
+    * The heat map (a) is dominated by dark purple (similarity values close to 0), except for small blocks of high similarity, corresponding to closely related species.
+
+    * The distribution of pairwise similarities (b) has a narrow peak between 0 and 0.1.
+
+    * The mean similarity between species on a scale of 0 to 1 (c) is just **0.14.**
+
+* The **inverse** transformation is similar to the difference distribution for the range of phylogenetic distances present in this data set ($D_{i,j}\in [0,3.7]$), but the transformation will be more similar to the exponential distribution when the maximum phylogenetic distance ($\max{(D_{i,j})}$) is larger (e.g., see the above plot of the transformation functions when $\max{(D_{i,j})}=100$).
+
+    * Its distribution of pairwise similarities (b) has a narrow peak like the exponential transformation, but a center around 0.3 like the difference transformation.
+
+    * This shift is also reflected by its large mean similarity value of **0.32**, which is similar to that of the difference transformation (c).
+
+Your choice of transformation depends on your desired distribution of pairwise similarities:
 
 * Use the **difference** transformation if you want to account for the relatedness of distantly related species in addition to closely related species. This transformation is also the only of these transformations that is linear, so the shape of the distribution of similarities (b) is just a mirror image of the distribution of pairwise distances (the first plot of this sub-section). It is also the only transformation whose distribution of similarities does not change with the maximum phylogenetic distance ($\max{(D_{i,j})}$).
 
@@ -638,72 +638,72 @@ Your choice of transformation depends on your desired distribution of pairwise s
 
 * Use the **inverse** transformation if you want an intermediate between the difference and exponential transformations, though note that the shape depends on the value of $\max{(D_{i,j})}$.
 
-For the example analysis in this tutorial and in the accompanying paper, we use the exponential transformation because we wish to only account for similarities among very closely related species. However, this decision is informed by the biological processes at play in the data, so other choices may be more suitable for different data sets. 
+For the example analysis in this tutorial and in the accompanying paper, we use the exponential transformation because we wish to only account for similarities among very closely related species. However, this decision is informed by the biological processes at play in the data, so other choices may be more suitable for different data sets.
 
 
 ### (3) How do these transformations influence the value of FAVA?
 
-We first compute FAVA across all samples for each subject using each of the three different similarity matrices (difference, exponential, and inverse). In each of these calculations, we weight samples based on their sampling time. 
+We first compute FAVA across all samples for each subject using each of the three different similarity matrices (difference, exponential, and inverse). In each of these calculations, we weight samples based on their sampling time.
 
 ```{r, echo = FALSE}
-rbind(fava(xue_microbiome_sample, group = "subject", time = "timepoint", 
-           S = difference_similarity) %>% 
+rbind(fava(xue_microbiome_sample, group = "subject", time = "timepoint",
+           S = difference_similarity) %>%
         mutate(Transformation = "Difference"),
-      fava(xue_microbiome_sample, group = "subject", time = "timepoint", 
-           S = exponential_similarity) %>% 
+      fava(xue_microbiome_sample, group = "subject", time = "timepoint",
+           S = exponential_similarity) %>%
         mutate(Transformation = "Exponential"),
-      fava(xue_microbiome_sample, group = "subject", time = "timepoint", 
-           S = inverse_similarity) %>% 
+      fava(xue_microbiome_sample, group = "subject", time = "timepoint",
+           S = inverse_similarity) %>%
         mutate(Transformation = "Inverse")) %>%
-  ggplot(aes(x = subject, y = FAVA, color = Transformation)) + 
-  geom_point(size = 6, alpha = 0.5) + 
+  ggplot(aes(x = subject, y = FAVA, color = Transformation)) +
+  geom_point(size = 6, alpha = 0.5) +
   theme_bw() + geom_line(aes(group = Transformation), size = 1, alpha = 0.7)+ scale_color_manual(values = pal)
 
 ```
 
-We find that the exponential and inverse transformations yield very similar results. The difference transformation, on the other hand, yields FAVA values much lower than the other transformations for subject XDA and XMA, though not for XBA. 
+We find that the exponential and inverse transformations yield very similar results. The difference transformation, on the other hand, yields FAVA values much lower than the other transformations for subject XDA and XMA, though not for XBA.
 
-We next repeat the sliding window analysis for each of the three transformations. 
+We next repeat the sliding window analysis for each of the three transformations.
 
 ```{r, echo = FALSE}
-difference_window = window_fava(relab_matrix = xue_microbiome_sample, 
-                                window_size = 6,  
-                                group = "subject", time = "timepoint", 
+difference_window = window_fava(relab_matrix = xue_microbiome_sample,
+                                window_size = 6,
+                                group = "subject", time = "timepoint",
                                 S = difference_similarity)
 
-exponential_window = window_fava(relab_matrix = xue_microbiome_sample, 
-                                window_size = 6,  
-                                group = "subject", time = "timepoint", 
+exponential_window = window_fava(relab_matrix = xue_microbiome_sample,
+                                window_size = 6,
+                                group = "subject", time = "timepoint",
                                 S = exponential_similarity)
 
-inverse_window = window_fava(relab_matrix = xue_microbiome_sample, 
-                                window_size = 6,  
-                                group = "subject", time = "timepoint", 
+inverse_window = window_fava(relab_matrix = xue_microbiome_sample,
+                                window_size = 6,
+                                group = "subject", time = "timepoint",
                                 S = inverse_similarity)
 
 
-difference_window$window_plot + ylim(0,0.3) + ggtitle("Difference") + 
-  theme(legend.position = "none", 
-        strip.text = element_blank()) + 
-  facet_grid(group ~ .)  | 
-  exponential_window$window_plot + ylim(0,0.3)+ ggtitle("Exponential") + 
-  theme(legend.position = "none", 
-        axis.text.y = element_blank(),
-        axis.title.y = element_blank(), 
-        strip.text = element_blank()) + 
-  facet_grid(group ~ .) | 
-  inverse_window$window_plot + ylim(0,0.3) + ggtitle("Inverse") + 
+difference_window$window_plot + ylim(0,0.3) + ggtitle("Difference") +
+  theme(legend.position = "none",
+        strip.text = element_blank()) +
+  facet_grid(group ~ .)  |
+  exponential_window$window_plot + ylim(0,0.3)+ ggtitle("Exponential") +
   theme(legend.position = "none",
         axis.text.y = element_blank(),
         axis.title.y = element_blank(),
-        strip.text = element_text(size = 12)) + 
+        strip.text = element_blank()) +
+  facet_grid(group ~ .) |
+  inverse_window$window_plot + ylim(0,0.3) + ggtitle("Inverse") +
+  theme(legend.position = "none",
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        strip.text = element_text(size = 12)) +
   facet_grid(group ~ .)
 
 ```
 
-We find that the results across transformations are qualitatively the same, despite small differences. Regardless of the transformation used to generate the similarity matrix, XBA has the highest peak variability and does not stabilize, while XDA and XMA both stabilize at FAVA values similar to their initial values. 
+We find that the results across transformations are qualitatively the same, despite small differences. Regardless of the transformation used to generate the similarity matrix, XBA has the highest peak variability and does not stabilize, while XDA and XMA both stabilize at FAVA values similar to their initial values.
 
-In order to more easily compare the three transformations, we plot each sliding window as a point, with the location along the x-axis corresponding to the center of the sliding window. 
+In order to more easily compare the three transformations, we plot each sliding window as a point, with the location along the x-axis corresponding to the center of the sliding window.
 
 ```{r, echo = FALSE, fig.height=6}
 fava_window_transformation = rbind(mutate(difference_window$window_data, Transformation = "Difference"),
@@ -711,36 +711,256 @@ fava_window_transformation = rbind(mutate(difference_window$window_data, Transfo
       mutate(inverse_window$window_data, Transformation = "Inverse"))
 
 ggplot() +
-  geom_polygon(aes(x = x, y= y), 
+  geom_polygon(aes(x = x, y= y),
                data.frame(x = rep(c(29, 34, 34, 29), 3),
                           y = rep(c(0, 0, 0.3, 0.3), 3),
                           group = rep(c("XBA", "XDA", "XMA"), each = 4)),
-               fill = "grey", alpha = 0.5) + 
+               fill = "grey", alpha = 0.5) +
   geom_point(aes(x = (w6 + w1)/2, y = FAVA, color = Transformation), fava_window_transformation,
-             alpha = 0.5, size = 2) + 
+             alpha = 0.5, size = 2) +
   geom_line(aes(x = (w6 + w1)/2, y = FAVA, color = Transformation), fava_window_transformation,
-            size = 1, alpha = 0.5)  + 
+            size = 1, alpha = 0.5)  +
   facet_wrap(~ group) +
-  theme_bw()+ 
-  scale_color_manual(values = pal) + 
+  theme_bw()+
+  scale_color_manual(values = pal) +
   xlab("Study day") +
    ylab("Weighted FAVA") +
   theme(legend.position = c(0.92, 0.8))
 ```
 
-We find that the relative ordering of FAVA values for the three transformations depends on both subject and the window time relative to antibiotic. For windows overlapping with the antibiotic period (grey rectangle), the FAVA values generated from a difference-transformed similarity matrix are very different from those generated by the other two transformations---greater for subject XBA, and smaller for subjects XDA and XMA. For windows far from the antibiotic window, the results for each transformation are more similar. 
+We find that the relative ordering of FAVA values for the three transformations depends on both subject and the window time relative to antibiotic. For windows overlapping with the antibiotic period (grey rectangle), the FAVA values generated from a difference-transformed similarity matrix are very different from those generated by the other two transformations---greater for subject XBA, and smaller for subjects XDA and XMA. For windows far from the antibiotic window, the results for each transformation are more similar.
 
-**Maike to remove below section after talking with Katherine**
+<!-- **Maike to remove below section after talking with Katherine** -->
 
-I speculated that there could be an association between the amount of variability in a window and the disparity between methods (perhaps when there's more variability, the methods disagree more?), but the results are extremely inconsistent among subjects.
+<!-- I speculated that there could be an association between the amount of variability in a window and the disparity between methods (perhaps when there's more variability, the methods disagree more?), but the results are extremely inconsistent among subjects. -->
+
+<!-- ```{r} -->
+<!-- fava_window_transformation %>% pivot_wider(names_from = Transformation, values_from = FAVA) %>% -->
+<!--   mutate("Difference - Exponential" = Difference - Exponential) %>% -->
+<!--   ggplot(aes(x = Exponential, y = `Difference - Exponential`, color = abs((w6 + w1)/2 - 31.5))) + -->
+<!--   geom_smooth(method = "lm", color = "grey", alpha = 0.3) + -->
+<!--   geom_point(size = 3, alpha = 0.8) + theme_bw() + -->
+<!--   facet_wrap(~ group, scales = "free") + -->
+<!--   scale_color_viridis_c(name = "Days from\nabx center") -->
+<!-- ``` -->
+
+
+
+
+## When to normalize FAVA
+
+Recall that FAVA uses the population-genetic statistic $F_{ST}$ to quantify variability across many samples of microbial community composition. $F_{ST}=0$ when every sample is identical and $F_{ST}=1$  when each sample is comprised entirely of a single taxon and there are at least two distinct taxa present across all of the samples.
+
+In this section, we explore how $F_{ST}$ is constrained when the sample size is small, and how we can account for this constraint by normalizing $F_{ST}$ by its theoretical upper bound conditional on the sample size, $I$, and the mean abundance of the most abundant taxon, $M$. 
+
+**In short, if you wish to compare the variability of relative abundance matrices with few rows/samples (I) and very different mean abundances of the dominant taxon (M), you may wish to normalize $F_{ST}$ by its theoretical upper bound in order to avoid variability differences driven by the difference in M.**
+
+### When $I$ is small, which relative abundance matrices have $F_{ST}=1$?
+
+For a relative abundance matrix with just two samples ($I=2$), $F_{ST}$ can reach its upper bound of $1$ only when each sample is entirely comprised of a different species:
+
+```{r, echo = FALSE, fig.width = 5, fig.height = 1.8}
+pal = viridis::viridis(n = 5, option = "rocket") %>%
+  `names<-`(paste0("Species_", rev(0:4)))
+
+Q = diag(2)%>% 
+  `row.names<-`(c("Sample 1: ", 
+                  "Sample 2: ")) %>%
+  `colnames<-`(c("Species_1", "Species_2"))
+
+patchwork::wrap_plots(plot_relabund(Q) + theme_minimal() +
+                        xlab("Sample") +
+                        theme(legend.position = "none") +
+                        scale_color_manual(values = rep("white", 3))+ 
+                        scale_fill_manual(values = pal), 
+                     gridExtra::tableGrob(Q),
+                       widths = c(1.5,3))
+```
+
+In this case, the mean abundance of the most abundant species across both samples is $M=\frac{1}{2}$. This suggests that, if there are two samples ($I=2$), $F_{ST}$ can only equal $1$ if $M=\frac{1}{2}$.
+
+For a relative abundance matrix with three samples ($I=3$), there are two relative abundance matrices that reach $F_{ST}=1$:
+
+  1. Matrix A, in which each sample is comprised of a distinct taxon
+  
+  2. Matrix B, in which two samples are comprised of the same taxon and one is comprised of a different taxon
+
+```{r, echo = FALSE, fig.width = 7, fig.height = 2}
+Q1 = diag(3) %>% 
+  `row.names<-`(c("Sample 1: ", 
+                  "Sample 2: ",
+                  "Sample 3: ")) %>%
+  `colnames<-`(c("Species_1", "Species_2", "Species_3"))
+
+Q2 = matrix(c(1,0,
+              0,1, 
+              1, 0),
+            byrow=TRUE, nrow= 3)%>% 
+  `row.names<-`(c("Sample 1: ", 
+                  "Sample 2: ",
+                  "Sample 3: ")) %>%
+  `colnames<-`(c("Species_1", "Species_2"))
+
+
+patchwork::wrap_plots(plot_relabund(Q1) + theme_minimal() +
+                        xlab("Sample") +
+                        theme(legend.position = "none") +
+                        scale_color_manual(values = rep("white", 3))+ 
+                        scale_fill_manual(values = pal) +
+                        ggtitle("Matrix A"), 
+                      gridExtra::tableGrob(Q1),
+                      widths = c(1.7, 3.3))
+```
+
+```{r, echo = FALSE, fig.width = 6, fig.height = 2}
+
+patchwork::wrap_plots(plot_relabund(Q2) + theme_minimal() +
+                        xlab("Sample") +
+                        theme(legend.position = "none") +
+                        scale_color_manual(values = rep("white", 3))+ 
+                        scale_fill_manual(values = pal) +
+                        ggtitle("Matrix B"), 
+                      gridExtra::tableGrob(Q2),
+                      widths = c(2,3)) 
+```
+
+Here, the mean abundance of the most abundant taxon across all three samples is either $M=\frac{1}{3}$ (Matrix A) or $M=\frac{2}{3}$ (Matrix B). It follows that, when $I=3$, $F_{ST}$ can only equal $1$ when $M=\frac{1}{3}$ or $\frac{2}{3}$. For other values of $M$, the maximum possible value of $F_{ST}$ is less than $1$. 
+
+### In general, what is the upper bound on $F_{ST}$ conditional on $M$ and $I$?
+
+Previous work has derived a general equation for the upper bound on $F_{ST}$ as a function of the number of samples ($I$) and the abundance of the most abundant taxon ($M$) ([Alcala & Rosenberg 2022](https://rosenberglab.stanford.edu/papers/AlcalaRosenberg2022-PhilTransB.pdf)). We can divide $F_{ST}$ by this upper bound in order to generate a variability statistic, $F_{ST}/F_{ST}^{max}$, that ranges between 0 and 1 no matter what the value of $M$ is. In a previous project, we used $F_{ST}/F_{ST}^{max}$ instead of $F_{ST}$ because we didn't want our results to be confounded by differences in $M$ ([Morrison, Alcala, & Rosenberg 2022](https://rosenberglab.stanford.edu/papers/MorrisonEtAl2022-MolEcolResources.pdf)).
+
+We plot the upper bound on $F_{ST}$ as a function of $M$ for different values of $I$ below. 
+
+```{r, echo = FALSE, fig.height = 2, fig.width=11}
+favamax = function (I, M){
+    
+    sig1 <- I*M
+    J <- ceiling(1/sig1)
+    sig1.frac <- sig1 - floor(sig1)
+    if (sig1 == I) {
+        favaMax <- 0
+    }
+    else {
+        if (sig1 <= 1) {
+            favaMax <- ((I - 1) * (1 - sig1 * (J - 1) * (2 - 
+                J * sig1)))/(I - (1 - sig1 * (J - 1) * (2 - J * 
+                sig1)))
+        }
+        else {
+            favaMax <- (I * (I - 1) - sig1^2 + floor(sig1) - 
+                2 * (I - 1) * sig1.frac + (2 * I - 1) * sig1.frac^2)/(I * 
+                (I - 1) - sig1^2 - floor(sig1) + 2 * sig1 - sig1.frac^2)
+        }
+    }
+     return(favaMax)
+}
+
+x = seq(0.001, 1, by = 0.001)
+
+data.frame(M = x, 
+           "I.2" = sapply(x, favamax, I = 2),
+           "I.3" = sapply(x, favamax, I = 3),
+           "I.6" = sapply(x, favamax, I = 5),
+           "I.10" = sapply(x, favamax, I = 10),
+           "I.100" = sapply(x, favamax, I = 100)) %>%
+  tidyr::pivot_longer(-M, names_to = "I", values_to = "FstMax") %>%
+  mutate(I = stringr::str_replace(I, stringr::fixed("."), " = ") %>%
+           factor(ordered = TRUE, levels = paste0("I = ", c(2,3,6,10, 100)))) %>%
+  ggplot(aes(x = M, y = FstMax)) + geom_line(size = 1) + facet_wrap(~I, nrow = 1) + 
+  theme_bw() + ylab(expression(F[ST]^{max}))
+```
+
+Note that, as we expect from the preceding examples, for $I=2$, $F_{ST}^{max}=1$ only when $M=\frac{1}{2}$ and, for $I=3$, $F_{ST}^{max}=1$ only when $M=\frac{1}{3}$ or $\frac{2}{3}$. 
+
+In general, $F_{ST}$ is more constrained by $M$ for smaller sample sizes, $I$. In regions where the upper bound on $F_{ST}$ is much less than $1$, the value of $M$ can have a big influence on the value of $F_{ST}$. It can therefore be difficult to compare two relative abundance matrices with small sample sizes and very different values of $M$, because a difference in their values of $F_{ST}$ could be driven mainly by their very different bounds on $F_{ST}$ as a function of $M$. For this reason, you may wish to normalize $F_{ST}$ by this upper bound when making such a comparison. 
+
+
+### Example
+
+Consider the following two matrices:
+
+```{r, echo = FALSE, fig.width = 7, fig.height = 2}
+C = data.frame(Species_1 = c(0.4, 0.75, 0.8),
+               Species_2 = c(.55, .05, .05),
+               Species_3 = c(0.05, 0.2, 0.15)) %>% 
+  `rownames<-`(paste0("Sample ", 1:3))
+
+D = data.frame(Species_1 = c(0.75, 0.85, 0.95),
+               Species_2 = c(0.25, 0, 0),
+               Species_3 = c(0, 0.15, 0.05)) %>% 
+  `rownames<-`(paste0("Sample ", 1:3))
+
+C_plot = plot_relabund(C, arrange = TRUE) + theme_minimal() +
+                        xlab("Sample") +
+                        theme(legend.position = "none") +
+                        scale_color_manual(values = rep("white", 5))+ 
+                        scale_fill_manual(values = pal) +
+                        ggtitle("Matrix C")
+
+D_plot = plot_relabund(D, arrange = TRUE) + theme_minimal() +
+                        xlab("Sample") +
+                        theme(legend.position = "none") +
+                        scale_color_manual(values = rep("white", 5))+ 
+                        scale_fill_manual(values = pal) +
+                        ggtitle("Matrix D")
+
+
+patchwork::wrap_plots(C_plot, 
+                      gridExtra::tableGrob(C),
+                      widths = c(2,3)) 
+
+
+patchwork::wrap_plots(D_plot, 
+                      gridExtra::tableGrob(D),
+                      widths = c(2,3)) 
+```
+
+The $F_{ST}$ of matrix C is almost twice that of matrix D:
+```{r}
+fava(C)
+fava(D)
+```
+
+However, matrix C has a frequency of the most abundant taxon close to $\frac{2}{3}$, while the frequency of D's most abundant taxon is much higher: 
+```{r}
+max(colMeans(C))
+max(colMeans(D))
+```
+
+This difference in $M$ between matrices C and D means that matrix C has a value of $F_{ST}$ that is largely unconstrained by $M$, while matrix D is more constrained:
+
+```{r, fig.height = 4, fig.width = 6, echo = FALSE}
+labels = data.frame(M = c(max(colMeans(C)), max(colMeans(D))),
+                    FstMax = c(fava(C), fava(D)),
+                    FstMaxMax = c(favamax(I = 3, M = max(colMeans(C))),
+                               favamax(I = 3, M = max(colMeans(D)))),
+                    Label = c("C", "D"))
+
+data.frame(M = x, 
+           "I.3" = sapply(x, favamax, I = 3)) %>%
+  tidyr::pivot_longer(-M, names_to = "I", values_to = "FstMax") %>%
+  mutate(I = stringr::str_replace(I, stringr::fixed("."), " = ") %>%
+           factor(ordered = TRUE, levels = paste0("I = ", c(2,3,6,10, 100)))) %>%
+  ggplot(aes(x = M, y = FstMax)) + 
+  facet_wrap(~I, nrow = 1) + 
+  theme_bw() + ylab(expression(F[ST])) +
+  geom_point(data =labels, aes(color = Label), size = 4) + 
+  geom_text(data = labels, aes(color = Label, label = Label), 
+            size = 8, nudge_x = -.05) +
+  geom_segment(data = labels, aes(y = 0, yend = FstMaxMax, 
+                                  xend = M, color = Label), size = 2, alpha = 0.4)+
+  geom_line(size = 1.5) + 
+  theme(legend.position = "none", strip.text = element_text(size = 14)) +
+  geom_text(aes(x = .8, y = .9, label = "Upper bound")) 
+```
+
+The length of each colored vertical bar represents the value of $F_{ST}^{max}$ for each matrix. Since it is much closer to 1 for C than for D, the value of $F_{ST}$ for matrix C will be less influenced by the normalization. Indeed, when we divide each matrix's value of $F_{ST}$ by its upper bound conditional on $M$ and $I$, we find that D has a larger value of $F_{ST}/F_{ST}^{max}$ than matrix C.
 
 ```{r}
-fava_window_transformation %>% pivot_wider(names_from = Transformation, values_from = FAVA) %>% 
-  mutate("Difference - Exponential" = Difference - Exponential) %>%
-  ggplot(aes(x = Exponential, y = `Difference - Exponential`, color = abs((w6 + w1)/2 - 31.5))) + 
-  geom_smooth(method = "lm", color = "grey", alpha = 0.3) +
-  geom_point(size = 3, alpha = 0.8) + theme_bw() +
-  facet_wrap(~ group, scales = "free") +
-  scale_color_viridis_c(name = "Days from\nabx center")
+fava(C, normalized = TRUE)
+fava(D, normalized = TRUE)
 ```
+
+This change suggests that the difference in variability between matrices C and D is heavily influenced by the difference in the abundance of their dominant taxa. 
 
