@@ -338,7 +338,7 @@ bootstrap_fava <- function(matrices,
   }
 
   # Set name to match group name, if applicable
-  if(!is.null(group)){
+  if(length(group) == 1){
     colnames(all_stats)[1] = group
   }
 
