@@ -873,7 +873,7 @@ data.frame(M = x,
 
 Note that, as we expect from the preceding examples, for $I=2$, $F_{ST}^{max}=1$ only when $M=\frac{1}{2}$ and, for $I=3$, $F_{ST}^{max}=1$ only when $M=\frac{1}{3}$ or $\frac{2}{3}$. 
 
-In general, $F_{ST}$ is more constrained by $M$ for smaller sample sizes, $I$. In regions where the upper bound on $F_{ST}$ is much less than $1$, the value of $M$ can have a big influence on the value of $F_{ST}$. It can therefore be difficult to compare two relative abundance matrices with small sample sizes and very different values of $M$, because a difference in their values of $F_{ST}$ could be driven mainly by their very different bounds on $F_{ST}$ as a function of $M$. For this reason, you may wish to normalize $F_{ST}$ by this upper bound when making such a comparison. 
+In general, $F_{ST}$ is more constrained by $M$ when the sample size, $I$, is small. In regions where the upper bound on $F_{ST}$ is much less than $1$, the value of $M$ has a big influence on the value of $F_{ST}$. It can therefore be difficult to compare two relative abundance matrices that have small sample sizes and very different values of $M$. In this situation, a difference in their values of $F_{ST}$ could be driven mainly by their very different bounds on $F_{ST}$ as a function of $M$. For this reason, you may wish to normalize $F_{ST}$ by this upper bound when making such a comparison. 
 
 
 ### Example
@@ -928,7 +928,7 @@ max(colMeans(C))
 max(colMeans(D))
 ```
 
-This difference in $M$ between matrices C and D means that matrix C has a value of $F_{ST}$ that is largely unconstrained by $M$, while matrix D is more constrained:
+Because matrices C and D each have just $I=3$ samples, the mean abundance of the most abundant species, $M$, influences the maximum value of $F_{ST}$ that each could attain. Matrix C has a value of $M$ that allows for a value of $F_{ST}$ close to 1, while matrix D is constrained to smaller $F_{ST}$ values:
 
 ```{r, fig.height = 4, fig.width = 6, echo = FALSE}
 labels = data.frame(M = c(max(colMeans(C)), max(colMeans(D))),
