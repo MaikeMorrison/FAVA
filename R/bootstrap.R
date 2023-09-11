@@ -18,7 +18,7 @@
 #' @return A named list containing the following entries:
 #' \itemize{
 #' \item \code{bootstrap_replicates}: A named list of lists. Each element is named for a relative abundance matrix provided in \code{matrices} and contains a list of \code{n_replicates} bootstrap replicates of the provided matrix. E.g., if \code{n_replicates = 100} and the first relative abundance matrix in \code{matrices} is named \code{A}, then the first element of \code{bootstrap_replicates}, \code{bootstrap_replicates$bootstrap_matrices_A}, is itself a list of 100 matrices, each representing a bootstrap replicate of matrix A.
-#' \item \code{statistics}: A dataframe containing the desired statistic (FAVA, normalized FAVA, or weighted FAVA), computed for each bootstrap replicate matrix in \code{bootstrap_replicates}. The first column, titled \code{Matrix}, is a factor indicating which provided relative abundance matrix the row corresponds to (the matrix name if \code{matrices} is a named list, or a number otherwise). The row names are of the form \code{stats_matrix.replicate} where \code{matrix} is the name of one of the provided relative abundance matrices (or the entry number if the list elements were not named) and replicate is the number of bootstrap replicate (rep takes values from 1 to \code{n_replicates}).
+#' \item \code{statistics}: A dataframe containing the desired statistic (FAVA, normalized FAVA, or weighted FAVA), computed for each bootstrap replicate matrix in \code{bootstrap_replicates}. The first column, titled \code{group}, is a factor indicating which provided relative abundance matrix the row corresponds to (the matrix name if \code{matrices} is a named list, or a number otherwise). The row names are of the form \code{stats_matrix.replicate} where \code{matrix} is the name of one of the provided relative abundance matrices (or the entry number if the list elements were not named) and replicate is the number of bootstrap replicate (rep takes values from 1 to \code{n_replicates}).
 #' \item \code{plot_boxplot}: A ggplot2 box plot depicting the bootstrap distribution of FAVA for each matrix in \code{matrices}.
 #' \item \code{plot_violin}: A ggplot2 violin plot depicting the bootstrap distribution of FAVA for each matrix in \code{matrices}.
 #' \item \code{plot_ecdf}: A ggplot2 empirical cumulative distribution function plot depicting the bootstrap distribution of FAVA for each matrix in \code{matrices}.
@@ -253,7 +253,7 @@ bootstrap_fava <- function(matrices,
 
   # Make a dataset with all matrices' statistics:
   all_stats <- data.frame(
-    Matrix =
+    group =
       names %>%
       lapply(function(name) rep(name, n_replicates)) %>%
       unlist(),
@@ -271,20 +271,20 @@ bootstrap_fava <- function(matrices,
 
   if(multiple_groups){
     merge_group_names = dplyr::distinct(relab_grouping_vars)
-    merge_group_names$Matrix = merge_group_names$grouping_var_multiple
+    merge_group_names$group = merge_group_names$grouping_var_multiple
     merge_group_names <- dplyr::select(merge_group_names,
                                        -grouping_var_multiple)
 
-    all_stats = dplyr::left_join(merge_group_names,
+    all_stats = dplyr::right_join(merge_group_names,
                                   all_stats,
                                   .before = 1)
 
   }
 
-  all_stats$Matrix <- factor(all_stats$Matrix, levels = unique(all_stats$Matrix))
+  all_stats$group <- factor(all_stats$group, levels = unique(all_stats$group))
 
   plot_ecdf <- ggplot2::ggplot(data = all_stats) +
-    ggplot2::stat_ecdf(ggplot2::aes(x = .data$FAVA, color = .data$Matrix)) +
+    ggplot2::stat_ecdf(ggplot2::aes(x = .data$FAVA, color = .data$group)) +
     ggplot2::xlab(stat_name) +
     ggplot2::ylab("Cumulative Probability") +
     ggplot2::xlim(0, 1) +
@@ -293,7 +293,7 @@ bootstrap_fava <- function(matrices,
 
   plot_boxplot <- ggplot2::ggplot(
     data = all_stats,
-    ggplot2::aes(x = .data$Matrix, y = .data$FAVA)
+    ggplot2::aes(x = .data$group, y = .data$FAVA)
   ) +
     ggplot2::geom_boxplot() +
     ggplot2::ylab(stat_name) +
@@ -303,7 +303,7 @@ bootstrap_fava <- function(matrices,
   plot_violin <- ggplot2::ggplot(
     data = all_stats,
     ggplot2::aes(
-      x = .data$Matrix,
+      x = .data$group,
       y = round(.data$FAVA, 5)
     )
   ) +
@@ -319,11 +319,11 @@ bootstrap_fava <- function(matrices,
 
     test_pairwise_wilcox <- "This statistical test can only be performed if a list of matrices is provided."
   } else {
-    test_kruskal_wallis <- stats::kruskal.test(all_stats$FAVA ~ all_stats$Matrix)
+    test_kruskal_wallis <- stats::kruskal.test(all_stats$FAVA ~ all_stats$group)
 
     test_pairwise_wilcox <- stats::pairwise.wilcox.test(
       x = all_stats$FAVA,
-      g = all_stats$Matrix,
+      g = all_stats$group,
       paired = FALSE
     )
   }
