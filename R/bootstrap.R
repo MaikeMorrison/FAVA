@@ -7,10 +7,10 @@
 #' @param n_replicates The number of bootstrap replicate matrices to generate for each provided relative abundance matrix.
 #' @param K Optional; the number of categories in each provided relative abundance matrix, or a vector of such K values if the number of categories differs between matrices. If a single K is provided, each sample in every matrix must have \code{K} categories. If a vector of multiple K values is provided, \code{matrices} must be a list and the \eqn{i^{th}} entry of \code{K} must correspond to the \eqn{i^{th}} Q matrix in \code{matrices}. The default value of \code{K} is the number of columns in the matrix, the number of columns in the first matrix if a list is provided, or the number of columns minus 1 if \code{group} is specified but \code{K} is not.
 #' @param seed Optional; a number to set as the random seed. Use if reproducibility of random results is desired.
-#' @param group Optional; a string specifying the name of the column that describes which group each row (sample) belongs to. Use if \code{matrices} is a single matrix containing multiple groups of samples you wish to compare.
+#' @param group Optional; a string (or vector of strings) specifying the name(s) of the column(s) that describes which group(s) each row (sample) belongs to. Use if \code{matrices} is a single matrix containing multiple groups of samples you wish to compare.
 #' @param time Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.
-#' @param w Optional; a vector of length \code{nrow(matrices)} (if \code{matrices} is a dataframe, matrix, or array and \code{group} is not provided) or a list of vectors, each corresponding to one group (if \code{matrices} is a dataframe, matrix, or array and \code{group} is provided) or one matrix (if \code{matrices} is a list of matrices). Each vector must contain non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/I, nrow(relab_matrix))} where \code{I} is the number of rows in each matrix/group.
-#' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.
+#' @param w Optional; a vector of length \code{nrow(matrices)} (if \code{matrices} is a dataframe, matrix, or array and \code{group} is not provided) or a list of vectors, each corresponding to one group (if \code{matrices} is a dataframe, matrix, or array and \code{group} is provided) or one matrix (if \code{matrices} is a list of matrices). Each vector must contain non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/I, nrow(matrices))} where \code{I} is the number of rows in each matrix/group.
+#' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(matrices))}.
 #' @param normalized Optional; should normalized FAVA be used? Default is \code{normalized = FALSE}; use \code{normalized = TRUE} to compute normalized FAVA. FAVA can only be normalized if it is not weighted.
 #' @param save_replicates Optional; should all of the bootstrap replicate matrices be included in the output? Default is \code{save_replicates = FALSE}; use \code{save_replicates = FALSE} to save memory when analyzing large datasets.
 #'
@@ -58,7 +58,8 @@
 #' @importFrom dplyr filter
 #' @importFrom rlang .data
 #' @export
-bootstrap_fava <- function(matrices, n_replicates,
+bootstrap_fava <- function(matrices,
+                           n_replicates,
                            seed = NULL,
                            group = NULL,
                            time = NULL,
@@ -81,9 +82,37 @@ bootstrap_fava <- function(matrices, n_replicates,
   # If group provided, create a new matrices list
   # which converts the long single matrix to a list of matrices. -------------------------------
 
+  # If multiple grouping variables are provided, create a new grouping variable
+  # that is the pairwise combination of all
+  multiple_groups = FALSE
+  relab_grouping_vars = NULL
+  if(length(group) > 1){
+    relab_grouping_vars = dplyr::select(matrices, dplyr::all_of(group))
+
+    relab_grouping_vars$grouping_var_multiple = apply(relab_grouping_vars, 1, paste, collapse = "_")
+
+    matrices = dplyr::mutate(matrices,
+                                 grouping_var_multiple = relab_grouping_vars$grouping_var_multiple,
+                                 .before = 1)
+
+    if(any(table(matrices$grouping_var_multiple)<2)){
+      ignore = names(which(table(matrices$grouping_var_multiple)<2))
+      warning("Only analyzing combinations of grouping variables with at least two samples. Ignoring the following combinations of grouping variables: ", paste(ignore, collapse = "  "))
+      matrices = dplyr::filter(matrices,
+                                   grouping_var_multiple %in%
+                                     names(which(table(matrices$grouping_var_multiple) >= 2)))
+    }
+
+    group = "grouping_var_multiple"
+
+    multiple_groups = TRUE
+  }
+
+
+
   if(!is.null(group)){
     # the true K, if K was not provided, will be nrow(Q) - 1 since one of the columns is group
-    if(is.null(K)){ K = ncol(matrices) - (!is.null(group)) - (!is.null(time))}
+    if(is.null(K)){ K = ncol(matrices) - (length(group)) - (!is.null(time))}
 
     relab_matrix_clean = relab_checker(matrices, K = K, group = group, time = time)
 
@@ -179,7 +208,7 @@ bootstrap_fava <- function(matrices, n_replicates,
       matrix <- matrices[[m]]
 
       # Repeat rows if time or weight is provided
-      if((!is.null(w)) | (!is.null(time))){
+      if(((!is.null(w)) | (!is.null(time))) & nrow(matrix) > 2){
         matrix = relab_sample_weighter(relab = matrix, K = K, time = time, w = w)
       }
 
@@ -237,7 +266,20 @@ bootstrap_fava <- function(matrices, n_replicates,
   )
 
   stat_name = ifelse(normalized == TRUE, "Normalized FAVA",
-                     ifelse(any(!sapply(list(time, w, S), is.null)), "Weighted FAVA", "FAVA"))
+                     ifelse(any(!sapply(list(time, w, S), is.null)),
+                            "Weighted FAVA", "FAVA"))
+
+  if(multiple_groups){
+    merge_group_names = dplyr::distinct(relab_grouping_vars)
+    merge_group_names$Matrix = merge_group_names$grouping_var_multiple
+    merge_group_names <- dplyr::select(merge_group_names,
+                                       -grouping_var_multiple)
+
+    all_stats = dplyr::left_join(merge_group_names,
+                                  all_stats,
+                                  .before = 1)
+
+  }
 
   all_stats$Matrix <- factor(all_stats$Matrix, levels = unique(all_stats$Matrix))
 
