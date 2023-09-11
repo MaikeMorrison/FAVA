@@ -39,7 +39,8 @@ process_relab <- function(relab_matrix,
                                  .before = 1)
 
     if(any(table(relab_matrix$grouping_var_multiple)<2)){
-      warning("Only analyzing combinations of grouping variables with at least two samples.")
+      ignore = names(which(table(relab_matrix$grouping_var_multiple)<2))
+      warning("Only analyzing combinations of grouping variables with at least two samples. Ignoring the following combinations of grouping variables: ", paste(ignore, collapse = "  "))
       relab_matrix = dplyr::filter(relab_matrix,
                                    grouping_var_multiple %in%
                                      names(which(table(relab_matrix$grouping_var_multiple) >= 2)))
@@ -48,6 +49,14 @@ process_relab <- function(relab_matrix,
     group = "grouping_var_multiple"
 
     multiple_groups = TRUE
+  }
+
+  if(length(group) == 1){
+    if(any(table(relab_matrix[[group]])<2)){
+      ignore = names(which(table(relab_matrix[[group]])<2))
+      warning("Only analyzing groups with at least two samples. Ignoring the following groups: ", paste(ignore, collapse = "  "))
+      relab_matrix = relab_matrix[relab_matrix[[group]] %in% names(which(table(relab_matrix[[group]]) >= 2)),]
+    }
   }
 
 
