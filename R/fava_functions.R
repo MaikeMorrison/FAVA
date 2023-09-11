@@ -11,7 +11,7 @@ process_relab <- function(relab_matrix,
   # Arrange data by time if not already
   if(!is.null(time)){
     if(!is.null(group)){
-      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[group]], .data[[time]])
+      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[group[[1]]]], .data[[time]])
     } else{
       relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[time]])
     }}
@@ -37,6 +37,13 @@ process_relab <- function(relab_matrix,
     relab_matrix = dplyr::mutate(relab_matrix,
                                  grouping_var_multiple = relab_grouping_vars$grouping_var_multiple,
                                  .before = 1)
+
+    if(any(table(relab_matrix$grouping_var_multiple)<2)){
+      warning("Only analyzing combinations of grouping variables with at least two samples.")
+      relab_matrix = dplyr::filter(relab_matrix,
+                                   grouping_var_multiple %in%
+                                     names(which(table(relab_matrix$grouping_var_multiple) >= 2)))
+    }
 
     group = "grouping_var_multiple"
 
