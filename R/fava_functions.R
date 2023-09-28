@@ -111,8 +111,8 @@ process_relab <- function(relab_matrix,
 #' This function computes the Gini-Simpson index, a statistical measure of variability also known as the Gini-Simpson index, of vector of non-negative entries which sum to 1. The function returns a number between 0 and 1 which quantifies the variability of the vector. Values of 0 are achieved when the vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when the vector is equal to (1/K, 1/K, ..., 1/K).
 #'
 #' @param q A vector with \code{K=length(q)} non-negative entries that sum to 1.
-#' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(q))}.
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=length(q)}.
+#' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(q))}.
 #' @returns A numeric value between 0 and 1.
 #' @examples
 #' # Compute unweighted Gini-Simpson index:
@@ -125,10 +125,11 @@ process_relab <- function(relab_matrix,
 #' similarity_matrix[2,1] = 1
 #' gini_simpson(q = c(0.4, 0.3, 0.3), S = similarity_matrix)
 #' @export
-gini_simpson <- function(q, S = diag(length(q)), K = length(q)){
+gini_simpson <- function(q, K = length(q), S = diag(K)){
   S = as.matrix(S)
   S_checker(S = S, K = K)
   q = unlist(q)[(length(q)-K+1):length(q)]
+  q = as.numeric(q)
 
   if(round(sum(q), 4) != 1){stop("Vector does not sum to 1")}
   if(length(q) == 1){q = c(1,0)}
@@ -141,7 +142,7 @@ gini_simpson <- function(q, S = diag(length(q)), K = length(q)){
 #'
 #' This function computes the mean Gini-Simpson index, a statistical measure of variability also known as the Gini-Simpson index, of a set of vectors of non-negative entries which sum to 1. The function returns a number between 0 and 1 which quantifies the mean variability of the vectors. Values of 0 are achieved when each vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when the vectors are equal to (1/K, 1/K, ..., 1/K).
 #'
-#' @param relab_matrix  matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+#' @param relab_matrix A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
 #' a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
 #' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
 #' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
@@ -265,7 +266,7 @@ gini_simpson_mean <- function(relab_matrix,
 #'
 #' This function computes the Gini-Simpson index of a "pooled" vector equal to \code{colMeans(relab_matrix)}. Values of 0 are achieved when this pooled vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when this pooled vector is equal to (1/K, 1/K, ..., 1/K).
 #'
-#' @param relab_matrix  matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+#' @param relab_matrix A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
 #' a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
 #' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
 #' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
@@ -559,7 +560,7 @@ time_weights <- function(times, group = NULL){
 #'
 #' This function computes the population genetic statistic Fst on any matrix with rows that sum to 1. Values of 0 are achieved when each row is a permutation of (1,0,..., 0) and at least two categories have non-zero abundance across all rows. The value equals 1 when each row is identical.
 #'
-#' @param relab_matrix  matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+#' @param relab_matrix A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
 #' a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
 #' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
 #' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of

@@ -14,7 +14,7 @@ gini_simpson_mean(
 )
 }
 \arguments{
-\item{relab_matrix}{matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+\item{relab_matrix}{A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
 a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
 If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
 the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
