@@ -16,7 +16,8 @@ Imports:
     ggplot2,
     rlang,
     tidyr,
-    phyloseq
+    phyloseq,
+    tibble
 Suggests: 
     knitr,
     patchwork,

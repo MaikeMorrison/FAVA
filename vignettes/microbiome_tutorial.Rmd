@@ -45,7 +45,7 @@ The _FAVA_ R package includes the following core functions:
 
 * `plot_relabund`: Visualize a relative abundance matrix as a stacked bar plot
 
-* `bootstrap_fava`: Estimate the uncertainty in FAVA by generating bootstrap replicates of one or more relative abundance matrices and computing FAVA for each replicate matrix
+<!-- * `bootstrap_fava`: Estimate the uncertainty in FAVA by generating bootstrap replicates of one or more relative abundance matrices and computing FAVA for each replicate matrix -->
 
 * `window_fava`: Compute FAVA in sliding windows across the rows of a relative abundance matrix
 
@@ -357,12 +357,16 @@ fava(relab_matrix = XMA,
 ```
 
 You may incorporate both species similarity (specifying `S`) and uneven row weightings (specifying `w` or `time`) into the computation of FAVA.
-```{r}
-fava(relab_matrix = xue_microbiome_sample,
+```{r, fig.width = 5, fig.height = 3}
+fava_out = fava(relab_matrix = xue_microbiome_sample,
      group = "subject",
      K = 524,
      time = "timepoint",
      S = xue_species_similarity)
+
+fava_out
+
+ggplot(fava_out, aes(x = subject, y = FAVA)) + geom_point(size = 4) + theme_bw()
 ```
 
 We will specify both `S` and `time` in our analysis of this data set because it contains many species, some very similar and some very distantly related, and because the sampling scheme is uneven, containing some weekly samples and some daily samples.
@@ -370,33 +374,54 @@ We will specify both `S` and `time` in our analysis of this data set because it 
 
 ## 4 - Bootstrapping
 
-The preceding computation suggested that subject XDA had the most temporally variable microbiome across the entire study period, while subject XMA had much lower variability than either XDA or XBA. To determine if these differences in variability levels are statistically significant, we employ bootstrapping. Bootstrapping involves drawing rows with replacement from each relative abundance matrix in order to generate a replicate matrix (called a "bootstrap replicate") which has the same number of rows as the original matrix, but may omit some rows and include other rows multiple times. Generating many bootstrap replicates and computing FAVA on each produces a "bootstrap distribution" of FAVA for each matrix. Repeating this procedure for each of multiple matrices, as we do here for each subject, results in several bootstrap distributions which can be statistically compared. Bootstrapping thus allows for the statistical comparison of multiple matrices.
+The preceding computation suggested that subject XDA had the most temporally variable microbiome across the entire study period, while subject XMA had much lower variability than either XDA or XBA. To determine if these differences in variability levels are statistically significant, we employ bootstrapping, a computational method used to generate a null distribution against which to test statistical hypotheses. 
 
-In the below example, we generate 100 bootstrap replicates (`n_replicates = 100`) of the relative abundances for each subject (`group = "subject"`). We weight each FAVA computation by the sampling times (`time = "timepoint"`) and the species similarity (`S = xue_species_similarity`). Because bootstrapping is a random process, running the code multiple times would give slightly different results. Setting a random seed (`seed = 1`) makes this result repeatable. We specify `save_replicates = FALSE` so that `bootstrap_fava` does not save all 300 replicate matrices (100 for each of 3 subjects), which would make the resulting object quite large.
+As an example, we will compare subject XDA, who has $n=24$ samples, to subject XMA, with $m=25$ samples. Bootstrapping proceeds in the following steps: 
+
+1. Merge the two relative abundance matrices to generate a single matrix with $n + m$ samples. 
+
+2. Draw $n$ samples with replacement from this merged matrix. This generates a bootstrap replicate of subject XDA. Compute FAVA on this matrix.
+
+3. Draw $m$ samples with replacement from the merged matrix to generate a bootstrap replicate of XMA. Compute FAVA on this matrix.
+
+4. Compute the difference between the values of FAVA from steps 3 and 4. 
+
+5. Repeat steps 2-4 many times to generate many bootstrapped differences in FAVA values between XDA and XMA under the null hypothesis that there is no true difference in the distribution generating their samples. 
+
+6. Compare the true difference in FAVA values between XDA and XMA to the distribution of bootstrapped differences. The fraction of bootstrap replicate differences whose absolute values are greater than the absolute value of the true value is the two-sided P-value for our statistical test. One-sided tests could be performed by computing the fraction of differences greater or less than the true value. 
+
+This procedure is implemented in the function `bootstrap_fava`, which can conduct many pairwise comparisons. In the below example, we generate 100 bootstrap replicates  (`n_replicates = 100`) of the difference in FAVA values between each pair of subjects (`group = "subject"`) in our relative abundance matrix (`relab_matrix = xue_microbiome_sample`). We weight each FAVA computation by the sampling times (`time = "timepoint"`) and the species similarity (`S = xue_species_similarity`). Because bootstrapping is a random process, running the code multiple times would give slightly different results. Setting a random seed (`seed = 3`) makes this result repeatable. We specify `save_replicates = FALSE` so that `bootstrap_fava` does not save all 600 replicate matrices (100 per matrix in the 3 pairs of matrices being compared: XBA - XDA, XBA - XMA, and XDA - XMA), which would make the resulting object quite large. If you wish to perform a one-sided statistical test, you can specify `alternative = "lesser"` or `alternative = "greater"`; the default value is `alternative = "two.sided"`.
 
 ```{r}
-bootstrap_out = bootstrap_fava(matrices = xue_microbiome_sample,
+bootstrap_out = bootstrap_fava(relab_matrix = xue_microbiome_sample,
                                n_replicates = 100,
-                               seed = 1,
+                               seed = 3,
                                group = "subject",
-                               time = "timepoint",
+                               K = 524,
+                               # time = "timepoint",
                                S = xue_species_similarity,
                                save_replicates = FALSE)
 ```
 
-The resulting list, which we have named `bootstrap_out`, includes the value of FAVA for each bootstrap replicate (`statistics`), plots of each subject's bootstrap distribution of FAVA (`plot_boxplot`, `plot_violin`, and `plot_ecdf`), and the results of statistical tests comparing the distributions (`test_kruskal_wallis` and `test_pairwise_wilcox`). The entry `bootstrap_replicates` would contain all of the bootstrap replicate matrices if we had not specified `save_replicates = FALSE`.
+The resulting list, which we have here named `bootstrap_out`, includes a matrix of p-values for each pairwise comparison (`P_values`) and a list of plots (`bootstrap_distribution_plot`) showing for each pair of matrices the bootstrap distribution of differences in FAVA values (black dots) compared to the true difference (red dot). The entry `bootstrap_replicates` would contain all of the bootstrap replicate matrices had we not specified `save_replicates = FALSE`.
 
 ```{r}
 str(bootstrap_out, max.level = 1)
+
+bootstrap_out$P_values
+
 ```
 
+Our bootstrap statistical test fails to find a significant difference between the FAVA values of subjects XBA and XDA (one-sided $P=0.6$). However, there are significant differences in FAVA values between XBA and XMA (one-sided $P=0.08$) and between XDA and XMA (one-sided $P<0.01$, which suggests that none of the 100 replicate differences were greater than the true difference). We can visualize how the bootstrap distribution of pairwise differences in FAVA values compares to the true differences for each pair in the following plot:
 
 ```{r}
-bootstrap_out$plot_violin
-bootstrap_out$test_pairwise_wilcox
+# I use lapply here to add a the same plot limits to each plot
+wrap_plots(lapply(bootstrap_out$bootstrap_distribution_plot, 
+                  function(plot) plot + ylim(-0.12, 0.12)))
 ```
 
-We can determine, based on a pairwise Wilcoxon rank sum test, that the three bootstrap distributions are significantly different.
+We can see that the true difference in FAVA between XBA and XDA (red dot, left panel) falls near the center of the bootstrap distribution, suggesting the observed difference is not unlikely under the null model that there are no differences between XBA and XDA. However, the other two panels show observed FAVA differences (red dots) further from the center of the distribution, suggesting that there are true differences between those pairs of subjects. 
+
 
 ## 5 - Sliding windows
 
