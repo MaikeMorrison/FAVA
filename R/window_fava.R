@@ -185,6 +185,8 @@ window_fava_sub = function(relab_matrix, window_indices, window_size,
 #' window_out$window_plot
 #' @export
 window_plot <- function(window_fava, alpha = 0.5){
+  # To appease R cmd check
+  group <- FAVA <- window_index <- index <- NULL
 
   # If data has multiple groups ----------------------------------------
   if("group" %in% colnames(window_fava)){

@@ -7,6 +7,8 @@ process_relab <- function(relab_matrix,
                           w = NULL,
                           time = NULL,
                           group = NULL){
+  # To appease R cmd check
+  grouping_var_multiple <- NULL
 
   # Arrange data by time if not already
   if(!is.null(time)){
@@ -521,8 +523,10 @@ time_weights <- function(times, group = NULL){
     }
 
     di <- c(times[2] - times[1])
-    for(i in 2:(I-1)){
-      di[i] = times[i+1] - times[i-1]
+    if(I>2){
+      for(i in 2:(I-1)){
+        di[i] = times[i+1] - times[i-1]
+      }
     }
     di[I] = times[I] - times[I-1]
     return(di/(2*T))
@@ -543,8 +547,10 @@ time_weights <- function(times, group = NULL){
       }
 
       wi <- c(wi, (time_name[2] - time_name[1])/(2*T))
-      for(i in 2:(I-1)){
-        wi = c(wi, (time_name[i+1] - time_name[i-1])/(2*T))
+      if(I>2){
+        for(i in 2:(I-1)){
+          wi = c(wi, (time_name[i+1] - time_name[i-1])/(2*T))
+        }
       }
       wi = c(wi, (time_name[I] - time_name[I-1])/(2*T))
     }
@@ -613,7 +619,11 @@ fava <- function(relab_matrix,
                  normalized = FALSE){
 
   if(normalized == TRUE && any(!sapply(list(time, w, S), is.null))){
-    stop("FAVA can be either normalized or weighted, but not both. Please specify `normalized = TRUE` if you wish to compute normalized FAVA OR provide the weighting parameters w and/or S.")
+    stop("FAVA can be either normalized or weighted, but not both. Please specify `normalized = TRUE` if you wish to compute normalized FAVA OR provide the weighting parameters w or time and/or S.")
+  }
+
+  if((!is.null(time)) && (!is.null(w))){
+    stop("Please specify either time or w, but not both.")
   }
 
   process_out = process_relab(relab_matrix = relab_matrix, K = K, S = S, w = w, time = time, group = group)

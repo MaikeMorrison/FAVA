@@ -17,7 +17,10 @@ Imports:
     rlang,
     tidyr,
     phyloseq,
-    tibble
+    tibble,
+    gridExtra,
+    stringr,
+    utils
 Suggests: 
     knitr,
     patchwork,

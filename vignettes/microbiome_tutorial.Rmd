@@ -399,11 +399,10 @@ bootstrap_out = bootstrap_fava(relab_matrix = xue_microbiome_sample,
                                group = "subject",
                                K = 524,
                                # time = "timepoint",
-                               S = xue_species_similarity,
-                               save_replicates = FALSE)
+                               S = xue_species_similarity)
 ```
 
-The resulting list, which we have here named `bootstrap_out`, includes a matrix of p-values for each pairwise comparison (`P_values`) and a list of plots (`bootstrap_distribution_plot`) showing for each pair of matrices the bootstrap distribution of differences in FAVA values (black dots) compared to the true difference (red dot). The entry `bootstrap_replicates` would contain all of the bootstrap replicate matrices had we not specified `save_replicates = FALSE`.
+The resulting list, which we have here named `bootstrap_out`, includes a matrix of p-values for each pairwise comparison (`P_values`) and a plot (`bootstrap_distribution_plot`) showing for each pair of matrices the bootstrap distribution of differences in FAVA values (black dots) compared to the true difference (red dot). 
 
 ```{r}
 str(bootstrap_out, max.level = 1)
@@ -415,9 +414,7 @@ bootstrap_out$P_values
 Our bootstrap statistical test fails to find a significant difference between the FAVA values of subjects XBA and XDA (one-sided $P=0.6$). However, there are significant differences in FAVA values between XBA and XMA (one-sided $P=0.08$) and between XDA and XMA (one-sided $P<0.01$, which suggests that none of the 100 replicate differences were greater than the true difference). We can visualize how the bootstrap distribution of pairwise differences in FAVA values compares to the true differences for each pair in the following plot:
 
 ```{r}
-# I use lapply here to add a the same plot limits to each plot
-wrap_plots(lapply(bootstrap_out$bootstrap_distribution_plot, 
-                  function(plot) plot + ylim(-0.12, 0.12)))
+bootstrap_out$bootstrap_distribution_plot
 ```
 
 We can see that the true difference in FAVA between XBA and XDA (red dot, left panel) falls near the center of the bootstrap distribution, suggesting the observed difference is not unlikely under the null model that there are no differences between XBA and XDA. However, the other two panels show observed FAVA differences (red dots) further from the center of the distribution, suggesting that there are true differences between those pairs of subjects. 

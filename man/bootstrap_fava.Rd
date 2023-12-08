@@ -10,18 +10,15 @@ bootstrap_fava(
   group,
   K = NULL,
   S = NULL,
+  w = NULL,
+  time = NULL,
   normalized = FALSE,
   seed = NULL,
-  save_replicates = FALSE,
   alternative = "two.sided"
 )
 }
 \arguments{
-\item{relab_matrix}{A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
-a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
-If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
-the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
-each row must sum to 1.}
+\item{relab_matrix}{A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents a sample, each column represents a category, and each entry represents the abundance of that category in the sample. If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix, the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of each row must sum to 1.}
 
 \item{n_replicates}{The number of bootstrap replicate matrices to generate for each provided relative abundance matrix.}
 
@@ -31,11 +28,13 @@ each row must sum to 1.}
 
 \item{S}{Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.}
 
+\item{w}{Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}. \code{w} is incorporated into the computation by repeating}
+
+\item{time}{Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.}
+
 \item{normalized}{Optional; should normalized FAVA be used? Default is \code{normalized = FALSE}; use \code{normalized = TRUE} to compute normalized FAVA. FAVA can only be normalized if it is not weighted.}
 
 \item{seed}{Optional; an integer to be used as a random seed for the simulations.}
-
-\item{save_replicates}{Optional; should all of the bootstrap replicate matrices be included in the output? Default is \code{save_replicates = FALSE};  \code{save_replicates = FALSE} savea memory when analyzing large datasets.}
 
 \item{alternative}{Optional; do you want to do a one- or two.sided test? Default is \code{alternative = "two.sided"}. If you wish to do a one-sided test, specify either \code{alternative = "lesser"} or \code{alternative = "greater"}.}
 }
@@ -46,7 +45,7 @@ A named list containing the following entries:
 \item \code{bootstrap_distribution_plot}: The distribution of bootstrap replicate differences in each variability value. The observed differences are shown in red. The further the red points are from 0, the more significant the statistical difference between groups.
 \item \code{observed_stats}: The observed diversity statistics for the groups.
 \item \code{bootstrap_stats}: The bootstrap replicate diversity statistics for the groups.
-\item \code{bootstrap_replicates}: The bootstrap replicate matrices, reported only if  \code{save_replicates = TRUE}.
+\item \code{bootstrap_replicates}: The bootstrap replicate matrices, reported only if  \code{save_replicates = TRUE}.}
 }
 \description{
 \code{bootstrap_fava} uses bootstrapping to statistically compare FAVA values between pairs of relative abundance matrices. \code{bootstrap_fava} takes the same options as \code{fava}, so, as with \code{fava}, you can separately analyze multiple populations or groups of samples (specify \code{group}), and account for similarity among categories (specify \code{S}) or uneven weighting of rows (specify \code{w} or \code{time}). \code{bootstrap_fava} follows the bootstrapping procedure defined by Efron and Tibshirani (1993). Details on the bootstrapping procedure are available in the Methods section of the accompanying paper.
@@ -60,13 +59,12 @@ A named list containing the following entries:
                seed = 1,
                group = "subject",
                K = 524,
-               S = xue_species_similarity,
-               save_replicates = TRUE)
+               S = xue_species_similarity)
 
 # Table of P-values comparing values of FAVA between group 1 and group 2:
  boot_out$P_values
 
  # Plots of the bootstrap distributions of differences in FAVA between each pair of matrices,
  # and how the true observed differences (red dots) compare to the distribution.
- patchwork::wrap_plots(lapply(boot_out$bootstrap_distribution_plot, function(plot) plot + ggplot2::ylim(-0.11, 0.11)))
+ boot_out$bootstrap_distribution_plot
 }

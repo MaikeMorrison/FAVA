@@ -133,6 +133,30 @@ relab_checker <- function(relab, K = NULL, rep = NULL, group = NULL, time = NULL
 
 # Repeat rows based on time series data, to be used
 # when generating boostrap replicates of matrices
+
+# lcm_pair = function(x, y){
+#   if(x>y)
+#   {
+#     greater=x
+#   }
+#   else
+#   {
+#     greater=y
+#   }
+#   while(TRUE)
+#   {
+#     if((greater%%x==0)&&(greater%%y==0))
+#     {
+#       lcm=greater
+#       break
+#     }
+#     greater=greater+1
+#   }
+#   return(lcm)
+# }
+#
+# lcm = function(integers){Reduce(lcm_pair, integers)}
+
 relab_sample_weighter = function(relab, K = NULL, time = NULL, w = NULL, group = NULL){
 
   relab_matrix_clean = relab_checker(relab = relab, K = K, time = time, group = group)
