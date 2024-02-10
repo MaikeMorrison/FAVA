@@ -20,9 +20,8 @@ The *FAVA* R package includes the following core functions:
 - `fava`: Quantify variability across many compositional vectors in a
   single, normalized index, called FAVA
 
-- `bootstrap_fava`: Estimate the uncertainty in FAVA by generating
-  bootstrap replicates of one or more relative abundance matrices and
-  computing FAVA for each replicate matrix
+- `bootstrap_fava`: Compare values of FAVA between pairs of abundance
+  matrices
 
 - `window_fava`: Compute FAVA in sliding windows along the rows of a
   relative abundance matrix

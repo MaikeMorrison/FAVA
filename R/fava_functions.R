@@ -87,7 +87,7 @@ process_relab <- function(relab_matrix,
   }
 
   S = as.matrix(S)
-  S_checker(S = S, K = K, relab_matrix = relab_matrix)
+  S = S_checker(S = S, K = K, relab_matrix = relab_matrix)
 
   if(!missing(w) & length(w) != nrow(relab_matrix)){
     stop("Length of w must equal number of rows of relab_matrix.")
@@ -129,7 +129,7 @@ process_relab <- function(relab_matrix,
 #' @export
 gini_simpson <- function(q, K = length(q), S = diag(K)){
   S = as.matrix(S)
-  S_checker(S = S, K = K)
+  S = S_checker(S = S, K = K)
   q = unlist(q)[(length(q)-K+1):length(q)]
   q = as.numeric(q)
 
@@ -249,7 +249,7 @@ gini_simpson_mean <- function(relab_matrix,
   #
   # # S = as.matrix(S)
   # I = nrow(relab_matrix)
-  # # S_checker(S = S, K = K)
+  # # S = S_checker(S = S, K = K)
   #
   #
   # if(!missing(w) && length(w) != nrow(relab_matrix)){
@@ -375,7 +375,7 @@ gini_simpson_pooled <- function(relab_matrix,
   # I = nrow(relab_matrix)
   #
   # # S = as.matrix(S)
-  # # S_checker(S = S, K = K)
+  # # S = S_checker(S = S, K = K)
   #
   # if(missing(S)){
   #   S = diag(K)
@@ -453,114 +453,6 @@ fava_norm <- function(relab_matrix, K = ncol(relab_matrix)){
 
 
 
-# FUNCTIONS FOR WEIGHTINGS
-
-# S_checker ------------------------------------------------------------------
-# An internal function to check if similarity matrices are up to spec and fix any issues automatically.
-# S - a similarity matrix
-# K - the number of taxa
-S_checker <- function(S, K, relab_matrix = NULL) {
-
-  if(!isSymmetric(S)){
-    warning("S is not symmetric.")
-  }
-  if(any(diag(S)!=1)){
-    stop("All diagonal elements of S must be equal to 1.")
-  }
-  if(nrow(S) != K | ncol(S) != K){
-    stop("S must have K rows and K columns.")
-  }
-  if(any(S>1)){
-    stop("All elements of S must be less than or equal to 1.")
-  }
-  if(any(S<0)){
-    stop("All elements of S must be positive.")
-  }
-  if(!is.null(relab_matrix)){
-    taxa_names = colnames(relab_matrix)[(ncol(relab_matrix)-K + 1):ncol(relab_matrix)]
-    if(any(taxa_names!=colnames(S))){
-      warning("The column names of the similarity matrix S do not match the names of the K categories in relab_matrix.")
-    }
-    if(any(taxa_names!=rownames(S))){
-      warning("The row names of the similarity matrix S do not match the names of the K categories in relab_matrix.")
-    }
-  }
-}
-
-
-# time_weights -----------------------------------------------------------------
-#' Compute a normalized weighting vector based on a vector of sampling times.
-#'
-#' This function takes a vector of sampling times, \eqn{t = (t_1, t_2, \ldots, t_I)}{latex}
-#' and computes a normalized vector which can be used to weight each sample based on
-#' the time between the subsequent and the preceding samples. The weighting vector \eqn{w}
-#' is defined such that each entry, \eqn{w_i = d_i / 2T}, where \eqn{T=t_I - t_1} and
-#' \eqn{d_i = t_{i+1} - t_{i-1}} for \eqn{i} not equal to 1 or I. \eqn{d_1 = t_2-t_1} and \eqn{d_I = t_I-t_{I-1}}.
-#'
-#' @param times A numeric vector of sampling times. Each entry must be non-negative and
-#' greater than the previous entry.
-#' @param group Optional; a character vector specifying the group identity of each
-#' sampling time. Use if there are samples from multiple replicates or subjects
-#' in one data set.
-#' @examples
-
-#' time_vector = c(1, 8, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-#'                 32, 33, 34, 35, 36, 37, 38, 39, 44, 50, 57, 64)
-#'
-#' time_weights(times = time_vector)
-#' @export
-time_weights <- function(times, group = NULL){
-
-  if(is.null(group)){
-    I = length(times)
-    T = times[I] - times[1]
-
-    if(I<2){
-      stop("times must have length greater than 1.")
-    }
-    if(any(sapply(2:I, function(i) times[i] - times[i-1]) <= 0)){
-      stop("times must be increasing. Each entry must be greater than the previous entry.")
-    }
-
-    di <- c(times[2] - times[1])
-    if(I>2){
-      for(i in 2:(I-1)){
-        di[i] = times[i+1] - times[i-1]
-      }
-    }
-    di[I] = times[I] - times[I-1]
-    return(di/(2*T))
-  }else{
-
-    wi = c()
-    for(name in unique(group)){
-      time_name = times[which(group == name)]
-
-      I = length(time_name)
-      T = time_name[I] - time_name[1]
-
-      if(I<2){
-        stop("Within each group, times must have length greater than 1.")
-      }
-      if(any(sapply(2:I, function(i) time_name[i] - time_name[i-1]) <= 0)){
-        stop("Within each group, times must be increasing. Each entry must be greater than the previous entry.")
-      }
-
-      wi <- c(wi, (time_name[2] - time_name[1])/(2*T))
-      if(I>2){
-        for(i in 2:(I-1)){
-          wi = c(wi, (time_name[i+1] - time_name[i-1])/(2*T))
-        }
-      }
-      wi = c(wi, (time_name[I] - time_name[I-1])/(2*T))
-    }
-    return(wi)
-  }
-
-}
-
-
-
 # fava -----------------------------------------------------------------
 #' Compute the Fst of a matrix of compositional vectors
 #'
@@ -572,7 +464,7 @@ time_weights <- function(times, group = NULL){
 #' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
 #' each row must sum to 1.
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.
-#' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.
+#' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equaling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.
 #' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
 #' @param time Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.
 #' @param group Optional; a string (or vector of strings) specifying the name(s) of the column(s) that describes which group(s) each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.

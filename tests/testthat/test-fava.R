@@ -56,7 +56,7 @@ test_that("fava works - w", {
   expect_equal(fava(C, w = w12), 1)
 })
 
-test_that("fava works - both", {
+test_that("fava works -  both", {
   expect_equal(fava(A, S = S, w = w13), 1)
   expect_equal(fava(B, S = S, w = w13), 0)
   expect_equal(fava(C, S = S, w = w13), 1)
@@ -199,10 +199,17 @@ test_groups_2$Actinomyces_sp_58647 = test_groups_2$Actinomyces_sp_58647 + 0.2
 
 test_that("fava works with multiple groups when renormalizing", {
   expect_warning(fava(test_groups_2, group = c("subject", "Abx"), K = 524))
-  expect_equal(fava(test_groups_2, group = c("subject", "Abx"), K = 524)[[1,4]],
-               fava(filter(test_groups_2, Abx == "Before", subject == "XBA"), K = 524))
-  expect_equal(fava(test_groups_2, group = c("subject", "Abx"), K = 524)[[2,4]],
-               fava(filter(test_groups_2, Abx == "During", subject == "XBA"), K = 524))
-  expect_equal(fava(test_groups_2, group = c("subject", "Abx"), K = 524)[[3,4]],
-               fava(filter(test_groups_2, Abx == "After", subject == "XBA"), K = 524))
+
+  expect_warning(test_before_a <- fava(test_groups_2, group = c("subject", "Abx"), K = 524)[[1,4]])
+  expect_warning(test_before_b <- fava(filter(test_groups_2, Abx == "Before", subject == "XBA"), K = 524))
+  expect_equal(test_before_a, test_before_b)
+
+  expect_warning(test_during_a <- fava(test_groups_2, group = c("subject", "Abx"), K = 524)[[2,4]])
+  expect_warning(test_during_b <- fava(filter(test_groups_2, Abx == "During", subject == "XBA"), K = 524))
+  expect_equal(test_during_a, test_during_b)
+
+  expect_warning(test_after_a <- fava(test_groups_2, group = c("subject", "Abx"), K = 524)[[3,4]])
+  expect_warning(test_after_b <- fava(filter(test_groups_2, Abx == "After", subject == "XBA"), K = 524))
+  expect_equal(test_after_a, test_after_b)
+
 })

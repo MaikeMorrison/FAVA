@@ -4,11 +4,11 @@
 #' \code{bootstrap_fava} uses bootstrapping to statistically compare FAVA values between pairs of relative abundance matrices. \code{bootstrap_fava} takes the same options as \code{fava}, so, as with \code{fava}, you can separately analyze multiple populations or groups of samples (specify \code{group}), and account for similarity among categories (specify \code{S}) or uneven weighting of rows (specify \code{w} or \code{time}). \code{bootstrap_fava} follows the bootstrapping procedure defined by Efron and Tibshirani (1993). Details on the bootstrapping procedure are available in the Methods section of the accompanying paper.
 #'
 #' @param relab_matrix A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents a sample, each column represents a category, and each entry represents the abundance of that category in the sample. If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix, the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of each row must sum to 1.
-#' @param n_replicates The number of bootstrap replicate matrices to generate for each provided relative abundance matrix.
+#' @param n_replicates The number of bootstrap replicate matrices to generate. Default is `n_replicates = 1000`.
 #' @param group A string (or vector of strings) specifying the name(s) of the column(s) that describes which group(s) each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.
-#' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.
-#' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}. \code{w} is incorporated into the computation by repeating
+#' @param S Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equaling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.
+#' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
 #' @param time Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.
 #' @param normalized Optional; should normalized FAVA be used? Default is \code{normalized = FALSE}; use \code{normalized = TRUE} to compute normalized FAVA. FAVA can only be normalized if it is not weighted.
 #' @param seed Optional; an integer to be used as a random seed for the simulations.
@@ -40,16 +40,16 @@
 #'  boot_out$bootstrap_distribution_plot
 #' @export
 bootstrap_fava <- function(relab_matrix,
-                    n_replicates,
-                    group,
-                    K = NULL,
-                    S = NULL,
-                    w = NULL,
-                    time = NULL,
-                    normalized = FALSE,
-                    seed = NULL,
-                    # save_replicates = FALSE,
-                    alternative = "two.sided"){
+                           n_replicates = 1000,
+                           group,
+                           K = NULL,
+                           S = NULL,
+                           w = NULL,
+                           time = NULL,
+                           normalized = FALSE,
+                           seed = NULL,
+                           # save_replicates = FALSE,
+                           alternative = "two.sided"){
 
   # To appease R cmd check
   P_value <- P_value_numeric <- Comparison <- Difference <- combn <- . <- NULL
@@ -180,7 +180,7 @@ bootstrap_fava <- function(relab_matrix,
     observed_difference = lapply(bootstrap_list, function(list) c(list$comparison, list$observed_difference)) %>%
       do.call(rbind, .) %>% data.frame %>% `colnames<-`(c("Comparison", "Difference")) %>%
       dplyr::mutate(Difference = as.numeric(Difference))
-
+    observed_difference$Comparison = stringr::str_replace_all(observed_difference$Comparison, ' - ', " -\n")
     # if(multiple_groups){ observed_difference = left_join(group_table, observed_difference) }
 
 
@@ -188,8 +188,8 @@ bootstrap_fava <- function(relab_matrix,
     bootstrap_difference = lapply(bootstrap_list, function(list) list$bootstrap_difference) %>%
       do.call(cbind, .) %>% `colnames<-`(observed_difference$Comparison) %>%
       data.frame() %>%
-      tidyr::pivot_longer(cols = 1:3, names_to = "Comparison", values_to = "Difference")
-    bootstrap_difference$Comparison = stringr::str_replace_all(bootstrap_difference$Comparison, '\\.\\.\\.', " - ")
+      tidyr::pivot_longer(cols = dplyr::everything(), names_to = "Comparison", values_to = "Difference")
+    bootstrap_difference$Comparison = stringr::str_replace_all(bootstrap_difference$Comparison, '\\.\\.\\.', " -\n")
 
     # if(multiple_groups){ bootstrap_difference = left_join(group_table, bootstrap_difference) }
 

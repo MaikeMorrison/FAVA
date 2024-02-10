@@ -1,13 +1,14 @@
-relab_matrix = xue_microbiome_sample %>% dplyr::filter(subject != "XMA") #
-K = 524
-group =  "subject" #c("subject", "Abx")#"subject"
-S = xue_species_similarity
-n_replicates = 3
-normalized = FALSE
-alternative = "two.sided"
-# save_replicates = FALSE
-w = NULL
-time = "timepoint"
+# relab_matrix = xue_microbiome_sample %>% dplyr::filter(subject != "XMA") #
+# relab_matrix = test_groups
+# K = 524
+# group =  c("subject", "Abx")#"subject"
+# S = xue_species_similarity
+# n_replicates = 10
+# normalized = FALSE
+# alternative = "two.sided"
+# # save_replicates = FALSE
+# w = NULL
+# time = "timepoint"
 
 test_that("bootstrapping works for a matrix with one grouping var, multiple groups", {
   # NO WEIGHTS
@@ -131,7 +132,7 @@ test_that("bootstrapping yields expected error for one matrix", {
 library(dplyr)
 test_groups = xue_microbiome_sample %>%
   mutate(Abx = ifelse(timepoint < 29, "Before", ifelse(timepoint > 34, "After", "During")),
-         .before = 1)
+         .before = 1) %>% filter(Abx != "During")
 
 
 test_that("bootstrapping works for a matrix with two grouping vars, multiple groups", {

@@ -6,7 +6,7 @@
 \usage{
 bootstrap_fava(
   relab_matrix,
-  n_replicates,
+  n_replicates = 1000,
   group,
   K = NULL,
   S = NULL,
@@ -20,15 +20,15 @@ bootstrap_fava(
 \arguments{
 \item{relab_matrix}{A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents a sample, each column represents a category, and each entry represents the abundance of that category in the sample. If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix, the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of each row must sum to 1.}
 
-\item{n_replicates}{The number of bootstrap replicate matrices to generate for each provided relative abundance matrix.}
+\item{n_replicates}{The number of bootstrap replicate matrices to generate. Default is \code{n_replicates = 1000}.}
 
 \item{group}{A string (or vector of strings) specifying the name(s) of the column(s) that describes which group(s) each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.}
 
 \item{K}{Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.}
 
-\item{S}{Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equalling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.}
+\item{S}{Optional; a K x K similarity matrix with diagonal elements equal to 1 and off-diagonal elements between 0 and 1. Entry \code{S[i,k]} for \code{i!=k} is the similarity between category and \code{i} and category \code{k}, equaling 1 if the categories are to be treated as identical and equaling 0 if they are to be treated as totally dissimilar. The default value is \code{S = diag(ncol(relab_matrix))}.}
 
-\item{w}{Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}. \code{w} is incorporated into the computation by repeating}
+\item{w}{Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.}
 
 \item{time}{Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.}
 
