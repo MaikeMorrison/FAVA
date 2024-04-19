@@ -16,9 +16,7 @@ Imports:
     ggplot2,
     rlang,
     tidyr,
-    phyloseq,
     tibble,
-    gridExtra,
     stringr,
     utils
 Suggests: 
@@ -29,6 +27,8 @@ Suggests:
     kableExtra,
     purrr,
     ape,
+    gridExtra,
+    phyloseq,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: 

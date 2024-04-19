@@ -12,8 +12,8 @@ The *FAVA* R package implements the statistic FAVA, an $F_{ST}$-based
 Assessment of Variability across vectors of relative Abundances, as well
 as a suite of helper functions which enable the visualization and
 statistical analysis of relative abundance data. The *FAVA* R package
-accompanies the paper, “FAVA: a tool to quantify compositional
-variability in microbial communities” by Morrison et al. (2023?).
+accompanies the paper, “Quantifying compositional variability in
+microbial communities with FAVA” by Morrison et al. (2024?).
 
 The *FAVA* R package includes the following core functions:
 
@@ -43,7 +43,8 @@ devtools::install_github("MaikeMorrison/FAVA", build_vignettes = TRUE)
 
 A tutorial on the usage of *FAVA* with a focus on the analysis of
 compositional data representing microbiome samples is available in the
-`microbiome_tutorial` vignette, which is available at THIS LINK or via
+`microbiome_tutorial` vignette, which is available at [this
+link](https://maikemorrison.com/files/microbiome_tutorial.html) or via
 the following code after package installation.
 
 ``` r
