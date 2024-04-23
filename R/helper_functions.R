@@ -192,6 +192,11 @@ S_checker <- function(S, K, relab_matrix = NULL) {
 #' @export
 time_weights <- function(times, group = NULL){
 
+  # Create an ID for each sample to ensure the returned sample weights match the
+  # order that the samples were given in.
+  ID = paste0(group, times)
+
+
   if(is.null(group)){
     I = length(times)
     T = times[I] - times[1]
@@ -213,6 +218,7 @@ time_weights <- function(times, group = NULL){
     return(di/(2*T))
   }else{
 
+
     wi = c()
     for(name in unique(group)){
       time_name = times[which(group == name)]
@@ -227,15 +233,19 @@ time_weights <- function(times, group = NULL){
         stop("Within each group, times must be increasing. Each entry must be greater than the previous entry.")
       }
 
-      wi <- c(wi, (time_name[2] - time_name[1])/(2*T))
+      wi_addition <- c(name1 = (time_name[2] - time_name[1])/(2*T))
       if(I>2){
         for(i in 2:(I-1)){
-          wi = c(wi, (time_name[i+1] - time_name[i-1])/(2*T))
+          wi_addition = c(wi_addition, (time_name[i+1] - time_name[i-1])/(2*T))
         }
       }
-      wi = c(wi, (time_name[I] - time_name[I-1])/(2*T))
+      wi_addition = c(wi_addition, (time_name[I] - time_name[I-1])/(2*T))
+
+      names(wi_addition) = paste0(name, time_name)
+
+      wi = c(wi, wi_addition)
     }
-    return(wi)
+    return(wi[ID])
   }
 
 }
