@@ -213,3 +213,30 @@ test_that("fava works with multiple groups when renormalizing", {
   expect_equal(test_after_a, test_after_b)
 
 })
+
+
+
+
+test_that("fava works with multiple groups with weightings", {
+  # JUST S
+  expect_no_error(fava(test_groups, group = c("subject", "Abx"), K = 524, S = xue_species_similarity))
+  expect_true(all(fava(test_groups, group = c("subject", "Abx"), K = 524, S = xue_species_similarity)$FAVA > 0))
+
+  # JUST time
+  expect_no_error(fava(test_groups, group = c("subject", "Abx"), K = 524, time = "timepoint"))
+  expect_true(all(fava(test_groups %>% arrange(subject), group = c("subject", "Abx"), K = 524, time = "timepoint")$FAVA > 0))
+
+
+  # BOTH S and time
+  expect_no_error(fava(test_groups, group = c("subject", "Abx"), K = 524, time = "timepoint",
+                       S = xue_species_similarity))
+  expect_true(all(fava(test_groups %>% arrange(timepoint), group = c("subject", "Abx"), K = 524,
+                       S = xue_species_similarity, time = "timepoint")$FAVA > 0))
+
+  expect_equal(fava(test_groups, group = c("subject", "Abx"), K = 524)[[1,4]],
+               fava(filter(test_groups, Abx == "Before", subject == "XBA"), K = 524))
+  expect_equal(fava(test_groups, group = c("subject", "Abx"), K = 524)[[2,4]],
+               fava(filter(test_groups, Abx == "During", subject == "XBA"), K = 524))
+  expect_equal(fava(test_groups, group = c("subject", "Abx"), K = 524)[[3,4]],
+               fava(filter(test_groups, Abx == "After", subject == "XBA"), K = 524))
+})
