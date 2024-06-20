@@ -138,14 +138,23 @@ relab_checker <- function(relab, K = NULL, rep = NULL, group = NULL, time = NULL
 S_checker <- function(S, K, relab_matrix = NULL) {
 
   if(!is.null(relab_matrix)){
+
     taxa_names = colnames(relab_matrix)[(ncol(relab_matrix)-K + 1):ncol(relab_matrix)]
-    if(any(taxa_names!=colnames(S))){
-      S = S[taxa_names, taxa_names]
-      warning("The column names of the similarity matrix S do not match the names of the K categories in relab_matrix.\nI am re-ordering the rows and columns of S so that they match the names of the K categories in relab_matrix.")
+
+    if(!all(taxa_names %in% colnames(S))){
+      stop("Not all of the taxa in relab_matrix are included in S. Your similarity matrix must describe every taxon included in relab_matrix.")
     }
-    if(any(taxa_names!=rownames(S))){
+
+    if(length(taxa_names) < ncol(S)){
       S = S[taxa_names, taxa_names]
-      warning("The row names of the similarity matrix S do not match the names of the K categories in relab_matrix.\nI am re-ordering the rows and columns of S so that they match the names of the K categories in relab_matrix.")    }
+      warning("S describes more taxa than are included in relab_matrix.\nI am subsetting the rows and columns of S so that they match the names of the K categories in relab_matrix.")
+    }
+
+    else if(any(taxa_names!=colnames(S)) || any(taxa_names!=rownames(S))){
+      S = S[taxa_names, taxa_names]
+      warning("The row and/or column names of the similarity matrix S do not match the names of the K categories in relab_matrix.\nI am re-ordering the rows and columns of S so that they match the names of the K categories in relab_matrix.")
+    }
+
   }
 
 
@@ -178,7 +187,7 @@ S_checker <- function(S, K, relab_matrix = NULL) {
 #' is defined such that each entry, \eqn{w_i = d_i / 2T}, where \eqn{T=t_I - t_1} and
 #' \eqn{d_i = t_{i+1} - t_{i-1}} for \eqn{i} not equal to 1 or I. \eqn{d_1 = t_2-t_1} and \eqn{d_I = t_I-t_{I-1}}.
 #'
-#' @param times A numeric vector of sampling times. Each entry must be non-negative and
+#' @param times A numeric vector of sampling times. Each entry must be
 #' greater than the previous entry.
 #' @param group Optional; a character vector specifying the group identity of each
 #' sampling time. Use if there are samples from multiple replicates or subjects
