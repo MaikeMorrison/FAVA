@@ -7,7 +7,7 @@
 time_weights(times, group = NULL)
 }
 \arguments{
-\item{times}{A numeric vector of sampling times. Each entry must be non-negative and
+\item{times}{A numeric vector of sampling times. Each entry must be
 greater than the previous entry.}
 
 \item{group}{Optional; a character vector specifying the group identity of each

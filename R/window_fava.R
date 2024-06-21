@@ -63,6 +63,24 @@ window_fava <- function(relab_matrix, window_size, window_step = 1,
                         K = NULL, normalized = FALSE,
                         alpha = 0.5){
 
+  # If time is provided but index is not, make index same as time
+  if((!is.null(time)) & (is.null(index))) index = time
+
+  # Process relab to allow for multiple grouping variables:
+  if(length(group) > 1){
+    relab_grouping_vars = dplyr::select(relab_matrix, dplyr::all_of(group))
+
+    relab_grouping_vars$grouping_var_multiple = apply(relab_grouping_vars, 1, paste, collapse = "_")
+
+    relab_matrix = dplyr::mutate(relab_matrix,
+                                 grouping_var_multiple = relab_grouping_vars$grouping_var_multiple,
+                                 .before = 1)
+
+    group = "grouping_var_multiple"
+
+    if(is.null(K)){K = ncol(relab_matrix) - (length(group)) - (!is.null(time)) - 1}
+  }
+
   # Should the plot say "Weighted" or "Normalized" on the y-axis?
   y_axis = ifelse(!(is.null(time) & is.null(w) & is.null(S)),
                   "Weighted FAVA",
@@ -84,8 +102,19 @@ window_fava <- function(relab_matrix, window_size, window_step = 1,
                                  window_step = window_step)
 
     window_data = window_fava_sub(relab_matrix = relab_matrix,
-                           window_indices = window_indices, window_size = window_size,
-                    time = time, w = w, K = K, S = S, normalized = normalized)
+                                  window_indices = window_indices, window_size = window_size,
+                                  time = time, w = w, K = K, S = S, normalized = normalized)
+
+    # Replace generic index with specified index or time if applicable
+    if((!is.null(index))){
+
+      window_data = tidyr::pivot_longer(window_data, cols = paste0("w", 1:window_size),
+                                        names_to = "window_number", values_to = "generic_index") %>%
+        dplyr::left_join(data.frame(original_index = relab_matrix[,index] %>% unlist,
+                                    generic_index = 1:nrow(relab_matrix))) %>%
+        dplyr::select(-generic_index) %>%
+        tidyr::pivot_wider(names_from = window_number, values_from = original_index)
+    }
 
   } else{
 
@@ -100,10 +129,23 @@ window_fava <- function(relab_matrix, window_size, window_step = 1,
 
       window_indices = window_list(window_size = window_size, length = nrow(relab_matrix_group), window_step = window_step)
 
-      group_fava_list[[i]] = dplyr::mutate(window_fava_sub(relab_matrix = relab_matrix_group, group = group,
-                                                           window_indices = window_indices, window_size = window_size,
-                                                           time = time, w = w, K = K, S = S, normalized = normalized),
-                                           group = element, .before = "FAVA")
+      window_data_group = dplyr::mutate(window_fava_sub(relab_matrix = relab_matrix_group, group = group,
+                                                        window_indices = window_indices, window_size = window_size,
+                                                        time = time, w = w, K = K, S = S, normalized = normalized),
+                                        group = element, .before = "FAVA")
+
+      # Replace generic index with specified index or time if applicable
+      if((!is.null(index))){
+
+        window_data_group = tidyr::pivot_longer(window_data_group, cols = paste0("w", 1:window_size),
+                                          names_to = "window_number", values_to = "generic_index") %>%
+          dplyr::left_join(data.frame(original_index = relab_matrix_group[,index] %>% unlist,
+                                      generic_index = 1:nrow(relab_matrix_group))) %>%
+          dplyr::select(-generic_index) %>%
+          tidyr::pivot_wider(names_from = window_number, values_from = original_index)
+      }
+
+      group_fava_list[[i]] = window_data_group
 
       i = i + 1
     }
@@ -111,24 +153,9 @@ window_fava <- function(relab_matrix, window_size, window_step = 1,
     window_data = do.call(rbind, group_fava_list)
   }
 
-  # If time is provided but index is not, make index same as time
-  if((!is.null(time)) & (is.null(index))) index = time
-
-  if((!is.null(index))){
-
-    window_data = tidyr::pivot_longer(window_data, cols = paste0("w", 1:window_size),
-                        names_to = "window_number", values_to = "generic_index") %>%
-      dplyr::left_join(data.frame(original_index = relab_matrix[,index] %>% unlist,
-                           generic_index = 1:nrow(relab_matrix))) %>%
-      dplyr::select(-generic_index) %>%
-      tidyr::pivot_wider(names_from = window_number, values_from = original_index)
-  }
-
-
-
-  return(list(window_data = window_data,
-              window_plot = window_plot(window_fava = window_data, alpha = alpha) +
-                ggplot2::ylab(y_axis)))
+return(list(window_data = window_data,
+            window_plot = window_plot(window_fava = window_data, alpha = alpha) +
+              ggplot2::ylab(y_axis)))
 }
 
 # To appease R command check

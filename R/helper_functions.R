@@ -137,11 +137,11 @@ relab_checker <- function(relab, K = NULL, rep = NULL, group = NULL, time = NULL
 # K - the number of taxa
 S_checker <- function(S, K, relab_matrix = NULL) {
 
-  if(!is.null(relab_matrix)){
+  if(!is.null(relab_matrix) & !is.null(colnames(relab_matrix)) & !is.null(colnames(S))){
 
     taxa_names = colnames(relab_matrix)[(ncol(relab_matrix)-K + 1):ncol(relab_matrix)]
 
-    if(!all(taxa_names %in% colnames(S))){
+    if(length(taxa_names) != ncol(S) & !all(taxa_names %in% colnames(S))){
       stop("Not all of the taxa in relab_matrix are included in S. Your similarity matrix must describe every taxon included in relab_matrix.")
     }
 
