@@ -21,7 +21,7 @@ Imports:
     utils
 Suggests: 
     knitr,
-    patchwork,
+    patchwork (>= 1.2.0),
     rmarkdown,
     viridis,
     kableExtra,
