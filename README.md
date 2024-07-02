@@ -13,7 +13,7 @@ Assessment of Variability across vectors of relative Abundances, as well
 as a suite of helper functions which enable the visualization and
 statistical analysis of relative abundance data. The *FAVA* R package
 accompanies the paper, “Quantifying compositional variability in
-microbial communities with FAVA” by Morrison et al. (2024?).
+microbial communities with FAVA” by Morrison et al.
 
 The *FAVA* R package includes the following core functions:
 
@@ -31,11 +31,19 @@ The *FAVA* R package includes the following core functions:
 
 ## Installation
 
-You can install the development version of FAVA from
-[GitHub](https://github.com/) with:
+You can install FAVA from
+[GitHub](https://github.com/MaikeMorrison/FAVA) with:
 
 ``` r
+
+# First, install devtools if you haven't already:
 # install.packages("devtools")
+
+devtools::install_github("MaikeMorrison/FAVA")
+
+# If you wish to access the tutorial (also accessible below) from within
+# the package:
+
 devtools::install_github("MaikeMorrison/FAVA", build_vignettes = TRUE)
 ```
 
