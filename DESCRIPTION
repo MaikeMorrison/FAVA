@@ -4,7 +4,7 @@ Version: 1.0.0
 Authors@R: 
     person("Maike", "Morrison", , "maikem@stanford.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-0430-1401"))
-Description: The FAVA R package implements the statistic FAVA, an FST-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The FAVA R package accompanies the paper, “Quantifying compositional variability in microbial communities with FAVA” by Morrison et al.
+Description: The FAVA R package implements the statistic FAVA, an FST-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The FAVA R package accompanies the paper, “Quantifying compositional variability in microbial communities with FAVA” by Morrison et al. (2024).
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
