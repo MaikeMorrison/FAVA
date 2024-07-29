@@ -403,7 +403,7 @@ gini_simpson_pooled <- function(relab_matrix,
 #'
 #' This function computes the normalized Fst given the number of rows and the mean abundance of the most abundant category.
 #' We employ the normalization employed in the [FSTruct package](https://github.com/MaikeMorrison/FSTruct) by
-#' [Morrison, Alcala, and Rosenberg (2020)](https://doi.org/10.1111/1755-0998.13647).
+#' Morrison, Alcala, and Rosenberg (2020) \doi{doi:10.1111/1755-0998.13647}.
 #'
 #' @param relab_matrix A matrix with \code{I=nrow(relab_matrix)} rows, each containing \code{K=ncol(relab_matrix)} non-negative entries that sum to 1.
 #' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix and the number of entries

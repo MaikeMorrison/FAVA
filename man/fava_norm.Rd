@@ -19,7 +19,7 @@ A numeric value between 0 and 1.
 \description{
 This function computes the normalized Fst given the number of rows and the mean abundance of the most abundant category.
 We employ the normalization employed in the \href{https://github.com/MaikeMorrison/FSTruct}{FSTruct package} by
-\href{https://doi.org/10.1111/1755-0998.13647}{Morrison, Alcala, and Rosenberg (2020)}.
+Morrison, Alcala, and Rosenberg (2020) \doi{doi:10.1111/1755-0998.13647}.
 }
 \examples{
 # Compute the weighted fava of
