@@ -50,11 +50,13 @@ devtools::install_github("MaikeMorrison/FAVA", build_vignettes = TRUE)
 
 ## Tutorial
 
-A tutorial on the usage of *FAVA* with a focus on the analysis of
-compositional data representing microbiome samples is available in the
-`microbiome_tutorial` vignette, which is available at [this
-link](https://maikemorrison.com/files/microbiome_tutorial.html) or via
-the following code after package installation.
+The package website,
+[maikemorrison.github.io/FAVA/](https://maikemorrison.github.io/FAVA/),
+contains documentation and examples for all package functions. It also
+contains a tutorial on the usage of *FAVA* for the analysis of
+microbiome data. The tutorial vignette is available at [this
+link](https://maikemorrison.github.io/FAVA/articles/microbiome_tutorial.html)
+or via the following code after package installation.
 
 ``` r
 vignette("microbiome_tutorial", package = "FAVA")
