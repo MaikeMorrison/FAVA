@@ -5,6 +5,9 @@
 #'
 #' @param phyloseq_object A phyloseq object containing both an OTU table (`otu_table`) and sample metadata (`sample_data`).
 #' @returns A data frame with rows representing samples and columns representing sample data categories or OTU relative abundances.
+#' @examples
+#' relab_phyloseq(FAVA::xue_phyloseq)
+#'
 #' @export
 relab_phyloseq <- function(phyloseq_object){
   # if(is.null(phyloseq::sample_data(phyloseq_object))){
@@ -33,7 +36,7 @@ relab_phyloseq <- function(phyloseq_object){
     relab_sums = rowSums(output[,data_cols])
   }
 
-  if(!all(relab_sums==1)){
+  if(!all(round(relab_sums, 7)==1)){
     output[,data_cols] = output[,data_cols]/relab_sums
     warning("Some of the sample abundances do not sum to exactly 1. Rounding the sum of each sample to 1 by dividing all entries by the sum of the sample.")
   }

@@ -16,6 +16,15 @@
 "xue_microbiome_sample"
 
 
+#' Phyloseq object containing the information in xue_microbiome_sample
+#'
+#' A Phyloseq object containing an OTU table and the corresponding sample information (subject and timepoint).
+#'
+#' @format ## `xue_phyloseq`
+#' #' A phyloseq-class experiment-level object with two elements with an OTU table and sample data.
+"xue_phyloseq"
+
+
 #' Phylogenetic tree for the species included in xue_microbiome_sample
 #'
 #' A phylogenetic tree in the Newick format.
@@ -49,4 +58,6 @@
 #'   \item{species_id_number}{The numeric code associated with each species, as used in xue_species_tree}
 #' }
 "xue_species_info"
+
+
 
