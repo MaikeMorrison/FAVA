@@ -195,6 +195,9 @@ S_checker <- function(S, K, relab_matrix = NULL) {
 #' @param group Optional; a character vector specifying the group identity of each
 #' sampling time. Use if there are samples from multiple replicates or subjects
 #' in one data set.
+#' @returns A numeric vector. Each entry provides a weight for each entry in the
+#' provided `times` vector. If `group` is not specified, the vector sums to 1. If
+#' `group` is specified, the vector sums to the number of distinct groups.
 #' @examples
 
 #' time_vector = c(1, 8, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -203,6 +206,13 @@ S_checker <- function(S, K, relab_matrix = NULL) {
 #' time_weights(times = time_vector)
 #' @export
 time_weights <- function(times, group = NULL){
+
+  if(!is.null(group)){
+    if(length(group) != length(times)){
+      stop(paste0("The times and group vectors must have the same length. times has length ",
+           length(times), ". group has length ", length(group), "."))
+    }
+  }
 
   # Create an ID for each sample to ensure the returned sample weights match the
   # order that the samples were given in.

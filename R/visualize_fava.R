@@ -21,7 +21,7 @@
 #'   order is unchanged but categories are ordered in decreasing abundance. If \code{arrange = "horizontal"},
 #'   samples are ordered by the most abundant categories, but category order is unchanged. If \code{arrange} is missing
 #'   or \code{arrange = FALSE}, neither order is changed.
-#' @return A ggplot object containing a bar plot visualization of the relative abundance matrix.
+#' @returns A ggplot object containing a bar plot visualization of the relative abundance matrix.
 #' @examples
 #'
 #' # Make an example matrix of compositional data
