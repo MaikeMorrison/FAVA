@@ -39,7 +39,7 @@ The _FAVA_ R package includes the following core functions:
 
 Install FAVA from CRAN with:
 
-```{r}
+```{r, eval = FALSE}
 install.packages("FAVA")
 ```
 
