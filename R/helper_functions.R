@@ -6,8 +6,8 @@
 #' @param phyloseq_object A phyloseq object containing both an OTU table (`otu_table`) and sample metadata (`sample_data`).
 #' @returns A data frame with rows representing samples and columns representing sample data categories or OTU relative abundances.
 #' @examples
-#' relab_phyloseq(FAVA::xue_phyloseq)
-#'
+#' otu_table = relab_phyloseq(FAVA::xue_phyloseq)
+#' otu_table[1:10, 1:6]
 #' @export
 relab_phyloseq <- function(phyloseq_object){
   # if(is.null(phyloseq::sample_data(phyloseq_object))){

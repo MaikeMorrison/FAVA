@@ -16,6 +16,6 @@ A data frame with rows representing samples and columns representing sample data
 The R package phyloseq streamlines the storage and analysis of microbiome sequence data. This function takes a phyloseq object and extracts the OTU table and the sample meta data and combines them into one relative abundance matrix with rows corresponding to samples, meta data on the left-hand side, and OTU relative abundances on the right-hand side.
 }
 \examples{
-relab_phyloseq(FAVA::xue_phyloseq)
-
+otu_table = relab_phyloseq(FAVA::xue_phyloseq)
+otu_table[1:10, 1:6]
 }

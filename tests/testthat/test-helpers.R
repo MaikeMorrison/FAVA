@@ -19,20 +19,21 @@ test_that("relab_sample_weighter works", {
   # K and time, no group
   expect_error(relab_sample_weighter(relab = relab_matrix, K = 524, time = "timepoint"))
   # K and group and time
-  expect_no_condition(relab_sample_weighter(relab = relab_matrix, K = 524, group = "subject", time = "timepoint"))
+  expect_no_error(relab_sample_weighter(relab = relab_matrix, K = 524, group = "subject", time = "timepoint"))
 
   # Specify w instead of time ---------------------------------
   expect_no_error(relab_sample_weighter(relab = relab_matrix, group = "subject", w = w, K = 524))
 
   # One group ------------------------------------------------------------------
   # K and group and time
-  expect_no_condition(relab_sample_weighter(relab = dplyr::filter(relab_matrix, subject == "XBA"),
-                                                              K = 524, group = "subject", time = "timepoint"))
+  expect_no_error(relab_sample_weighter(relab = dplyr::filter(relab_matrix, subject == "XBA"),
+                                                              K = 524, group = "subject",
+                                            time = "timepoint"))
   # group and time, no K
-  expect_no_condition(relab_sample_weighter(relab = dplyr::filter(relab_matrix, subject == "XBA"),
+  expect_no_error(relab_sample_weighter(relab = dplyr::filter(relab_matrix, subject == "XBA"),
                                         group = "subject", time = "timepoint"))
   # K, no group
-  expect_no_condition(relab_sample_weighter(relab = dplyr::filter(relab_matrix, subject == "XBA"),
+  expect_no_error(relab_sample_weighter(relab = dplyr::filter(relab_matrix, subject == "XBA"),
                                         K = 524, time = "timepoint"))
 
   # Specify w instead of time ---------------------------------
