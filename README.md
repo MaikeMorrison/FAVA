@@ -32,7 +32,20 @@ The *FAVA* R package includes the following core functions:
 
 ## Installation
 
-You can install FAVA from
+Install FAVA from CRAN with:
+
+``` r
+install.packages("FAVA")
+#> Installing package into 'C:/Users/Maike/AppData/Local/Temp/Rtmpo9IPzx/temp_libpath63446f4e6340'
+#> (as 'lib' is unspecified)
+#> Warning: package 'FAVA' is not available for this version of R
+#> 
+#> A version of this package for your version of R might be available elsewhere,
+#> see the ideas at
+#> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages
+```
+
+You can install the development version of FAVA from
 [GitHub](https://github.com/MaikeMorrison/FAVA) with:
 
 ``` r
