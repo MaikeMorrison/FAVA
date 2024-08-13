@@ -1,0 +1,31 @@
+Package: FAVA
+Title: Quantify Compositional Variability Across Relative Abundance
+        Vectors
+Version: 1.0.0
+Authors@R: 
+    person("Maike", "Morrison", , "maikem@stanford.edu", role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "0000-0003-0430-1401"))
+Description: Implements the statistic FAVA, an FST-based Assessment of Variability across 
+  vectors of relative Abundances, as well as a suite of helper functions which enable the 
+  visualization and statistical analysis of relative abundance data. The FAVA R package 
+  accompanies the paper, “Quantifying compositional variability in microbial communities
+  with FAVA” by Morrison, Xue, and Rosenberg (2024) <doi:10.1101/2024.07.03.601929>.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+URL: https://github.com/MaikeMorrison/FAVA,
+        https://maikemorrison.github.io/FAVA/
+BugReports: https://github.com/MaikeMorrison/FAVA/issues
+Imports: dplyr, ggplot2, rlang, tidyr, tibble, stringr, utils
+Suggests: knitr, patchwork (>= 1.2.0), rmarkdown, viridis, kableExtra,
+        purrr, ape, gridExtra, phyloseq, testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Depends: R (>= 2.10)
+LazyData: true
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2024-07-31 16:38:57 UTC; maikem
+Author: Maike Morrison [aut, cre, cph]
+    (<https://orcid.org/0000-0003-0430-1401>)
+Maintainer: Maike Morrison <maikem@stanford.edu>
