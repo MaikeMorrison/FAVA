@@ -1,7 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# FAVA <a href='https://github.com/MaikeMorrison/FAVA'/><img src='man/figures/FAVA_logo_2.png' height="200" align="right" style="float:right; height:200px;" />
+# FAVA
+
+<a href='https://github.com/MaikeMorrison/FAVA'/><img src='man/figures/FAVA_logo_2.png' height="200" align="right" style="float:right; height:200px;" />
 
 <!-- badges: start -->
 
@@ -32,11 +34,16 @@ The *FAVA* R package includes the following core functions:
 
 ## Installation
 
-You can install FAVA from
+Install FAVA with:
+
+``` r
+install.packages("FAVA")
+```
+
+You can install the development version of FAVA from
 [GitHub](https://github.com/MaikeMorrison/FAVA) with:
 
 ``` r
-
 # First, install devtools if you haven't already:
 # install.packages("devtools")
 

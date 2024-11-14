@@ -14,6 +14,11 @@ greater than the previous entry.}
 sampling time. Use if there are samples from multiple replicates or subjects
 in one data set.}
 }
+\value{
+A numeric vector. Each entry provides a weight for each entry in the
+provided \code{times} vector. If \code{group} is not specified, the vector sums to 1. If
+\code{group} is specified, the vector sums to the number of distinct groups.
+}
 \description{
 This function takes a vector of sampling times, \eqn{t = (t_1, t_2, \ldots, t_I)}{latex}
 and computes a normalized vector which can be used to weight each sample based on
