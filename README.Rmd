@@ -39,14 +39,15 @@ The _FAVA_ R package includes the following core functions:
 
 ## Installation
 
-Install FAVA with:
 
-```{r, eval = FALSE}
-install.packages("FAVA")
-```
+<!-- Install FAVA with: -->
+
+<!-- ```{r, eval = FALSE} -->
+<!-- install.packages("FAVA") -->
+<!-- ``` -->
 
 
-You can install the development version of FAVA from [GitHub](https://github.com/MaikeMorrison/FAVA) with:
+FAVA will be available on CRAN soon. In the meantime, you can install the development version of FAVA from [GitHub](https://github.com/MaikeMorrison/FAVA) with:
 
 ```{r, eval = FALSE}
 # First, install devtools if you haven't already:
