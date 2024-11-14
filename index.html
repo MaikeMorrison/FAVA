@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>An FST-Based Assessment of Variability across Vectors of Relative Abundances • FAVA</title>
+<title>Quantify Compositional Variability Across Relative Abundance Vectors • FAVA</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="An FST-Based Assessment of Variability across Vectors of Relative Abundances">
-<meta name="description" content="Implements the statistic FAVA, an FST-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The FAVA R package accompanies the paper, “Quantifying compositional variability in microbial communities with FAVA” by Morrison et al. (2024).">
-<meta property="og:description" content="Implements the statistic FAVA, an FST-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The FAVA R package accompanies the paper, “Quantifying compositional variability in microbial communities with FAVA” by Morrison et al. (2024).">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Quantify Compositional Variability Across Relative Abundance Vectors">
+<meta name="description" content="Implements the statistic FAVA, an FST-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The FAVA R package accompanies the paper, “Quantifying compositional variability in microbial communities with FAVA” by Morrison, Xue, and Rosenberg (2024) &lt;doi:10.1101/2024.07.03.601929&gt;.">
+<meta property="og:description" content="Implements the statistic FAVA, an FST-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The FAVA R package accompanies the paper, “Quantifying compositional variability in microbial communities with FAVA” by Morrison, Xue, and Rosenberg (2024) &lt;doi:10.1101/2024.07.03.601929&gt;.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">FAVA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,8 +53,9 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="fava-">FAVA <a href="https://github.com/MaikeMorrison/FAVA" class="external-link"></a><img src="reference/figures/FAVA_logo_2.png" height="200" align="right" style="float:right; height:200px;"><a class="anchor" aria-label="anchor" href="#fava-"></a>
+<div class="page-header"><h1 id="fava">FAVA<a class="anchor" aria-label="anchor" href="#fava"></a>
 </h1></div>
+<p><a href="https://github.com/MaikeMorrison/FAVA" class="external-link"></a><img src="reference/figures/FAVA_logo_2.png" height="200" align="right" style="float:right; height:200px;"></p>
 <!-- badges: start -->
 
 <p>The <em>FAVA</em> R package implements the statistic FAVA, an <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mrow><mi>S</mi><mi>T</mi></mrow></msub><annotation encoding="application/x-tex">F_{ST}</annotation></semantics></math>-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The <em>FAVA</em> R package accompanies the paper, “Quantifying compositional variability in microbial communities with FAVA” by <a href="https://doi.org/10.1101/2024.07.03.601929" class="external-link">Morrison et al. (2024)</a>.</p>
@@ -68,10 +69,12 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install FAVA from <a href="https://github.com/MaikeMorrison/FAVA" class="external-link">GitHub</a> with:</p>
+<p>Install FAVA with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># First, install devtools if you haven't already:</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"FAVA"</span><span class="op">)</span></span></code></pre></div>
+<p>You can install the development version of FAVA from <a href="https://github.com/MaikeMorrison/FAVA" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># First, install devtools if you haven't already:</span></span>
 <span><span class="co"># install.packages("devtools")</span></span>
 <span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"MaikeMorrison/FAVA"</span><span class="op">)</span></span>
@@ -85,7 +88,7 @@
 <h2 id="tutorial">Tutorial<a class="anchor" aria-label="anchor" href="#tutorial"></a>
 </h2>
 <p>The package website, <a href="https://maikemorrison.github.io/FAVA/">maikemorrison.github.io/FAVA/</a>, contains documentation and examples for all package functions. It also contains a tutorial on the usage of <em>FAVA</em> for the analysis of microbiome data. The tutorial vignette is available at <a href="https://maikemorrison.github.io/FAVA/articles/microbiome_tutorial.html">this link</a> or via the following code after package installation.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"microbiome_tutorial"</span>, package <span class="op">=</span> <span class="st">"FAVA"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -136,7 +139,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>
