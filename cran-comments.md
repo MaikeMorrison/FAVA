@@ -1,9 +1,7 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
-* Removed an example dataset of class "phyloseq" that could not be loaded on some platforms. 
-
-* Updated the example for the function `relab_phyloseq` so that it instead uses data directly from the phyloseq package instead of relying on exported data.
+* Updated the examples for the functions `relab_phyloseq` and `bootstrap_fava` so that they run more quickly. 
 
 
 ## R CMD check results

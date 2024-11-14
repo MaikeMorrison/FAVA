@@ -15,7 +15,7 @@
 #' phyloseq_subset = phyloseq::subset_taxa(phyloseq::subset_samples(GlobalPatterns,
 #'                                                                  X.SampleID %in%
 #'                                                                  c("CL3", "CC1")),
-#                                         Order == "Cenarchaeales")
+#'                                         Order == "Cenarchaeales")
 #'   otu_table = relab_phyloseq(phyloseq_subset)
 #'   otu_table[, 1:10]
 #' }
