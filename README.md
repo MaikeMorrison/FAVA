@@ -42,7 +42,6 @@ You can install the development version of FAVA from
 [GitHub](https://github.com/MaikeMorrison/FAVA) with:
 
 ``` r
-
 # First, install devtools if you haven't already:
 # install.packages("devtools")
 

@@ -5,18 +5,30 @@
 #'
 #' @param phyloseq_object A phyloseq object containing both an OTU table (`otu_table`) and sample metadata (`sample_data`).
 #' @returns A data frame with rows representing samples and columns representing sample data categories or OTU relative abundances.
+#' OTU abundances are automatically normalized so that they sum to 1 for each sample, though a warning will be provided if a
+#' renormalization was necessary.
 #' @examples
-#' otu_table = relab_phyloseq(FAVA::xue_phyloseq)
-#' otu_table[1:10, 1:6]
+#' if (requireNamespace("phyloseq", quietly = TRUE)) {
+#'   data(GlobalPatterns, package = "phyloseq")
+#'   phyloseq_subset = phyloseq::subset_samples(GlobalPatterns,
+#'                                              X.SampleID %in% c("CL3", "CC1"))
+#'   otu_table = relab_phyloseq(phyloseq_subset)
+#'   otu_table[, 1:10]
+#' }
 #' @export
 relab_phyloseq <- function(phyloseq_object){
-  # if(is.null(phyloseq::sample_data(phyloseq_object))){
-  #   warning("phyloseq_object does not have sample_data")
-  #   return(t(phyloseq::otu_table(phyloseq_object)))
-  # }
-  # if(is.null(phyloseq::otu_table(phyloseq_object))){
-  #   stop("phyloseq_object does not include an otu_table")
-  # }
+  if(is.null(phyloseq_object@sam_data)){
+    warning("phyloseq_object does not have sample_data")
+    if(phyloseq::taxa_are_rows(phyloseq_object)){
+      return(t(phyloseq::otu_table(phyloseq_object)))
+    }else{
+      return(phyloseq::otu_table(phyloseq_object))
+    }
+  }
+  if(is.null(phyloseq_object@otu_table)){
+    stop("phyloseq_object does not include an otu_table")
+  }
+
   if(phyloseq::taxa_are_rows(phyloseq_object)){
     output = cbind(phyloseq::sample_data(phyloseq_object),
           t(phyloseq::otu_table(phyloseq_object)))

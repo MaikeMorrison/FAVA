@@ -22,8 +22,6 @@ window_list             Generate sliding windows of specified length
                         given the maximum number of samples
 window_plot             Generate a plot of FAVA in sliding windows.
 xue_microbiome_sample   Temporal microbiome composition data
-xue_phyloseq            Phyloseq object containing the information in
-                        xue_microbiome_sample
 xue_species_info        Table of species information
 xue_species_similarity
                         Species similarity matrix for the species

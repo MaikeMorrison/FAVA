@@ -133,4 +133,4 @@ No deferred expressions to run
 > 
 > proc.time()
    user  system elapsed 
-  46.90    4.57   51.64 
+  46.79    4.43   51.45 

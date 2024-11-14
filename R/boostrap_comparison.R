@@ -26,7 +26,7 @@
 #' # subjects in the xue_microbiome_sample data:
 #'
 #'  boot_out = bootstrap_fava(relab_matrix = xue_microbiome_sample,
-#'                n_replicates = 100,
+#'                n_replicates = 20, # should use 1000 for a real analysis
 #'                seed = 1,
 #'                group = "subject",
 #'                K = 524,

@@ -365,8 +365,13 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 
 ### ** Examples
 
-otu_table = relab_phyloseq(FAVA::xue_phyloseq)
-otu_table[1:10, 1:6]
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data(GlobalPatterns, package = "phyloseq")
+  phyloseq_subset = phyloseq::subset_samples(GlobalPatterns,
+                                             X.SampleID %in% c("CL3", "CC1"))
+  otu_table = relab_phyloseq(phyloseq_subset)
+  otu_table[, 1:10]
+}
 
 
 

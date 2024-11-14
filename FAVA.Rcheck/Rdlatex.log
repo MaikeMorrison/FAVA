@@ -69,13 +69,10 @@ Overfull \hbox (141.77902pt too wide) in paragraph at lines 489--490
 Overfull \hbox (0.75328pt too wide) in paragraph at lines 575--575
  [] \T1/zi4/m/n/9 plot_relabund(relab_matrix = populations_AB, group = "population", arrange = "horizontal")[] 
 [12] [13] [14]
-Overfull \hbox (141.77902pt too wide) in paragraph at lines 695--696
+Overfull \hbox (141.77902pt too wide) in paragraph at lines 702--703
 \T1/ptm/m/n/10 dance of each cat-e-gory across rows. The de-fault value is \T1/zi4/m/n/10 w = rep(1/nrow(relab_matrix),nrow(relab_matrix))\T1/ptm/m/n/10 . 
 [15] [16]
-Underfull \hbox (badness 10000) in paragraph at lines 824--824
-[]\T1/ptm/m/it/10 Phyloseq ob-ject con-tain-ing the in-for-ma-tion in
-
-Underfull \hbox (badness 10000) in paragraph at lines 876--876
+Underfull \hbox (badness 10000) in paragraph at lines 861--861
 []\T1/ptm/m/it/10 Species sim-i-lar-ity ma-trix for the species in-cluded in
 [17]
 No file Rd2.ind.
@@ -87,12 +84,12 @@ Package rerunfilecheck Warning: File `Rd2.out' has changed.
 
  )
 (see the transcript file for additional information)<c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (18 pages, 172822 bytes).
+Output written on Rd2.pdf (18 pages, 173476 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.17 [TeX Live 2023] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (22 entries accepted, 0 rejected).
-Sorting entries....done (102 comparisons).
-Generating output file Rd2.ind....done (51 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (20 entries accepted, 0 rejected).
+Sorting entries....done (91 comparisons).
+Generating output file Rd2.ind....done (49 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex)
@@ -133,10 +130,10 @@ Overfull \hbox (141.77902pt too wide) in paragraph at lines 159--160
 
 Overfull \hbox (6.13835pt too wide) in paragraph at lines 163--164
 \T1/ptm/m/n/10 that de-scribes which group(s) each row (sam-ple) be-longs to. Use if \T1/zi4/m/n/10 relab_matrix
-[4] [5]
+[4]
 Overfull \hbox (28.80894pt too wide) in paragraph at lines 223--226
 []\T1/ptm/m/n/10 A ma-trix with \T1/zi4/m/n/10 I=nrow(relab_matrix) \T1/ptm/m/n/10 rows, each con-tain-ing \T1/zi4/m/n/10 K=ncol(relab_matrix)
-[6] [7]
+[5] [6] [7]
 Overfull \hbox (141.77902pt too wide) in paragraph at lines 321--322
 \T1/ptm/m/n/10 dance of each cat-e-gory across rows. The de-fault value is \T1/zi4/m/n/10 w = rep(1/nrow(relab_matrix),nrow(relab_matrix))\T1/ptm/m/n/10 . 
 
@@ -162,15 +159,12 @@ Overfull \hbox (0.75328pt too wide) in paragraph at lines 575--575
  [] \T1/zi4/m/n/9 plot_relabund(relab_matrix = populations_AB, group = "population", arrange = "horizontal")[] 
 
 Underfull \vbox (badness 10000) has occurred while \output is active [12] [13] [14]
-Overfull \hbox (141.77902pt too wide) in paragraph at lines 695--696
+Overfull \hbox (141.77902pt too wide) in paragraph at lines 702--703
 \T1/ptm/m/n/10 dance of each cat-e-gory across rows. The de-fault value is \T1/zi4/m/n/10 w = rep(1/nrow(relab_matrix),nrow(relab_matrix))\T1/ptm/m/n/10 . 
 [15] [16]
-Underfull \hbox (badness 10000) in paragraph at lines 824--824
-[]\T1/ptm/m/it/10 Phyloseq ob-ject con-tain-ing the in-for-ma-tion in
-[17]
-Underfull \hbox (badness 10000) in paragraph at lines 876--876
+Underfull \hbox (badness 10000) in paragraph at lines 861--861
 []\T1/ptm/m/it/10 Species sim-i-lar-ity ma-trix for the species in-cluded in
-[18] (./Rd2.ind [19] [20]) (./Rd2.aux)
+[17] (./Rd2.ind [18] [19]) (./Rd2.aux)
 
 Package rerunfilecheck Warning: File `Rd2.out' has changed.
 (rerunfilecheck)                Rerun to get outlines right
@@ -178,12 +172,12 @@ Package rerunfilecheck Warning: File `Rd2.out' has changed.
 
  )
 (see the transcript file for additional information)<c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (20 pages, 177061 bytes).
+Output written on Rd2.pdf (19 pages, 177034 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.17 [TeX Live 2023] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (22 entries accepted, 0 rejected).
-Sorting entries....done (102 comparisons).
-Generating output file Rd2.ind....done (51 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (20 entries accepted, 0 rejected).
+Sorting entries....done (91 comparisons).
+Generating output file Rd2.ind....done (49 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex)
@@ -253,18 +247,15 @@ Overfull \hbox (0.75328pt too wide) in paragraph at lines 575--575
  [] \T1/zi4/m/n/9 plot_relabund(relab_matrix = populations_AB, group = "population", arrange = "horizontal")[] 
 
 Underfull \vbox (badness 10000) has occurred while \output is active [12] [13] [14]
-Overfull \hbox (141.77902pt too wide) in paragraph at lines 695--696
+Overfull \hbox (141.77902pt too wide) in paragraph at lines 702--703
 \T1/ptm/m/n/10 dance of each cat-e-gory across rows. The de-fault value is \T1/zi4/m/n/10 w = rep(1/nrow(relab_matrix),nrow(relab_matrix))\T1/ptm/m/n/10 . 
 [15] [16]
-Underfull \hbox (badness 10000) in paragraph at lines 824--824
-[]\T1/ptm/m/it/10 Phyloseq ob-ject con-tain-ing the in-for-ma-tion in
-[17]
-Underfull \hbox (badness 10000) in paragraph at lines 876--876
+Underfull \hbox (badness 10000) in paragraph at lines 861--861
 []\T1/ptm/m/it/10 Species sim-i-lar-ity ma-trix for the species in-cluded in
-[18] (./Rd2.ind [19] [20]) (./Rd2.aux) )
+[17] (./Rd2.ind [18] [19]) (./Rd2.aux) )
 (see the transcript file for additional information)<c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (20 pages, 177418 bytes).
+Output written on Rd2.pdf (19 pages, 177363 bytes).
 Transcript written on Rd2.log.
 Saving output to 'FAVA-manual.pdf' ...
 Done
-You may want to clean up by 'rm -Rf C:/Users/maikem/AppData/Local/Temp/RtmpikJ0ne/Rd2pdf58f03a271431'
+You may want to clean up by 'rm -Rf C:/Users/maikem/AppData/Local/Temp/RtmpiyZPdY/Rd2pdf758c28902cde'
