@@ -10,6 +10,16 @@
 # w = NULL
 # time = "timepoint"
 
+xue_microbiome_sample_low_dim = xue_microbiome_sample[,1:52]
+xue_microbiome_sample_low_dim[,3:52] =  xue_microbiome_sample[,3:52]/rowSums(xue_microbiome_sample[,3:52])
+
+test_that("bootstrapping catches mispecified data",{
+
+  # S and data have different dimensions
+  expect_no_error(bootstrap_fava(relab_matrix = xue_microbiome_sample_low_dim, n_replicates = 3, group = "subject",
+                                 K = 50, S = xue_species_similarity))
+})
+
 test_that("bootstrapping works for a matrix with one grouping var, multiple groups", {
   # NO WEIGHTS
   expect_no_error(bootstrap_fava(relab_matrix = xue_microbiome_sample, n_replicates = 3, group = "subject",
