@@ -2,18 +2,6 @@ pkgname <- "FAVA"
 source(file.path(R.home("share"), "R", "examples-header.R"))
 options(warn = 1)
 options(pager = "console")
-base::assign(".ExTimings", "FAVA-Ex.timings", pos = 'CheckExEnv')
-base::cat("name\tuser\tsystem\telapsed\n", file=base::get(".ExTimings", pos = 'CheckExEnv'))
-base::assign(".format_ptime",
-function(x) {
-  if(!is.na(x[4L])) x[1L] <- x[1L] + x[4L]
-  if(!is.na(x[5L])) x[2L] <- x[2L] + x[5L]
-  options(OutDec = '.')
-  format(x[1L:3L], digits = 7L)
-},
-pos = 'CheckExEnv')
-
-### * </HEADER>
 library('FAVA')
 
 base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
@@ -24,7 +12,6 @@ nameEx("bootstrap_fava")
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: bootstrap_fava
 ### Title: Statistically compare FAVA values between pairs of relative
 ###   abundance matrices.
@@ -36,7 +23,7 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 # subjects in the xue_microbiome_sample data:
 
  boot_out = bootstrap_fava(relab_matrix = xue_microbiome_sample,
-               n_replicates = 100,
+               n_replicates = 20, # should use 1000 for a real analysis
                seed = 1,
                group = "subject",
                K = 524,
@@ -51,15 +38,12 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("bootstrap_fava", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 cleanEx()
 nameEx("fava")
 ### * fava
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: fava
 ### Title: Compute the Fst of a matrix of compositional vectors
 ### Aliases: fava
@@ -98,15 +82,12 @@ fava(relative_abundances, w = row_weights, S = similarity_matrix)
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("fava", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 cleanEx()
 nameEx("fava_norm")
 ### * fava_norm
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: fava_norm
 ### Title: Compute the normalized Fst of a matrix of compositional vectors
 ### Aliases: fava_norm
@@ -126,15 +107,12 @@ fava_norm(relative_abundances)
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("fava_norm", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 cleanEx()
 nameEx("gini_simpson")
 ### * gini_simpson
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: gini_simpson
 ### Title: Compute the Gini-Simpson index of a compositional vector
 ### Aliases: gini_simpson
@@ -153,15 +131,12 @@ gini_simpson(q = c(0.4, 0.3, 0.3), S = similarity_matrix)
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("gini_simpson", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 cleanEx()
 nameEx("gini_simpson_mean")
 ### * gini_simpson_mean
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: gini_simpson_mean
 ### Title: Compute the mean Gini-Simpson index of the rows in a matrix of
 ###   compositional vectors
@@ -206,15 +181,12 @@ gini_simpson_mean(relative_abundances, w = row_weights, S = similarity_matrix)
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("gini_simpson_mean", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 cleanEx()
 nameEx("gini_simpson_pooled")
 ### * gini_simpson_pooled
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: gini_simpson_pooled
 ### Title: Compute the pooled Gini-Simpson index of the rows in a matrix of
 ###   compositional vectors
@@ -260,15 +232,12 @@ gini_simpson_pooled(relative_abundances, w = row_weights, S = similarity_matrix)
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("gini_simpson_pooled", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 cleanEx()
 nameEx("plot_relabund")
 ### * plot_relabund
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: plot_relabund
 ### Title: Visualize a relative abundance matrix as a stacked bar plot.
 ### Aliases: plot_relabund
@@ -349,15 +318,12 @@ plot_relabund(relab_matrix = population_A,
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("plot_relabund", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 cleanEx()
 nameEx("relab_phyloseq")
 ### * relab_phyloseq
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: relab_phyloseq
 ### Title: Generate a relative abundance matrix with sample meta data and
 ###   OTU abundances from a phyloseq object.
@@ -367,23 +333,24 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 
 if (requireNamespace("phyloseq", quietly = TRUE)) {
   data(GlobalPatterns, package = "phyloseq")
-  phyloseq_subset = phyloseq::subset_samples(GlobalPatterns,
-                                             X.SampleID %in% c("CL3", "CC1"))
+
+# Make a small phyloseq object for demonstration
+phyloseq_subset = phyloseq::subset_taxa(phyloseq::subset_samples(GlobalPatterns,
+                                                                 X.SampleID %in%
+                                                                 c("CL3", "CC1")),
+                                        Order == "Cenarchaeales")
   otu_table = relab_phyloseq(phyloseq_subset)
   otu_table[, 1:10]
 }
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("relab_phyloseq", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 cleanEx()
 nameEx("time_weights")
 ### * time_weights
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: time_weights
 ### Title: Compute a normalized weighting vector based on a vector of
 ###   sampling times.
@@ -398,15 +365,12 @@ time_weights(times = time_vector)
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("time_weights", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 cleanEx()
 nameEx("window_fava")
 ### * window_fava
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: window_fava
 ### Title: Compute FAVA in sliding windows.
 ### Aliases: window_fava
@@ -419,15 +383,12 @@ window_out = window_fava(relab_matrix = A, window_size = 4, normalized = TRUE)
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("window_fava", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 cleanEx()
 nameEx("window_list")
 ### * window_list
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: window_list
 ### Title: Generate sliding windows of specified length given the maximum
 ###   number of samples
@@ -440,15 +401,12 @@ window_list(window_size = 6, length = 40, window_step = 2)
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("window_list", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 cleanEx()
 nameEx("window_plot")
 ### * window_plot
 
 flush(stderr()); flush(stdout())
 
-base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### Name: window_plot
 ### Title: Generate a plot of FAVA in sliding windows.
 ### Aliases: window_plot
@@ -463,8 +421,6 @@ window_out$window_plot
 
 
 
-base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
-base::cat("window_plot", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 ### * <FOOTER>
 ###
 cleanEx()

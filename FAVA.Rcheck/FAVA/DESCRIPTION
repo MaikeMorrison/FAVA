@@ -1,7 +1,7 @@
 Package: FAVA
 Title: Quantify Compositional Variability Across Relative Abundance
         Vectors
-Version: 1.0.1
+Version: 1.0.3
 Authors@R: 
     person("Maike", "Morrison", , "maikem@stanford.edu", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0003-0430-1401"))
@@ -17,7 +17,7 @@ RoxygenNote: 7.2.3
 URL: https://github.com/MaikeMorrison/FAVA,
         https://maikemorrison.github.io/FAVA/
 BugReports: https://github.com/MaikeMorrison/FAVA/issues
-Imports: dplyr, ggplot2, rlang, tidyr, tibble, stringr, utils
+Imports: dplyr, ggplot2, rlang, tidyr, stringr
 Suggests: knitr, patchwork (>= 1.2.0), rmarkdown, viridis, kableExtra,
         purrr, ape, gridExtra, phyloseq, testthat (>= 3.0.0)
 Config/testthat/edition: 3
@@ -25,8 +25,8 @@ Depends: R (>= 2.10)
 LazyData: true
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2024-08-16 17:25:36 UTC; maikem
+Packaged: 2024-11-19 00:07:50 UTC; maikem
 Author: Maike Morrison [aut, cre, cph]
     (<https://orcid.org/0000-0003-0430-1401>)
 Maintainer: Maike Morrison <maikem@stanford.edu>
-Built: R 4.1.2; ; 2024-08-16 17:27:05 UTC; windows
+Built: R 4.1.2; ; 2024-11-19 00:08:24 UTC; windows

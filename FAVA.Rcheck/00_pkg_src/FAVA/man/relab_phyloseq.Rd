@@ -20,8 +20,12 @@ The R package phyloseq streamlines the storage and analysis of microbiome sequen
 \examples{
 if (requireNamespace("phyloseq", quietly = TRUE)) {
   data(GlobalPatterns, package = "phyloseq")
-  phyloseq_subset = phyloseq::subset_samples(GlobalPatterns,
-                                             X.SampleID \%in\% c("CL3", "CC1"))
+
+# Make a small phyloseq object for demonstration
+phyloseq_subset = phyloseq::subset_taxa(phyloseq::subset_samples(GlobalPatterns,
+                                                                 X.SampleID \%in\%
+                                                                 c("CL3", "CC1")),
+                                        Order == "Cenarchaeales")
   otu_table = relab_phyloseq(phyloseq_subset)
   otu_table[, 1:10]
 }

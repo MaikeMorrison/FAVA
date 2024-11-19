@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2024.2.12)  16 AUG 2024 10:30
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2024.2.12)  18 NOV 2024 16:11
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -356,12 +356,12 @@ Overfull \hbox (0.75328pt too wide) in paragraph at lines 575--575
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [12] [13] [14]
-Overfull \hbox (141.77902pt too wide) in paragraph at lines 702--703
+Overfull \hbox (141.77902pt too wide) in paragraph at lines 706--707
 \T1/ptm/m/n/10 dance of each cat-e-gory across rows. The de-fault value is \T1/zi4/m/n/10 w = rep(1/nrow(relab_matrix),nrow(relab_matrix))\T1/ptm/m/n/10 . 
  []
 
 [15] [16]
-Underfull \hbox (badness 10000) in paragraph at lines 861--861
+Underfull \hbox (badness 10000) in paragraph at lines 865--865
 []\T1/ptm/m/it/10 Species sim-i-lar-ity ma-trix for the species in-cluded in
  []
 
@@ -385,7 +385,7 @@ Here is how much of TeX's memory you used:
  14 hyphenation exceptions out of 8191
  92i,6n,95p,670b,736s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/maikem/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (19 pages, 177363 bytes).
+Output written on Rd2.pdf (19 pages, 177467 bytes).
 PDF statistics:
  383 PDF objects out of 1000 (max. 8388607)
  334 compressed objects within 4 object streams

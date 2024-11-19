@@ -128,9 +128,9 @@ Joining with `by = join_by(generic_index)`
 Joining with `by = join_by(generic_index)`
 Joining with `by = join_by(generic_index)`
 Joining with `by = join_by(generic_index)`
-[ FAIL 0 | WARN 0 | SKIP 0 | PASS 182 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 195 ]
 No deferred expressions to run
 > 
 > proc.time()
    user  system elapsed 
-  46.79    4.43   51.45 
+  55.85    5.37   61.43 

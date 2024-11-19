@@ -63,6 +63,19 @@ bootstrap_fava <- function(relab_matrix,
     set.seed(seed)
   }
 
+  # Convert all grouping variables to characters
+  # Numeric or factor groups cause problems
+  # Any numeric groups need to be renamed with a character in front
+  if(!is.null(group)){
+    if(any(sapply(relab_matrix[,group], is.numeric))){
+      numeric_groups = group[which(sapply(relab_matrix[,group], is.numeric))]
+      relab_matrix[,numeric_groups] = sapply(relab_matrix[numeric_groups],
+                                             function(col) paste0("group_", col))
+    }
+    # relab_matrix[,group] = type.convert(relab_matrix[,group], as.is = TRUE)
+    relab_matrix[,group] = sapply(relab_matrix[,group], as.character)
+  }
+
   # If multiple grouping variables are provided, make a new grouping column
   multiple_groups = FALSE
   if(length(group)>1){
