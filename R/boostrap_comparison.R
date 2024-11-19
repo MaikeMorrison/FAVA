@@ -199,9 +199,9 @@ bootstrap_fava <- function(relab_matrix,
 
     # 3 - bootstrap_difference
     bootstrap_difference = lapply(bootstrap_list, function(list) list$bootstrap_difference) %>%
-      do.call(cbind, .) %>% `colnames<-`(observed_difference$Comparison) %>%
-      data.frame() %>%
-      tidyr::pivot_longer(cols = dplyr::everything(), names_to = "Comparison", values_to = "Difference")
+      do.call(cbind, .) %>% t() %>%
+      data.frame() %>% mutate(.before = 1, Comparison=observed_difference$Comparison) %>%
+      tidyr::pivot_longer(cols = -1, names_to = "rep", values_to = "Difference")
     bootstrap_difference$Comparison = stringr::str_replace_all(bootstrap_difference$Comparison, '\\.\\.\\.', " -\n")
 
     # if(multiple_groups){ bootstrap_difference = left_join(group_table, bootstrap_difference) }
@@ -295,7 +295,7 @@ pairwise_comparison <- function(group_pair,
     `colnames<-`(group_pair) %>%
     data.frame()
 
-  bootstrap_stats$Difference = bootstrap_stats[,group_pair[[1]]] - bootstrap_stats[,group_pair[[2]]]
+  bootstrap_stats$Difference = bootstrap_stats[,1] - bootstrap_stats[,2]
 
   # Compute the difference between the two original populations
   observed_difference = fava(relab_matrix = A, K = K, S = S, normalized = normalized, w = wA) -
