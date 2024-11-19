@@ -6,8 +6,7 @@
 <a href='https://github.com/MaikeMorrison/FAVA'/><img src='man/figures/FAVA_logo_2.png' height="200" align="right" style="float:right; height:200px;" />
 
 <!-- badges: start -->
-
-<!-- [![R-CMD-check](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml)-->
+<!-- [![R-CMD-check](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml) -->
 <!-- badges: end -->
 
 The *FAVA* R package implements the statistic FAVA, an $F_{ST}$-based
