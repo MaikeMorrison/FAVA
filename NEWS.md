@@ -1,5 +1,3 @@
-# FAVA 1.0.3
-
 # FAVA 1.0.2
 
 * Reduced run times for the relab_phyloseq and bootstrap_fava examples. 

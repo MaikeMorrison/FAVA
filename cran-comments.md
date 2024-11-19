@@ -1,7 +1,7 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
-* Removed superfluous files to trim the size of the package. 
+* Updated the examples for the functions `relab_phyloseq` and `bootstrap_fava` so that they run more quickly. 
 
 
 ## R CMD check results
