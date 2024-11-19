@@ -249,14 +249,25 @@ test_that("bootstrapping works if groups are numeric", {
 
 
 test_abx_factor_space = test_abx_factor %>%
-  mutate(subject_space = paste0(subject, " x"), .before = timepoint)
+  mutate(subject_space = paste0(subject, " x"),
+         subject_minus = paste0("-", subject),
+         .before = timepoint)
 test_that("bootstrapping tolerates group names with spaces", {
   # no weights
   expect_no_error(bootstrap_fava(relab_matrix = test_abx_factor_space, n_replicates = 3,
                                  group = "subject_space",
                                  K = 524))
-  test = bootstrap_fava(relab_matrix = test_abx_factor_space, n_replicates = 3,
+  test_space = bootstrap_fava(relab_matrix = test_abx_factor_space, n_replicates = 3,
                         group = "subject_space",
                         K = 524)
-  expect_true(all(test$observed_difference$Comparison %in% test$bootstrap_difference$Comparison))
+  expect_true(all(test_space$observed_difference$Comparison %in% test_space$bootstrap_difference$Comparison))
+
+
+  expect_no_error(bootstrap_fava(relab_matrix = test_abx_factor_space, n_replicates = 3,
+                                 group = "subject_minus",
+                                 K = 524))
+  test_minus = bootstrap_fava(relab_matrix = test_abx_factor_space, n_replicates = 3,
+                        group = "subject_minus",
+                        K = 524)
+  expect_true(all(test_minus$observed_difference$Comparison %in% test_minus$bootstrap_difference$Comparison))
 })

@@ -200,7 +200,7 @@ bootstrap_fava <- function(relab_matrix,
     # 3 - bootstrap_difference
     bootstrap_difference = lapply(bootstrap_list, function(list) list$bootstrap_difference) %>%
       do.call(cbind, .) %>% t() %>%
-      data.frame() %>% mutate(.before = 1, Comparison=observed_difference$Comparison) %>%
+      data.frame() %>% dplyr::mutate(.before = 1, Comparison=observed_difference$Comparison) %>%
       tidyr::pivot_longer(cols = -1, names_to = "rep", values_to = "Difference")
     bootstrap_difference$Comparison = stringr::str_replace_all(bootstrap_difference$Comparison, '\\.\\.\\.', " -\n")
 
