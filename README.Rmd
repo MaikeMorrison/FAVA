@@ -19,10 +19,10 @@ knitr::opts_chunk$set(
 
 
 
-<!-- badges: start -->
+badges: start
 
-<!-- [![R-CMD-check](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml) -->
-<!-- badges: end -->
+[![R-CMD-check](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml)
+badges: end
 
 The _FAVA_ R package implements the statistic FAVA, an $F_{ST}$-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The _FAVA_ R package accompanies the paper, "Quantifying compositional variability in microbial communities with FAVA" by [Morrison et al. (2024)](https://doi.org/10.1101/2024.07.03.601929).
 
