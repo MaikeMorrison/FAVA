@@ -10,14 +10,90 @@
 # w = NULL
 # time = "timepoint"
 
-xue_microbiome_sample_low_dim = xue_microbiome_sample[,1:52]
-xue_microbiome_sample_low_dim[,3:52] =  xue_microbiome_sample[,3:52]/rowSums(xue_microbiome_sample[,3:52])
+
+library(dplyr)
+
+
+test_groups = xue_microbiome_sample %>%
+  mutate(Abx = ifelse(timepoint < 29, "Before", ifelse(timepoint > 34, "After", "During")),
+         .before = 1) %>% filter(Abx != "During")
+
+test_that("Bootstrapping yields correct values for observed FAVA difference",{
+  # group by subject (3 groups)
+  favals = fava(relab_matrix = xue_microbiome_sample, S = xue_species_similarity,
+                time = "timepoint", group = "subject")
+  bs_out = bootstrap_fava(relab_matrix = xue_microbiome_sample, S = xue_species_similarity,
+                          time = "timepoint", group = "subject",
+                          n_replicates = 3)
+
+  expect_true(all(round(bs_out$observed_difference$Difference, 5) ==
+                    round(as.numeric(dist(favals$FAVA)) * c(-1,1,1), 5)))
+
+  # group by Abx (2 groups)
+  favals = fava(relab_matrix = test_groups,
+                group = "Abx", K = 524)
+
+  bs_out = bootstrap_fava(relab_matrix = test_groups,
+                          group = "Abx", K = 524,
+                          n_replicates = 3)
+
+  expect_true(all(round(bs_out$observed_difference$Difference, 5) ==
+                    round(dist(favals$FAVA), 5)))
+
+})
+
+
+xue_microbiome_sample_low_dim = test_groups[,1:53]
+xue_microbiome_sample_low_dim[,4:53] =  test_groups[,4:53]/rowSums(test_groups[,4:53])
 
 test_that("bootstrapping catches mispecified data",{
-
+  # THREE GROUPS
   # S and data have different dimensions
-  expect_no_error(bootstrap_fava(relab_matrix = xue_microbiome_sample_low_dim, n_replicates = 3, group = "subject",
-                                 K = 50, S = xue_species_similarity))
+  expect_warning(bootstrap_fava(relab_matrix = xue_microbiome_sample_low_dim, n_replicates = 3, group = "subject",
+                                K = 50, S = xue_species_similarity))
+
+  # time and normalization provided
+  expect_error(bootstrap_fava(relab_matrix = test_groups, n_replicates = 3, group = "subject",
+                              K = 50, S = xue_species_similarity, time = "timepoint", normalized = TRUE))
+
+  # time and w provided
+  expect_error(bootstrap_fava(relab_matrix = test_groups, n_replicates = 3, group = "subject",
+                              K = 50, S = xue_species_similarity, time = "timepoint",
+                              w = time_weights(xue_microbiome_sample$timepoint, group = xue_microbiome_sample$subject)))
+
+  # normalization and w provided
+  expect_error(bootstrap_fava(relab_matrix = test_groups, n_replicates = 3, group = "subject",
+                              K = 50, S = xue_species_similarity, normalized = TRUE,
+                              w = time_weights(xue_microbiome_sample$timepoint, group = xue_microbiome_sample$subject)))
+
+  # TWO GROUPS
+  # S and data have different dimensions
+  expect_warning(bootstrap_fava(relab_matrix = xue_microbiome_sample_low_dim,
+                                group = "Abx", n_replicates = 3,
+                                K = 50, S = xue_species_similarity))
+
+  # time and normalization provided
+  expect_error(bootstrap_fava(relab_matrix = test_groups,
+                              group = "Abx", n_replicates = 3,
+                              K = 524, S = xue_species_similarity, time = "timepoint", normalized = TRUE))
+
+  # time and w provided
+  expect_error(bootstrap_fava(relab_matrix = test_groups,
+                              group = "Abx", n_replicates = 3,
+                              K = 524, S = xue_species_similarity, time = "timepoint",
+                              w = time_weights(xue_microbiome_sample$timepoint, group = xue_microbiome_sample$subject)))
+
+  # normalization and w provided
+  expect_error(bootstrap_fava(relab_matrix = test_groups,
+                              group = "Abx", n_replicates = 3,
+                              K = 524, S = xue_species_similarity, normalized = TRUE,
+                              w = time_weights(xue_microbiome_sample$timepoint, group = xue_microbiome_sample$subject)))
+
+  # ONE GROUP
+  expect_error(bootstrap_fava(relab_matrix = test_groups %>% dplyr::filter(Abx == "Before"),
+                              group = "Abx", n_replicates = 3,
+                              K = 524))
+
 })
 
 test_that("bootstrapping works for a matrix with one grouping var, multiple groups", {
@@ -42,7 +118,7 @@ test_that("bootstrapping works for a matrix with one grouping var, multiple grou
                                  K = 524, w = time_weights(times = xue_microbiome_sample$timepoint, group = xue_microbiome_sample$subject)))
   # CONFIRM TIME AND W IDENTICAL w same seed
   expect_identical(bootstrap_fava(relab_matrix = xue_microbiome_sample, n_replicates = 4, group = "subject",
-                                   K = 524, time = "timepoint", seed = 1)$P_values,
+                                  K = 524, time = "timepoint", seed = 1)$P_values,
                    bootstrap_fava(relab_matrix = xue_microbiome_sample, n_replicates = 4, group = "subject",
                                   K = 524, w = time_weights(times = xue_microbiome_sample$timepoint, group = xue_microbiome_sample$subject), seed = 1)$P_values)
   # SIMILARITY AND TIME
@@ -54,24 +130,24 @@ test_that("bootstrapping works for a matrix with one grouping var, multiple grou
                                  S = xue_species_similarity))
   # TIME AND W
   expect_error(bootstrap_fava(relab_matrix = xue_microbiome_sample, n_replicates = 3, group = "subject",
-                                 K = 524, w = time_weights(times = xue_microbiome_sample$timepoint, group = xue_microbiome_sample$subject),
-                                 time = "timepoint"))
+                              K = 524, w = time_weights(times = xue_microbiome_sample$timepoint, group = xue_microbiome_sample$subject),
+                              time = "timepoint"))
   # NORMALIZED
   expect_no_error(bootstrap_fava(relab_matrix = xue_microbiome_sample, n_replicates = 3, group = "subject",
                                  K = 524,
                                  normalized = TRUE))
   # NORMALIZED AND SIMILARITY
   expect_error(bootstrap_fava(relab_matrix = xue_microbiome_sample, n_replicates = 3, group = "subject",
-                                 K = 524, S = xue_species_similarity,
-                                 normalized = TRUE))
+                              K = 524, S = xue_species_similarity,
+                              normalized = TRUE))
   # NORMALIZED AND TIME
   expect_error(bootstrap_fava(relab_matrix = xue_microbiome_sample, n_replicates = 3, group = "subject",
                               K = 524,time = "timepoint",
                               normalized = TRUE))
   # NORMALIZED AND W
   expect_error(bootstrap_fava(relab_matrix = xue_microbiome_sample, n_replicates = 3, group = "subject",
-                                 K = 524, w = time_weights(times = xue_microbiome_sample$timepoint, group = xue_microbiome_sample$subject),
-                                 normalized = TRUE))
+                              K = 524, w = time_weights(times = xue_microbiome_sample$timepoint, group = xue_microbiome_sample$subject),
+                              normalized = TRUE))
 
 })
 
@@ -135,14 +211,9 @@ test_that("bootstrapping works for a matrix with one grouping var, two groups", 
 
 test_that("bootstrapping yields expected error for one matrix", {
   expect_error(bootstrap_fava(relab_matrix = dplyr::filter(xue_microbiome_sample, subject == "XBA"),
-                                 n_replicates = 3, K = 524, S = xue_species_similarity, group = "subject"))
+                              n_replicates = 3, K = 524, S = xue_species_similarity, group = "subject"))
 })
 
-
-library(dplyr)
-test_groups = xue_microbiome_sample %>%
-  mutate(Abx = ifelse(timepoint < 29, "Before", ifelse(timepoint > 34, "After", "During")),
-         .before = 1) %>% filter(Abx != "During")
 
 
 test_that("bootstrapping works for a matrix with two grouping vars, multiple groups", {
@@ -169,7 +240,9 @@ test_that("bootstrapping works for a matrix with two grouping vars, multiple gro
   expect_identical(bootstrap_fava(relab_matrix = test_groups, n_replicates = 4, group = c("subject", "Abx"),
                                   K = 524, time = "timepoint", seed = 1)$P_values,
                    bootstrap_fava(relab_matrix = test_groups, n_replicates = 4, group = c("subject", "Abx"),
-                                  K = 524, w = time_weights(times = test_groups$timepoint, group = paste0(test_groups$Abx, test_groups$subject)), seed = 1)$P_values)
+                                  K = 524, w = time_weights(times = test_groups$timepoint,
+                                                            group = paste0(test_groups$Abx, test_groups$subject)),
+                                  seed = 1)$P_values)
   # SIMILARITY AND TIME
   expect_no_error(bootstrap_fava(relab_matrix = test_groups, n_replicates = 3, group = c("subject", "Abx"),
                                  K = 524, time = "timepoint", S = xue_species_similarity))
@@ -268,8 +341,8 @@ test_that("bootstrapping tolerates group names with spaces", {
                                  group = "subject_space",
                                  K = 524))
   test_space = bootstrap_fava(relab_matrix = test_abx_factor_space, n_replicates = 3,
-                        group = "subject_space",
-                        K = 524)
+                              group = "subject_space",
+                              K = 524)
   expect_true(all(test_space$observed_difference$Comparison %in% test_space$bootstrap_difference$Comparison))
 
 
@@ -277,7 +350,7 @@ test_that("bootstrapping tolerates group names with spaces", {
                                  group = "subject_minus",
                                  K = 524))
   test_minus = bootstrap_fava(relab_matrix = test_abx_factor_space, n_replicates = 3,
-                        group = "subject_minus",
-                        K = 524)
+                              group = "subject_minus",
+                              K = 524)
   expect_true(all(test_minus$observed_difference$Comparison %in% test_minus$bootstrap_difference$Comparison))
 })
