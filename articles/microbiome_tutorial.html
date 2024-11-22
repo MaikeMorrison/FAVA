@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FAVA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,7 @@
                         <h4 data-toc-skip class="author">Maike
 Morrison</h4>
             
-            <h4 data-toc-skip class="date">November 19, 2024</h4>
+            <h4 data-toc-skip class="date">November 22, 2024</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/MaikeMorrison/FAVA/blob/master/vignettes/microbiome_tutorial.Rmd" class="external-link"><code>vignettes/microbiome_tutorial.Rmd</code></a></small>
       <div class="d-none name"><code>microbiome_tutorial.Rmd</code></div>
@@ -4965,17 +4965,15 @@ comparisons. In the below example, we generate 100 bootstrap replicates
 (<code>n_replicates = 100</code>) of the difference in FAVA values
 between each pair of subjects (<code>group = "subject"</code>) in our
 relative abundance matrix
-(<code>relab_matrix = xue_microbiome_sample</code>). We weight each FAVA
-computation by the sampling times (<code>time = "timepoint"</code>) and
-the species similarity (<code>S = xue_species_similarity</code>).
+(<code>relab_matrix = xue_microbiome_sample</code>). We recommend using
+500 or 1000 bootstrap replicates for a real analysis. We weight each
+FAVA computation by the sampling times (<code>time = "timepoint"</code>)
+and the species similarity (<code>S = xue_species_similarity</code>).
 Because bootstrapping is a random process, running the code multiple
 times would give slightly different results. Setting a random seed
-(<code>seed = 3</code>) makes this result repeatable. We specify
-<code>save_replicates = FALSE</code> so that <code>bootstrap_fava</code>
-does not save all 600 replicate matrices (100 per matrix in the 3 pairs
-of matrices being compared: XBA - XDA, XBA - XMA, and XDA - XMA), which
-would make the resulting object quite large. If you wish to perform a
-one-sided statistical test, you can specify
+(<code>seed = 3</code>) makes this result repeatable.
+<!-- We specify `save_replicates = FALSE` so that `bootstrap_fava` does not save all 600 replicate matrices (100 per matrix in the 3 pairs of matrices being compared: XBA - XDA, XBA - XMA, and XDA - XMA), which would make the resulting object quite large.  -->
+If you wish to perform a one-sided statistical test, you can specify
 <code>alternative = "lesser"</code> or
 <code>alternative = "greater"</code>; the default value is
 <code>alternative = "two.sided"</code>.</p>
@@ -4985,7 +4983,7 @@ one-sided statistical test, you can specify
 <span>                               seed <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>                               group <span class="op">=</span> <span class="st">"subject"</span>,</span>
 <span>                               K <span class="op">=</span> <span class="fl">524</span>,</span>
-<span>                               <span class="co"># time = "timepoint",</span></span>
+<span>                               time <span class="op">=</span> <span class="st">"timepoint"</span>,</span>
 <span>                               S <span class="op">=</span> <span class="va">xue_species_similarity</span><span class="op">)</span></span></code></pre></div>
 <p>The resulting list, which we have here named
 <code>bootstrap_out</code>, includes a matrix of p-values for each
@@ -5000,13 +4998,13 @@ dots) compared to the true difference (red dot).</p>
 <span><span class="co">#&gt;  $ bootstrap_distribution_plot:List of 11</span></span>
 <span><span class="co">#&gt;   ..- attr(*, "class")= chr [1:2] "gg" "ggplot"</span></span>
 <span><span class="co">#&gt;  $ observed_difference        :'data.frame': 3 obs. of  2 variables:</span></span>
-<span><span class="co">#&gt;  $ bootstrap_difference       : tibble [300 × 2] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ bootstrap_difference       : tibble [300 × 3] (S3: tbl_df/tbl/data.frame)</span></span>
 <span></span>
 <span><span class="va">bootstrap_out</span><span class="op">$</span><span class="va">P_values</span></span>
 <span><span class="co">#&gt;   Comparison P_value P_value_numeric</span></span>
-<span><span class="co">#&gt; 1  XBA - XDA     0.6            0.60</span></span>
-<span><span class="co">#&gt; 2  XBA - XMA    0.08            0.08</span></span>
-<span><span class="co">#&gt; 3  XDA - XMA   &lt;0.01            0.00</span></span></code></pre></div>
+<span><span class="co">#&gt; 1  XBA - XDA    0.56            0.56</span></span>
+<span><span class="co">#&gt; 2  XBA - XMA    0.14            0.14</span></span>
+<span><span class="co">#&gt; 3  XDA - XMA    0.04            0.04</span></span></code></pre></div>
 <p>Our bootstrap statistical test fails to find a significant difference
 between the FAVA values of subjects XBA and XDA (one-sided
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mn>0.6</mn></mrow><annotation encoding="application/x-tex">P=0.6</annotation></semantics></math>).
