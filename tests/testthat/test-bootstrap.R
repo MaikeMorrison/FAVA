@@ -273,6 +273,7 @@ test_that("bootstrapping works for a matrix with two grouping vars, multiple gro
 
 })
 
+
 test_abx_factor = test_groups %>% dplyr::mutate(Abx = as.factor(Abx),
                                                 subject = factor(subject, ordered = TRUE))
 
@@ -354,3 +355,5 @@ test_that("bootstrapping tolerates group names with spaces", {
                               K = 524)
   expect_true(all(test_minus$observed_difference$Comparison %in% test_minus$bootstrap_difference$Comparison))
 })
+=======
+

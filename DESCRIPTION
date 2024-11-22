@@ -20,7 +20,9 @@ Imports:
     ggplot2,
     rlang,
     tidyr,
-    stringr
+    tibble,
+    stringr,
+    utils
 Suggests: 
     knitr,
     patchwork (>= 1.2.0),
