@@ -10,13 +10,6 @@ process_relab <- function(relab_matrix,
   # To appease R cmd check
   grouping_var_multiple <- NULL
 
-  # Arrange data by time if not already
-  if(!is.null(time)){
-    if(!is.null(group)){
-      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[group[[1]]]], .data[[time]])
-    } else{
-      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[time]])
-    }}
 
   # Define K if not provided
   if(is.null(K)){
@@ -34,15 +27,18 @@ process_relab <- function(relab_matrix,
   if(length(group) > 1){
     relab_grouping_vars = dplyr::select(relab_matrix, dplyr::all_of(group))
 
-    relab_grouping_vars$grouping_var_multiple = apply(relab_grouping_vars, 1, paste, collapse = "_")
+    relab_grouping_vars$grouping_var_multiple = apply(relab_grouping_vars, 1,
+                                                      paste, collapse = "_")
 
     relab_matrix = dplyr::mutate(relab_matrix,
-                                 grouping_var_multiple = relab_grouping_vars$grouping_var_multiple,
+                                 grouping_var_multiple =
+                                   relab_grouping_vars$grouping_var_multiple,
                                  .before = 1)
 
     if(any(table(relab_matrix$grouping_var_multiple)<2)){
       ignore = names(which(table(relab_matrix$grouping_var_multiple)<2))
-      warning("Only analyzing combinations of grouping variables with at least two samples. Ignoring the following combinations of grouping variables: ", paste(ignore, collapse = "  "))
+      warning("Only analyzing combinations of grouping variables with at least two samples. Ignoring the following combinations of grouping variables: ",
+              paste(ignore, collapse = "  "))
       relab_matrix = dplyr::filter(relab_matrix,
                                    grouping_var_multiple %in%
                                      names(which(table(relab_matrix$grouping_var_multiple) >= 2)))
@@ -52,6 +48,32 @@ process_relab <- function(relab_matrix,
 
     multiple_groups = TRUE
   }
+
+  # Arrange data by group and time if not already
+  # Need to re-order w to match, if provided
+  if(!is.null(time)){
+    if(!is.null(group)){
+      relab_matrix$index = 1:nrow(relab_matrix)
+
+      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[group]], .data[[time]])
+
+      w = w[relab_matrix$index]
+      relab_matrix$index = NULL
+    } else{
+      relab_matrix$index = 1:nrow(relab_matrix)
+
+      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[time]])
+
+      w = w[relab_matrix$index]
+      relab_matrix$index = NULL
+    }}else if(!is.null(group)){
+      relab_matrix$index = 1:nrow(relab_matrix)
+
+      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[group]])
+
+      w = w[relab_matrix$index]
+      relab_matrix$index = NULL
+    }
 
   if(length(group) == 1){
     if(any(table(relab_matrix[[group]])<2)){
@@ -89,7 +111,7 @@ process_relab <- function(relab_matrix,
   S = as.matrix(S)
   S = S_checker(S = S, K = K, relab_matrix = relab_matrix)
 
-  if(!missing(w) & length(w) != nrow(relab_matrix)){
+  if(!is.null(w) & length(w) != nrow(relab_matrix)){
     stop("Length of w must equal number of rows of relab_matrix.")
   }
 
@@ -197,10 +219,10 @@ gini_simpson_mean <- function(relab_matrix,
                               w = NULL,
                               time = NULL,
                               group = NULL
-                    # K = ncol(relab_matrix),
-                    # w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
-                    # S = diag(ncol(relab_matrix))
-                    ){
+                              # K = ncol(relab_matrix),
+                              # w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                              # S = diag(ncol(relab_matrix))
+){
 
   process_out = process_relab(relab_matrix = relab_matrix, K = K, S = S, w = w, time = time, group = group)
 
@@ -322,10 +344,10 @@ gini_simpson_pooled <- function(relab_matrix,
                                 w = NULL,
                                 time = NULL,
                                 group = NULL
-                      # K = ncol(relab_matrix),
-                      # w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
-                      # S = diag(ncol(relab_matrix))
-                      ){
+                                # K = ncol(relab_matrix),
+                                # w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                                # S = diag(ncol(relab_matrix))
+){
 
   process_out = process_relab(relab_matrix = relab_matrix, K = K, S = S, w = w, time = time, group = group)
 
@@ -582,9 +604,9 @@ gini_simpson_fast <- function(q, S = diag(length(q)), K = length(q)){
 }
 
 gini_simpson_mean_fast <- function(relab_matrix,
-                              K = ncol(relab_matrix),
-                              w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
-                              S = diag(ncol(relab_matrix))){
+                                   K = ncol(relab_matrix),
+                                   w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                                   S = diag(ncol(relab_matrix))){
   I = nrow(relab_matrix)
 
   # Average Gini-Simpson index of each of the I subpopulations
@@ -593,9 +615,9 @@ gini_simpson_mean_fast <- function(relab_matrix,
 }
 
 gini_simpson_pooled_fast <- function(relab_matrix,
-                                K = ncol(relab_matrix),
-                                w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
-                                S = diag(ncol(relab_matrix))){
+                                     K = ncol(relab_matrix),
+                                     w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                                     S = diag(ncol(relab_matrix))){
 
   I = nrow(relab_matrix)
 

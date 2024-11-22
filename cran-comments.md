@@ -1,8 +1,7 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
-* Updated the examples for the functions `relab_phyloseq` and `bootstrap_fava` so that they run more quickly. 
-
+* Optimized the `bootstrap_fava` function for faster run times
 
 ## R CMD check results
 

@@ -1,6 +1,6 @@
 Package: FAVA
 Title: Quantify Compositional Variability Across Relative Abundance Vectors
-Version: 1.0.2
+Version: 1.0.4
 Authors@R: 
     person("Maike", "Morrison", , "maikem@stanford.edu", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0003-0430-1401"))

@@ -1,3 +1,13 @@
+# FAVA 1.0.4
+
+* Optimize bootstrap_fava for faster run time. 
+
+# FAVA 1.0.3
+
+* Update README formatting
+
+* Update examples to satisfy CRAN requirements 
+
 # FAVA 1.0.2
 
 * Reduced run times for the relab_phyloseq and bootstrap_fava examples. 

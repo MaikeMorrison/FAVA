@@ -19,8 +19,8 @@
 #' \item \code{p_values}: The probability of observing the observed difference in variability between each pair of groups if there were no difference between groups. Computed as the fraction of bootstrap differences greater than or equal to the observed difference. Depends on what \code{alternative} is specified ("greater", "lesser", or "two.sided").
 #' \item \code{bootstrap_distribution_plot}: The distribution of bootstrap replicate differences in each variability value. The observed differences are shown in red. The further the red points are from 0, the more significant the statistical difference between groups.
 #' \item \code{observed_stats}: The observed diversity statistics for the groups.
-#' \item \code{bootstrap_stats}: The bootstrap replicate diversity statistics for the groups.
-#' \item \code{bootstrap_replicates}: The bootstrap replicate matrices, reported only if  \code{save_replicates = TRUE}.}
+#' \item \code{bootstrap_stats}: The bootstrap replicate diversity statistics for the groups.}
+# #' \item \code{bootstrap_replicates}: The bootstrap replicate matrices, reported only if  \code{save_replicates = TRUE}.}
 #' @examples
 #' # Statistically compare values of FAVA between
 #' # subjects in the xue_microbiome_sample data:
@@ -54,6 +54,10 @@ bootstrap_fava <- function(relab_matrix,
   # To appease R cmd check
   P_value <- P_value_numeric <- Comparison <- Difference <- combn <- . <- NULL
 
+  if(normalized == TRUE && any(!sapply(list(time, w, S), is.null))){
+    stop("FAVA can be either normalized or weighted, but not both. Please specify `normalized = TRUE` if you wish to compute normalized FAVA OR provide the weighting parameters w or time and/or S.")
+  }
+
   if((!is.null(time)) && (!is.null(w))){
     stop("Please specify either time or w, but not both.")
   }
@@ -63,45 +67,78 @@ bootstrap_fava <- function(relab_matrix,
     set.seed(seed)
   }
 
-  # If multiple grouping variables are provided, make a new grouping column
-  multiple_groups = FALSE
-  if(length(group)>1){
-    multiple_groups = TRUE
-    relab_matrix = dplyr::mutate(relab_matrix,
-                                 group =  apply( relab_matrix[ , group ] , 1 , paste , collapse = "_" ),
-                                 .before = 1)
-    group_multiple = group
-    group = "group"
 
-    group_table = dplyr::distinct(dplyr::select(relab_matrix, dplyr::all_of(c("group", group_multiple))))
-
-    relab_matrix = relab_matrix %>%
-      dplyr::select(-dplyr::all_of(group_multiple))
+  # Convert all grouping variables to characters
+  # Numeric or factor groups cause problems
+  # Any numeric groups need to be renamed with a character in front
+  if(!is.null(group)){
+    if(any(sapply(relab_matrix[,group], is.numeric))){
+      numeric_groups = group[which(sapply(relab_matrix[,group], is.numeric))]
+      relab_matrix[,numeric_groups] = sapply(relab_matrix[numeric_groups],
+                                             function(col) paste0("group_", col))
+    }
+    # relab_matrix[,group] = type.convert(relab_matrix[,group], as.is = TRUE)
+    relab_matrix[,group] = sapply(relab_matrix[,group], as.character)
   }
+
+
+  process_out = process_relab(relab_matrix = relab_matrix, K = K, S = S,
+                              w = w, time = time, group = group)
+
+  K = process_out$K
+  S = process_out$S
+  w = process_out$w
+  time = process_out$time
+  group = process_out$group
+
+  w_default = process_out$w_default
+  multiple_groups = process_out$multiple_groups
+  relab_grouping_vars = process_out$relab_grouping_vars
+
+  relab_check_out = process_out$relab_matrix_clean
+
+  # If multiple grouping variables are provided, make a new grouping column
+  # multiple_groups = FALSE
+  # if(length(group)>1){
+  #   multiple_groups = TRUE
+  #   relab_matrix = dplyr::mutate(relab_matrix,
+  #                                group =  apply( relab_matrix[ , group ] , 1 ,
+  #                                                paste , collapse = "_" ),
+  #                                .before = 1)
+  #   group_multiple = group
+  #   group = "group"
+  #
+  #   group_table = dplyr::distinct(dplyr::select(relab_matrix, dplyr::all_of(c("group", group_multiple))))
+  #
+  #   relab_matrix = relab_matrix %>%
+  #     dplyr::select(-dplyr::all_of(group_multiple))
+  # }
 
   # Repeat rows if time or w are provided
   # relab_weighted = relab_sample_weighter(relab = relab_matrix, K = K, time = time, w = w, group = group)
 
-  relab_check_out = relab_checker(relab = relab_matrix, K = K, group = group, time = time)
+  #relab_checker(relab = relab_matrix, K = K, group = group, time = time)
 
   relab_clean = relab_check_out$relab_matrix
   groups = relab_check_out$group
   times = relab_check_out$time
-  K = ncol(relab_clean)
-  if(is.null(w) & !is.null(time)){
-    w = time_weights(times = times, group = groups)
-  }
+  # K = ncol(relab_clean)
+  # if(is.null(w) & !is.null(time)){
+  #   w = time_weights(times = times, group = groups)
+  # }
 
   # How many groups are there in the data? Do we need to do multiple pairwise comparisons?
   if(length(unique(groups)) < 2){
     stop(paste0("bootstrap_fava must be provided with multiple groups to compare. The grouping column '",
                 group,
                 "' contains only the following group: '",
-                groups, "'\n" ))
+                unique(groups), "'\n" ))
   }
+
   if(length(unique(groups)) == 2){
     bootstrap_list = pairwise_comparison(group_pair = unique(groups), relab_clean = relab_clean,
-                              n_replicates = n_replicates, groups = groups, K = K, S = S, w = w, normalized = normalized, alternative = alternative)
+                                         n_replicates = n_replicates, groups = groups, K = K, S = S, w = w,
+                                         normalized = normalized, alternative = alternative)
 
 
     p_values = data.frame(Comparison = bootstrap_list$comparison, P_value = bootstrap_list$P_value) %>%
@@ -117,7 +154,8 @@ bootstrap_fava <- function(relab_matrix,
     bootstrap_difference = data.frame(Comparison = bootstrap_list$comparison, Difference = bootstrap_list$bootstrap_difference)
 
     # 4 - bootstrap_plot
-    bootstrap_plot = ggplot2::ggplot(data = bootstrap_difference, mapping = ggplot2::aes(x = Comparison, y = Difference)) +
+    bootstrap_plot = ggplot2::ggplot(data = bootstrap_difference,
+                                     mapping = ggplot2::aes(x = Comparison, y = Difference)) +
       ggplot2::geom_violin(fill = "grey", color = NA, alpha = 0.6) +
       ggplot2::geom_boxplot(alpha = 0, width = 0.3) +
       ggplot2::geom_jitter(alpha = 0.3, width = 0.05, size = 2) +
@@ -151,7 +189,8 @@ bootstrap_fava <- function(relab_matrix,
       group_pair = group_pairs[pair,]
       # relab_pair = relab_matrix[relab_matrix[[group]] %in% group_pair, ]
 
-      bootstrap_list[[pair]] = pairwise_comparison(group_pair = group_pair, relab_clean = relab_clean, n_replicates = n_replicates,
+      bootstrap_list[[pair]] = pairwise_comparison(group_pair = group_pair, relab_clean = relab_clean,
+                                                   n_replicates = n_replicates,
                                                    groups = groups, K = K, S = S, w = w,
                                                    normalized = normalized, alternative = alternative)
 
@@ -168,9 +207,9 @@ bootstrap_fava <- function(relab_matrix,
       dplyr::mutate(P_value_numeric = as.numeric(P_value),
                     P_value = ifelse(P_value_numeric==0, paste0("<", 1/n_replicates), P_value_numeric))
 
-      # cbind(data.frame(t(combn(groups, 2))) %>% `colnames<-`(c("group_1", "group_2")),
-      #                lapply(bootstrap_list, function(list) list$P_values) %>%
-      #                  do.call(rbind, .))
+    # cbind(data.frame(t(combn(groups, 2))) %>% `colnames<-`(c("group_1", "group_2")),
+    #                lapply(bootstrap_list, function(list) list$P_values) %>%
+    #                  do.call(rbind, .))
 
     # # 2 - bootstrap_distribution_plot
     # bootstrap_distribution_plots = lapply(bootstrap_list, function(list)
@@ -186,9 +225,9 @@ bootstrap_fava <- function(relab_matrix,
 
     # 3 - bootstrap_difference
     bootstrap_difference = lapply(bootstrap_list, function(list) list$bootstrap_difference) %>%
-      do.call(cbind, .) %>% `colnames<-`(observed_difference$Comparison) %>%
-      data.frame() %>%
-      tidyr::pivot_longer(cols = dplyr::everything(), names_to = "Comparison", values_to = "Difference")
+      do.call(cbind, .) %>% t() %>%
+      data.frame() %>% dplyr::mutate(.before = 1, Comparison=observed_difference$Comparison) %>%
+      tidyr::pivot_longer(cols = -1, names_to = "rep", values_to = "Difference")
     bootstrap_difference$Comparison = stringr::str_replace_all(bootstrap_difference$Comparison, '\\.\\.\\.', " -\n")
 
     # if(multiple_groups){ bootstrap_difference = left_join(group_table, bootstrap_difference) }
@@ -253,7 +292,11 @@ pairwise_comparison <- function(group_pair,
     wA = w[groups == group_pair[[1]]]
     wB = w[groups == group_pair[[2]]]
     wPooled = c(wA, wB)
-  }else{wPooled = NULL; wA = NULL; wB = NULL}
+  }else{wPooled = rep(1/N, N); wA = rep(1/m, m); wB = rep(1/n, n)}
+
+  # if(is.null(S)){
+  #   S = diag(K)
+  # }
 
   # Generate bootstrap replicates of the pooled groups
   rep_list = list()
@@ -270,11 +313,19 @@ pairwise_comparison <- function(group_pair,
   bootstrap_stats = lapply(rep_list,
                            function(rep){
                              # Compute for A
-                             c(fava(relab_matrix = pooled[rep$A,], K = K, S = S, normalized = normalized,
-                                    w = `if`(is.null(NULL), NULL, wPooled[rep$A]/sum(wPooled[rep$A]))),
+                             c(fava_fast(relab_matrix = pooled[rep$A,],
+                                         K = K,
+                                         S = `if`(is.null(S), diag(K), S),
+                                         normalized = normalized,
+                                         w =  wPooled[rep$A]/sum(wPooled[rep$A])),
+                               #`if`(is.null(NULL), NULL, wPooled[rep$A]/sum(wPooled[rep$A]))),
                                # Compute for B
-                               fava(relab_matrix = pooled[rep$B,], K = K, S = S, normalized = normalized,
-                                    w = `if`(is.null(NULL), NULL, wPooled[rep$B]/sum(wPooled[rep$B]))))
+                               fava_fast(relab_matrix = pooled[rep$B,],
+                                         K = K,
+                                         S = `if`(is.null(S), diag(K), S),
+                                         normalized = normalized,
+                                         w = wPooled[rep$B]/sum(wPooled[rep$B])))
+                             #`if`(is.null(NULL), NULL, wPooled[rep$B]/sum(wPooled[rep$B]))))
                            }
 
   ) %>%
@@ -282,11 +333,15 @@ pairwise_comparison <- function(group_pair,
     `colnames<-`(group_pair) %>%
     data.frame()
 
-  bootstrap_stats$Difference = bootstrap_stats[,group_pair[[1]]] - bootstrap_stats[,group_pair[[2]]]
+  bootstrap_stats$Difference = bootstrap_stats[,1] - bootstrap_stats[,2]
 
   # Compute the difference between the two original populations
-  observed_difference = fava(relab_matrix = A, K = K, S = S, normalized = normalized, w = wA) -
-    fava(relab_matrix = B, K = K, S = S, normalized = normalized, w = wB)
+  observed_difference = fava_fast(relab_matrix = A, K = K,
+                                  S = `if`(is.null(S), diag(K), S),
+                                  normalized = normalized, w = wA) -
+    fava_fast(relab_matrix = B, K = K,
+              S = `if`(is.null(S), diag(K), S),
+              normalized = normalized, w = wB)
 
   diff_label = paste0( #"Difference (",
     group_pair[[1]], " - ", group_pair[[2]]#, ")"
@@ -333,9 +388,9 @@ pairwise_comparison <- function(group_pair,
   #   ggplot2::geom_vline(xintercept  = observed_difference, color = "red", linewidth = 2) +
   #   ggplot2::xlab(diff_label) +
   #   ggplot2::theme_bw() #+
-    # ggplot2::scale_x_discrete(labels = c("FAVA" = "Across-sample\nheterogeneity",
-    #                                      "gini_simpson_mean" = "Mean within-\nsample diversity",
-    #                                      "gini_simpson_pooled" =  "Diversity of\npooled samples"))
+  # ggplot2::scale_x_discrete(labels = c("FAVA" = "Across-sample\nheterogeneity",
+  #                                      "gini_simpson_mean" = "Mean within-\nsample diversity",
+  #                                      "gini_simpson_pooled" =  "Diversity of\npooled samples"))
   # plot
   # bootstrap_replicates = rep_list
 
@@ -358,11 +413,58 @@ pairwise_comparison <- function(group_pair,
               observed_difference = observed_difference,
               bootstrap_difference = bootstrap_stats$Difference
               # bootstrap_replicates = bootstrap_replicates
-              ))
+  ))
 }
 
 
+fava_fast <- function(relab_matrix,
+                      K = NULL,
+                      S = NULL,
+                      w = NULL,
+                      time = NULL,
+                      group = NULL,
+                      normalized = FALSE){
+  # To appease R CMD CHECK
+w_default <- multiple_groups <- relab_grouping_vars <- . <-  NULL
 
+  if(is.null(group)){
+    if(normalized){
+      fava_norm(relab_matrix = relab_matrix)
+    }else{
+      (gini_simpson_pooled_fast(relab_matrix, K, w, S) -
+         gini_simpson_mean_fast(relab_matrix, K, w, S))/
+        gini_simpson_pooled_fast(relab_matrix, K, w, S)
+    }} else{
+      fava_list = c()
+      for(subgroup in unique(relab_matrix$group)){
+
+        include = relab_matrix$group == subgroup
+
+        relab_sub = relab_matrix[include,]
+
+        if(w_default){
+          w_sub = w[names(w) == subgroup]
+        } else{
+          w_sub = w[include]
+        }
+
+        fava_list = c(fava_list,
+                      ifelse(normalized,
+                             fava_norm(relab_matrix = relab_sub),
+                             (gini_simpson_pooled_fast(relab_sub, K, w_sub, S) -
+                                gini_simpson_mean_fast(relab_sub, K, w_sub, S))/
+                               gini_simpson_pooled_fast(relab_sub, K, w_sub, S)))
+      }
+      fava_df = data.frame(unique(relab_matrix$group), fava_list)
+      colnames(fava_df) = c(group, "FAVA")
+      # names(fava_list) = unique(relab_matrix$group)
+
+      if(multiple_groups){
+        fava_df = dplyr::left_join(dplyr::distinct(relab_grouping_vars), fava_df)
+      }
+      return(fava_df)
+    }
+}
 
 
 
