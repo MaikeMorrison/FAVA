@@ -20,9 +20,8 @@ knitr::opts_chunk$set(
 
 
 <!-- badges: start -->
-
-<!-- [![R-CMD-check](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml) -->
-<!-- badges: end -->
+[![R-CMD-check](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/MaikeMorrison/FAVA/actions/workflows/R-CMD-check.yaml)
+<!-- badges: endrelab_matrix_clean -->
 
 The _FAVA_ R package implements the statistic FAVA, an $F_{ST}$-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The _FAVA_ R package accompanies the paper, "Quantifying compositional variability in microbial communities with FAVA" by [Morrison et al. (2024)](https://doi.org/10.1101/2024.07.03.601929).
 
@@ -39,14 +38,15 @@ The _FAVA_ R package includes the following core functions:
 
 ## Installation
 
-Install FAVA with:
 
-```{r, eval = FALSE}
-install.packages("FAVA")
-```
+<!-- Install FAVA with: -->
+
+<!-- ```{r, eval = FALSE} -->
+<!-- install.packages("FAVA") -->
+<!-- ``` -->
 
 
-You can install the development version of FAVA from [GitHub](https://github.com/MaikeMorrison/FAVA) with:
+FAVA will be available on CRAN soon. In the meantime, you can install the development version of FAVA from [GitHub](https://github.com/MaikeMorrison/FAVA) with:
 
 ```{r, eval = FALSE}
 # First, install devtools if you haven't already:

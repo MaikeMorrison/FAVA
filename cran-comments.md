@@ -1,7 +1,7 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
-* Removed superfluous files to trim the size of the package. 
+* Optimized the `fava_bootstrap` function for faster run times
 
 
 ## R CMD check results

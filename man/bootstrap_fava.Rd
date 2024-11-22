@@ -44,8 +44,7 @@ A named list containing the following entries:
 \item \code{p_values}: The probability of observing the observed difference in variability between each pair of groups if there were no difference between groups. Computed as the fraction of bootstrap differences greater than or equal to the observed difference. Depends on what \code{alternative} is specified ("greater", "lesser", or "two.sided").
 \item \code{bootstrap_distribution_plot}: The distribution of bootstrap replicate differences in each variability value. The observed differences are shown in red. The further the red points are from 0, the more significant the statistical difference between groups.
 \item \code{observed_stats}: The observed diversity statistics for the groups.
-\item \code{bootstrap_stats}: The bootstrap replicate diversity statistics for the groups.
-\item \code{bootstrap_replicates}: The bootstrap replicate matrices, reported only if  \code{save_replicates = TRUE}.}
+\item \code{bootstrap_stats}: The bootstrap replicate diversity statistics for the groups.}
 }
 \description{
 \code{bootstrap_fava} uses bootstrapping to statistically compare FAVA values between pairs of relative abundance matrices. \code{bootstrap_fava} takes the same options as \code{fava}, so, as with \code{fava}, you can separately analyze multiple populations or groups of samples (specify \code{group}), and account for similarity among categories (specify \code{S}) or uneven weighting of rows (specify \code{w} or \code{time}). \code{bootstrap_fava} follows the bootstrapping procedure defined by Efron and Tibshirani (1993). Details on the bootstrapping procedure are available in the Methods section of the accompanying paper.

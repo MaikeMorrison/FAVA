@@ -428,7 +428,9 @@ As an example, we will compare subject XDA, who has $n=24$ samples, to subject X
 
 6. Compare the true difference in FAVA values between XDA and XMA to the distribution of bootstrapped differences. The fraction of bootstrap replicate differences whose absolute values are greater than the absolute value of the true value is the two-sided P-value for our statistical test. One-sided tests could be performed by computing the fraction of differences greater or less than the true value. 
 
-This procedure is implemented in the function `bootstrap_fava`, which can conduct many pairwise comparisons. In the below example, we generate 100 bootstrap replicates  (`n_replicates = 100`) of the difference in FAVA values between each pair of subjects (`group = "subject"`) in our relative abundance matrix (`relab_matrix = xue_microbiome_sample`). We weight each FAVA computation by the sampling times (`time = "timepoint"`) and the species similarity (`S = xue_species_similarity`). Because bootstrapping is a random process, running the code multiple times would give slightly different results. Setting a random seed (`seed = 3`) makes this result repeatable. We specify `save_replicates = FALSE` so that `bootstrap_fava` does not save all 600 replicate matrices (100 per matrix in the 3 pairs of matrices being compared: XBA - XDA, XBA - XMA, and XDA - XMA), which would make the resulting object quite large. If you wish to perform a one-sided statistical test, you can specify `alternative = "lesser"` or `alternative = "greater"`; the default value is `alternative = "two.sided"`.
+This procedure is implemented in the function `bootstrap_fava`, which can conduct many pairwise comparisons. In the below example, we generate 100 bootstrap replicates  (`n_replicates = 100`) of the difference in FAVA values between each pair of subjects (`group = "subject"`) in our relative abundance matrix (`relab_matrix = xue_microbiome_sample`). We recommend using 500 or 1000 bootstrap replicates for a real analysis. We weight each FAVA computation by the sampling times (`time = "timepoint"`) and the species similarity (`S = xue_species_similarity`). Because bootstrapping is a random process, running the code multiple times would give slightly different results. Setting a random seed (`seed = 3`) makes this result repeatable. 
+<!-- We specify `save_replicates = FALSE` so that `bootstrap_fava` does not save all 600 replicate matrices (100 per matrix in the 3 pairs of matrices being compared: XBA - XDA, XBA - XMA, and XDA - XMA), which would make the resulting object quite large.  -->
+If you wish to perform a one-sided statistical test, you can specify `alternative = "lesser"` or `alternative = "greater"`; the default value is `alternative = "two.sided"`.
 
 ```{r}
 bootstrap_out = bootstrap_fava(relab_matrix = xue_microbiome_sample,
@@ -436,7 +438,7 @@ bootstrap_out = bootstrap_fava(relab_matrix = xue_microbiome_sample,
                                seed = 3,
                                group = "subject",
                                K = 524,
-                               # time = "timepoint",
+                               time = "timepoint",
                                S = xue_species_similarity)
 ```
 
