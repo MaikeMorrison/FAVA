@@ -19,8 +19,8 @@
 #' \item \code{p_values}: The probability of observing the observed difference in variability between each pair of groups if there were no difference between groups. Computed as the fraction of bootstrap differences greater than or equal to the observed difference. Depends on what \code{alternative} is specified ("greater", "lesser", or "two.sided").
 #' \item \code{bootstrap_distribution_plot}: The distribution of bootstrap replicate differences in each variability value. The observed differences are shown in red. The further the red points are from 0, the more significant the statistical difference between groups.
 #' \item \code{observed_stats}: The observed diversity statistics for the groups.
-#' \item \code{bootstrap_stats}: The bootstrap replicate diversity statistics for the groups.
-#' \item \code{bootstrap_replicates}: The bootstrap replicate matrices, reported only if  \code{save_replicates = TRUE}.}
+#' \item \code{bootstrap_stats}: The bootstrap replicate diversity statistics for the groups.}
+# #' \item \code{bootstrap_replicates}: The bootstrap replicate matrices, reported only if  \code{save_replicates = TRUE}.}
 #' @examples
 #' # Statistically compare values of FAVA between
 #' # subjects in the xue_microbiome_sample data:
