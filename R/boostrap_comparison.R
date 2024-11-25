@@ -67,6 +67,7 @@ bootstrap_fava <- function(relab_matrix,
     set.seed(seed)
   }
 
+
   # Convert all grouping variables to characters
   # Numeric or factor groups cause problems
   # Any numeric groups need to be renamed with a character in front

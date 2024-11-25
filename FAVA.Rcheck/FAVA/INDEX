@@ -1,0 +1,30 @@
+bootstrap_fava          Statistically compare FAVA values between pairs
+                        of relative abundance matrices.
+fava                    Compute the Fst of a matrix of compositional
+                        vectors
+fava_norm               Compute the normalized Fst of a matrix of
+                        compositional vectors
+gini_simpson            Compute the Gini-Simpson index of a
+                        compositional vector
+gini_simpson_mean       Compute the mean Gini-Simpson index of the rows
+                        in a matrix of compositional vectors
+gini_simpson_pooled     Compute the pooled Gini-Simpson index of the
+                        rows in a matrix of compositional vectors
+plot_relabund           Visualize a relative abundance matrix as a
+                        stacked bar plot.
+relab_phyloseq          Generate a relative abundance matrix with
+                        sample meta data and OTU abundances from a
+                        phyloseq object.
+time_weights            Compute a normalized weighting vector based on
+                        a vector of sampling times.
+window_fava             Compute FAVA in sliding windows.
+window_list             Generate sliding windows of specified length
+                        given the maximum number of samples
+window_plot             Generate a plot of FAVA in sliding windows.
+xue_microbiome_sample   Temporal microbiome composition data
+xue_species_info        Table of species information
+xue_species_similarity
+                        Species similarity matrix for the species
+                        included in xue_microbiome_sample
+xue_species_tree        Phylogenetic tree for the species included in
+                        xue_microbiome_sample

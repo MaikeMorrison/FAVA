@@ -1,8 +1,7 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
-* Optimized the `fava_bootstrap` function for faster run times
-
+* Optimized the `bootstrap_fava` function for faster run times
 
 ## R CMD check results
 
