@@ -60,9 +60,11 @@ Morrison, Alcala, and Rosenberg (2020) <a href="https://doi.org/10.1111/1755-099
 
 
 <dl><dt id="arg-relab-matrix">relab_matrix<a class="anchor" aria-label="anchor" href="#arg-relab-matrix"></a></dt>
-<dd><p>A matrix with <code>I=nrow(relab_matrix)</code> rows, each containing <code>K=ncol(relab_matrix)</code> non-negative entries that sum to 1.
-If <code>relab_matrix</code> contains any metadata, it must be on the left-hand side of the matrix and the number of entries
-that sum to 1 (<code>K</code>) must be specified.</p></dd>
+<dd><p>A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
+If <code>relab_matrix</code> contains any metadata, it must be on the left-hand side of the matrix,
+the right <code>K</code> entries of each row must sum to 1, and <code>K</code> must be specified. Otherwise, all entries of
+each row must sum to 1.</p></dd>
 
 
 <dt id="arg-k">K<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>

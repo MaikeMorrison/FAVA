@@ -60,7 +60,7 @@
                         <h4 data-toc-skip class="author">Maike
 Morrison</h4>
             
-            <h4 data-toc-skip class="date">November 25, 2024</h4>
+            <h4 data-toc-skip class="date">November 26, 2024</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/MaikeMorrison/FAVA/blob/master/vignettes/microbiome_tutorial.Rmd" class="external-link"><code>vignettes/microbiome_tutorial.Rmd</code></a></small>
       <div class="d-none name"><code>microbiome_tutorial.Rmd</code></div>
@@ -82,10 +82,11 @@ Morrison</h4>
 Assessment of Variability across vectors of relative Abundances, as well
 as a suite of helper functions which enable the visualization and
 statistical analysis of relative abundance data. The <em>FAVA</em> R
-package package accompanies the paper, “FAVA: a tool to quantify
-compositional variability in microbial communities” by Morrison et
-al. This tutorial provides a guide to the usage of the <em>FAVA</em> R
-package for the analysis of microbiome data.</p>
+package accompanies the paper, <a href="https://www.biorxiv.org/content/10.1101/2024.07.03.601929v1" class="external-link">“Quantifying
+compositional variability in microbial communities with FAVA”</a> by
+Maike Morrison, Katherine Xue, and Noah Rosenberg. This tutorial
+provides a guide to the usage of the <em>FAVA</em> R package for the
+analysis of microbiome data.</p>
 <p>The <em>FAVA</em> R package includes the following core
 functions:</p>
 <ul>
@@ -104,12 +105,10 @@ relative abundance matrix in a single index that ranges from 0 to 1. For
 typical microbiome data, the rows of each matrix represent microbiome
 samples and the entries of each row represent the relative abundance of
 a taxonomic category (e.g., OTU, species, or genus) or a functional
-category (e.g., gene family or enzyme abundance). Such matrices are
-often referred to as “OTU tables.” Taxonomic categories are usually
-inferred from 16S or metagenomic sequencing data, while functional
-categories are usually inferred from metagenomic sequencing data. You
-must obtain these relative abundances from your sequencing data before
-using the R package <em>FAVA</em>.</p>
+category (e.g., CAZyme or gene ortholog). Such matrices are often
+referred to as “OTU tables,” and are usually inferred from 16S or
+metagenomic sequencing data. You must obtain these relative abundances
+from your sequencing data before using the R package <em>FAVA</em>.</p>
 <p>FAVA can be used to quantify variability in many different contexts.
 For example,</p>
 <ul>
@@ -128,12 +127,12 @@ inter-individual variability in microbiome composition.</p></li>
 </h3>
 <p>In this tutorial, we will explain the data required to use the
 <em>FAVA</em> R package (<a href="#data-specifications">Data
-specifications</a>). We will then analyze example data from Xue et
-al. (<a href="#example-analysis">Example Analysis</a>). With this data
-set and the <em>FAVA</em> R package, we visualize the microbiome
-composition of three subjects over time, use FAVA to quantify the
-temporal variability across these microbiome samples, and explore these
-dynamics at a finer resolution using sliding windows over time.</p>
+specifications</a>). We will then analyze example data from <a href="https://doi.org/10.1101/2023.09.26.559480" class="external-link">Xue et al. (2024)</a>
+(<a href="#example-analysis">Example Analysis</a>). With this data set
+and the <em>FAVA</em> R package, we visualize the microbiome composition
+of three subjects over time, use FAVA to quantify the temporal
+variability across these microbiome samples, and explore these dynamics
+at a finer resolution using sliding windows over time.</p>
 </div>
 </div>
 <div class="section level2">
@@ -142,14 +141,15 @@ dynamics at a finer resolution using sliding windows over time.</p>
 <p>To use <em>FAVA</em>, your data must be in the form of a matrix, data
 frame, or tibble with rows corresponding to samples and columns
 corresponding to categories such as bacterial species. If metadata
-(e.g. sample ID, time point, subject, experimental condition, replicate,
-etc.) are included, these columns must be on the left-hand side of the
-matrix, while the categories comprising the composition of the sample
-(e.g., bacterial species) must be on the right-hand side of the matrix.
-If your matrix contains metadata, you must specify <code>K</code>, the
-number of categories. While these categories can represent many things,
-we will for simplicity use “species” in this document to refer to the
-categories comprising each relative abundance sample.</p>
+(e.g., sample ID, time point, subject, experimental condition,
+replicate, etc.) are included, these columns must be on the left-hand
+side of the matrix, while the categories comprising the composition of
+the sample (e.g., bacterial species) must be on the right-hand side of
+the matrix. If your matrix contains metadata, you must specify
+<code>K</code>, the number of categories. While these categories can
+represent many things, we will for simplicity use “species” in this
+document to refer to the categories comprising each relative abundance
+sample.</p>
 <p>Your matrix may contain samples from multiple groups you would like
 to analyze separately. In this case, you must provide the name of the
 column specifying the group each sample belongs to as the
@@ -285,11 +285,12 @@ possibly a species similarity matrix as well, it’s time to use
 </h2>
 <p>As a guide for the application of <em>FAVA</em> to microbiome data,
 we demonstrate each of the package’s core functions using example data
-generated by Xue et al. (2024). This data set contains time series
-microbiome samples from three human subjects who each took an antibiotic
-midway through the study period (<a href="#example-data">0 - Example
-data</a>). We first visualize the composition of these subject’s
-microbiome communities over time (<a href="#visualize-relative-abundances">1 - Visualize relative
+generated by <a href="https://doi.org/10.1101/2023.09.26.559480" class="external-link">Xue et
+al. (2024)</a>. This data set contains time series microbiome samples
+from three human subjects who each took an antibiotic midway through the
+study period (<a href="#example-data">0 - Example data</a>). We first
+visualize the composition of these subject’s microbiome communities over
+time (<a href="#visualize-relative-abundances">1 - Visualize relative
 abundances</a>). For each subject, we next compute the total variability
 across the study period (<a href="#compute-unweighted-fava">2 - Compute
 unweighted FAVA</a> and <a href="#compute-weighted-fava">3 - Compute
@@ -302,16 +303,17 @@ analysis (<a href="#sliding-windows">5 - Sliding windows</a>).</p>
 <h3 id="example-data">0 - Example data<a class="anchor" aria-label="anchor" href="#example-data"></a>
 </h3>
 <p>In this tutorial, we analyze longitudinal microbiome composition data
-generated by Xue et al. (2024), data that is also analyzed in the paper
-by Morrison et al. For example analyses, a subset of this data is
-provided under the name <code>xue_microbiome_sample</code> in the
-<em>FAVA</em> R package. <code>xue_microbiome_sample</code> contains the
-relative abundances of bacterial species in samples from three subjects:
-XBA, XDA, and XMA. Each subject collected weekly samples for four weeks
-before and after a three week window of daily sampling, the middle of
-which contained a one-week antibiotic course (depicted below; dots
-correspond to sampling days, yellow dots correspond to sampling days
-coinciding with the antibiotic).
+generated by <a href="https://doi.org/10.1101/2023.09.26.559480" class="external-link">Xue et
+al. (2024)</a>, data that is also analyzed in the paper by Morrison et
+al. For example analyses, a subset of this data is provided under the
+name <code>xue_microbiome_sample</code> in the <em>FAVA</em> R package.
+<code>xue_microbiome_sample</code> contains the relative abundances of
+bacterial species in samples from three subjects: XBA, XDA, and XMA.
+Each subject collected weekly samples for four weeks before and after a
+three week window of daily sampling, the middle of which contained a
+one-week antibiotic course (depicted below; dots correspond to sampling
+days, yellow dots correspond to sampling days coinciding with the
+antibiotic).
 <img src="microbiome_tutorial_files/figure-html/unnamed-chunk-5-1.png" width="768"></p>
 <p>Each row of <code>xue_microbiome_sample</code> represents a single
 microbiome sample. <code>xue_microbiome_sample</code> has 526
@@ -4332,7 +4334,7 @@ in a single plot.</p>
 <p><img src="microbiome_tutorial_files/figure-html/unnamed-chunk-12-1.png" width="768"></p>
 <p>In the above plots, we have specified
 <code>arrange = "vertical"</code>, which vertically arranges species
-from bottom to top in order of decreasing abundance. Specifying
+from bottom to top in order of decreasing overall abundance. Specifying
 <code>arrange="horizontal"</code> horizontally arranges samples from
 left to right in order of increasing abundance of the most abundant
 species. Specifying <code>arrange=TRUE</code> or
@@ -4363,8 +4365,8 @@ addition to relative abundances, the number of species, <code>K</code>,
 must also be specified. If the matrix contains multiple groups we wish
 to separately analyze, we must also specify the name of the matrix
 column specifying group membership using the <code>group</code>
-parameter. In our example, this column is called “subject”. The code
-below computes FAVA across all samples from each subject.</p>
+parameter. In our example, this column is called <code>"subject"</code>.
+The code below computes FAVA across all samples from each subject.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fava.html">fava</a></span><span class="op">(</span>relab_matrix <span class="op">=</span> <span class="va">xue_microbiome_sample</span>,</span>
 <span>     group <span class="op">=</span> <span class="st">"subject"</span>,</span>
