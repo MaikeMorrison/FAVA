@@ -18,15 +18,14 @@ URL: https://maikemorrison.github.io/FAVA/,
         https://maikemorrison.github.io/FAVA/articles/microbiome_tutorial.html
 BugReports: https://github.com/MaikeMorrison/FAVA/issues
 Imports: dplyr, ggplot2, rlang, tidyr, stringr
-Suggests: knitr, patchwork (>= 1.2.0), rmarkdown, viridis, kableExtra,
-        purrr, ape, gridExtra, phyloseq, testthat (>= 3.0.0)
+Suggests: patchwork (>= 1.2.0), rmarkdown, viridis, kableExtra, purrr,
+        ape, gridExtra, phyloseq, testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: R (>= 2.10)
 LazyData: true
-VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2024-11-26 05:50:57 UTC; Maike
+Packaged: 2024-11-26 14:45:34 UTC; Maike
 Author: Maike Morrison [aut, cre, cph]
     (<https://orcid.org/0000-0003-0430-1401>)
 Maintainer: Maike Morrison <maikem@stanford.edu>
-Built: R 4.2.1; ; 2024-11-26 05:51:32 UTC; windows
+Built: R 4.2.1; ; 2024-11-26 14:46:13 UTC; windows

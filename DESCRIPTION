@@ -22,7 +22,6 @@ Imports:
     tidyr,
     stringr
 Suggests: 
-    knitr,
     patchwork (>= 1.2.0),
     rmarkdown,
     viridis,
@@ -36,4 +35,3 @@ Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
 LazyData: true
-VignetteBuilder: knitr
