@@ -19,7 +19,7 @@ window_fava(
 )
 }
 \arguments{
-\item{relab_matrix}{matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+\item{relab_matrix}{A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
 a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
 If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
 the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
@@ -47,10 +47,10 @@ each row must sum to 1.}
 lines plotted. Default is \code{alpha = 0.5}.}
 }
 \value{
-A list of values of fava for each window.
+A list of values of FAVA for each window.
 }
 \description{
-This function computes FAVA in sliding window slices of a data set.
+This function computes FAVA in sliding window slices of a dataset.
 }
 \examples{
 A = matrix(c(.3,.7,0,.1,0,.9,.2,.5,.3,.1,.8,.1,.3,.4,.3,.6,.4,0,0,.5,.5),

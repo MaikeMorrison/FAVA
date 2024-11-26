@@ -7,7 +7,7 @@
 \format{
 \subsection{\code{xue_species_similarity}}{
 
-A dataframe with 524 rows and 524 columns, each corresponding to one species.
+A data frame with 524 rows and 524 columns, each corresponding to one species.
 }
 }
 \usage{

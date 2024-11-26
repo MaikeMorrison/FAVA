@@ -13,7 +13,7 @@ gini_simpson_pooled     Compute the pooled Gini-Simpson index of the
 plot_relabund           Visualize a relative abundance matrix as a
                         stacked bar plot.
 relab_phyloseq          Generate a relative abundance matrix with
-                        sample meta data and OTU abundances from a
+                        sample metadata and OTU abundances from a
                         phyloseq object.
 time_weights            Compute a normalized weighting vector based on
                         a vector of sampling times.

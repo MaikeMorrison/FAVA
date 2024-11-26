@@ -30,9 +30,9 @@ window_list <- function(window_size, length, window_step = 1){
 # window_fava -----------------------------------------------------------------
 #' Compute FAVA in sliding windows.
 #'
-#' This function computes FAVA in sliding window slices of a data set.
+#' This function computes FAVA in sliding window slices of a dataset.
 #'
-#' @param relab_matrix  matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+#' @param relab_matrix A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
 #' a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
 #' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
 #' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
@@ -48,7 +48,7 @@ window_list <- function(window_size, length, window_step = 1){
 #' @param normalized Optional; should normalized FAVA be used? Default is \code{normalized = FALSE}; use \code{normalized = TRUE} to compute normalized FAVA. FAVA can only be normalized if it is not weighted.
 #' @param alpha Optional; number between 0 and 1 specifying the opacity of the horizontal
 #' lines plotted. Default is \code{alpha = 0.5}.
-#' @returns A list of values of fava for each window.
+#' @returns A list of values of FAVA for each window.
 #' @importFrom dplyr %>%
 #' @examples
 #' A = matrix(c(.3,.7,0,.1,0,.9,.2,.5,.3,.1,.8,.1,.3,.4,.3,.6,.4,0,0,.5,.5),
@@ -161,7 +161,7 @@ return(list(window_data = window_data,
 # To appease R command check
 utils::globalVariables(c("generic_index", "original_index", "window_number"))
 
-# helper function: compute fava for given windows on a full data set
+# helper function: compute FAVA for given windows on a full dataset
 window_fava_sub = function(relab_matrix, window_indices, window_size,
                            time = NULL, w = NULL,
                            K = NULL, S = NULL, group = NULL,

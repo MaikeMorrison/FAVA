@@ -37,7 +37,7 @@ library(patchwork)
 
 # Introduction
 
-The _FAVA_ R package implements the statistic FAVA, an $F_{ST}$-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The _FAVA_ R package package accompanies the paper, "FAVA: a tool to quantify compositional variability in microbial communities" by Morrison et al. This tutorial provides a guide to the usage of the _FAVA_ R package for the analysis of microbiome data.
+The _FAVA_ R package implements the statistic FAVA, an $F_{ST}$-based Assessment of Variability across vectors of relative Abundances, as well as a suite of helper functions which enable the visualization and statistical analysis of relative abundance data. The _FAVA_ R package accompanies the paper, ["Quantifying compositional variability in microbial communities with FAVA"](https://www.biorxiv.org/content/10.1101/2024.07.03.601929v1) by Maike Morrison, Katherine Xue, and Noah Rosenberg. This tutorial provides a guide to the usage of the _FAVA_ R package for the analysis of microbiome data.
 
 The _FAVA_ R package includes the following core functions:
 
@@ -49,7 +49,7 @@ The _FAVA_ R package includes the following core functions:
 
 * `window_fava`: Compute FAVA in sliding windows across the rows of a relative abundance matrix
 
-The statistic FAVA summarizes the variability across the rows of a relative abundance matrix in a single index that ranges from 0 to 1. For typical microbiome data, the rows of each matrix represent microbiome samples and the entries of each row represent the relative abundance of a taxonomic category (e.g., OTU, species, or genus) or a functional category (e.g., gene family or enzyme abundance). Such matrices are often referred to as "OTU tables." Taxonomic categories are usually inferred from 16S or metagenomic sequencing data, while functional categories are usually inferred from metagenomic sequencing data. You must obtain these relative abundances from your sequencing data before using the R package _FAVA_.
+The statistic FAVA summarizes the variability across the rows of a relative abundance matrix in a single index that ranges from 0 to 1. For typical microbiome data, the rows of each matrix represent microbiome samples and the entries of each row represent the relative abundance of a taxonomic category (e.g., OTU, species, or genus) or a functional category (e.g., CAZyme or gene ortholog). Such matrices are often referred to as "OTU tables," and are usually inferred from 16S or metagenomic sequencing data. You must obtain these relative abundances from your sequencing data before using the R package _FAVA_.
 
 FAVA can be used to quantify variability in many different contexts. For example,
 
@@ -63,11 +63,11 @@ FAVA can be used to quantify variability in many different contexts. For example
 
 ## Overview
 
-In this tutorial, we will explain the data required to use the _FAVA_ R package ([Data specifications]). We will then analyze example data from Xue et al. ([Example Analysis]). With this data set and the _FAVA_ R package, we visualize the microbiome composition of three subjects over time, use FAVA to quantify the temporal variability across these microbiome samples, and explore these dynamics at a finer resolution using sliding windows over time.
+In this tutorial, we will explain the data required to use the _FAVA_ R package ([Data specifications]). We will then analyze example data from [Xue et al. (2024)](https://doi.org/10.1101/2023.09.26.559480) ([Example Analysis]). With this data set and the _FAVA_ R package, we visualize the microbiome composition of three subjects over time, use FAVA to quantify the temporal variability across these microbiome samples, and explore these dynamics at a finer resolution using sliding windows over time.
 
 # Data specifications
 
-To use _FAVA_, your data must be in the form of a matrix, data frame, or tibble with rows corresponding to samples and columns corresponding to categories such as bacterial species. If metadata (e.g. sample ID, time point, subject, experimental condition, replicate, etc.) are included, these columns must be on the left-hand side of the matrix, while the categories comprising the composition of the sample (e.g., bacterial species) must be on the right-hand side of the matrix. If your matrix contains metadata, you must specify `K`, the number of categories. While these categories can represent many things, we will for simplicity use "species" in this document to refer to the categories comprising each relative abundance sample.
+To use _FAVA_, your data must be in the form of a matrix, data frame, or tibble with rows corresponding to samples and columns corresponding to categories such as bacterial species. If metadata (e.g., sample ID, time point, subject, experimental condition, replicate, etc.) are included, these columns must be on the left-hand side of the matrix, while the categories comprising the composition of the sample (e.g., bacterial species) must be on the right-hand side of the matrix. If your matrix contains metadata, you must specify `K`, the number of categories. While these categories can represent many things, we will for simplicity use "species" in this document to refer to the categories comprising each relative abundance sample.
 
 Your matrix may contain samples from multiple groups you would like to analyze separately. In this case, you must provide the name of the column specifying the group each sample belongs to as the `group` parameter. For example, to quantify variability across all samples from each experiment in the matrix pictured below, we would specify `group = "Experiment"`. You can also group by multiple columns by providing a vector of column names. For example, if your data had columns `var1` and `var2` you wished to group by, you would specify `group = c("var1", "var2")`. See the section [Compute unweighted FAVA with multiple groups] for details.
 
@@ -148,12 +148,12 @@ Having generated a properly formatted relative abundance matrix, and possibly a 
 
 # Example analysis
 
-As a guide for the application of _FAVA_ to microbiome data, we demonstrate each of the package's core functions using example data generated by Xue et al. (2024). This data set contains time series microbiome samples from three human subjects who each took an antibiotic midway through the study period ([0 - Example data]). We first visualize the composition of these subject's microbiome communities over time ([1 - Visualize relative abundances]). For each subject, we next compute the total variability across the study period ([2 - Compute unweighted FAVA] and [3 - Compute weighted FAVA]). We also estimate the uncertainty in these variability measures, which allows us to perform statistical comparisons of each subject's temporal microbiome variability ([4 - Bootstrapping]). Finally, we explore how compositional variability changes over time using a sliding window analysis ([5 - Sliding windows]).
+As a guide for the application of _FAVA_ to microbiome data, we demonstrate each of the package's core functions using example data generated by [Xue et al. (2024)](https://doi.org/10.1101/2023.09.26.559480). This data set contains time series microbiome samples from three human subjects who each took an antibiotic midway through the study period ([0 - Example data]). We first visualize the composition of these subject's microbiome communities over time ([1 - Visualize relative abundances]). For each subject, we next compute the total variability across the study period ([2 - Compute unweighted FAVA] and [3 - Compute weighted FAVA]). We also estimate the uncertainty in these variability measures, which allows us to perform statistical comparisons of each subject's temporal microbiome variability ([4 - Bootstrapping]). Finally, we explore how compositional variability changes over time using a sliding window analysis ([5 - Sliding windows]).
 
 
 ## 0 - Example data
 
-In this tutorial, we analyze longitudinal microbiome composition data generated by Xue et al. (2024), data that is also analyzed in the paper by Morrison et al. For example analyses, a subset of this data is provided under the name `xue_microbiome_sample` in the _FAVA_ R package. `xue_microbiome_sample` contains the relative abundances of bacterial species in samples from three subjects: XBA, XDA, and XMA. Each subject collected weekly samples for four weeks before and after a three week window of daily sampling, the middle of which contained a one-week antibiotic course (depicted below; dots correspond to sampling days, yellow dots correspond to sampling days coinciding with the antibiotic).
+In this tutorial, we analyze longitudinal microbiome composition data generated by [Xue et al. (2024)](https://doi.org/10.1101/2023.09.26.559480), data that is also analyzed in the paper by Morrison et al. For example analyses, a subset of this data is provided under the name `xue_microbiome_sample` in the _FAVA_ R package. `xue_microbiome_sample` contains the relative abundances of bacterial species in samples from three subjects: XBA, XDA, and XMA. Each subject collected weekly samples for four weeks before and after a three week window of daily sampling, the middle of which contained a one-week antibiotic course (depicted below; dots correspond to sampling days, yellow dots correspond to sampling days coinciding with the antibiotic).
 ```{r,, echo = FALSE, fig.height=1}
 timeline_data = data.frame(Day = c(1,8,15,22:40, 43, 50, 57, 64)) %>%
   mutate("Day type" = ifelse(Day >28 & Day < 35, "Antiobitic", "Regular"))
@@ -274,7 +274,7 @@ plot_relabund(xue_microbiome_sample,
   ggplot2::scale_fill_manual(values = species_palette)
 ```
 
-In the above plots, we have specified `arrange = "vertical"`, which vertically arranges species from bottom to top in order of decreasing abundance. Specifying `arrange="horizontal"` horizontally arranges samples from left to right in order of increasing abundance of the most abundant species. Specifying `arrange=TRUE` or `arrange="both"` results in a plot with both types of ordering. `arrange="both"` is a useful option for highlighting patterns when the horizontal ordering of your samples does not correspond to a meaningful property of the data, such as sampling time.
+In the above plots, we have specified `arrange = "vertical"`, which vertically arranges species from bottom to top in order of decreasing overall abundance. Specifying `arrange="horizontal"` horizontally arranges samples from left to right in order of increasing abundance of the most abundant species. Specifying `arrange=TRUE` or `arrange="both"` results in a plot with both types of ordering. `arrange="both"` is a useful option for highlighting patterns when the horizontal ordering of your samples does not correspond to a meaningful property of the data, such as sampling time.
 ```{r}
 plot_relabund(xue_microbiome_sample,
               arrange = "both",
@@ -285,7 +285,7 @@ plot_relabund(xue_microbiome_sample,
 
 ## 2 - Compute unweighted FAVA
 
-The primary goal of the _FAVA_ R package is to compute the statistic FAVA, a measure of the variability across many relative abundance vectors, introduced in the paper Morrison et al. This statistic is computed using the function `fava`, which takes a relative abundance matrix (`relab_matrix`) and computes the variability across all the rows at once, returning a single index between 0 and 1. If the relative abundance matrix contains metadata in addition to relative abundances, the number of species, `K`, must also be specified. If the matrix contains multiple groups we wish to separately analyze, we must also specify the name of the matrix column specifying group membership using the `group` parameter. In our example, this column is called "subject". The code below computes FAVA across all samples from each subject.
+The primary goal of the _FAVA_ R package is to compute the statistic FAVA, a measure of the variability across many relative abundance vectors, introduced in the paper Morrison et al. This statistic is computed using the function `fava`, which takes a relative abundance matrix (`relab_matrix`) and computes the variability across all the rows at once, returning a single index between 0 and 1. If the relative abundance matrix contains metadata in addition to relative abundances, the number of species, `K`, must also be specified. If the matrix contains multiple groups we wish to separately analyze, we must also specify the name of the matrix column specifying group membership using the `group` parameter. In our example, this column is called `"subject"`. The code below computes FAVA across all samples from each subject.
 ```{r}
 fava(relab_matrix = xue_microbiome_sample,
      group = "subject",
@@ -428,7 +428,9 @@ As an example, we will compare subject XDA, who has $n=24$ samples, to subject X
 
 6. Compare the true difference in FAVA values between XDA and XMA to the distribution of bootstrapped differences. The fraction of bootstrap replicate differences whose absolute values are greater than the absolute value of the true value is the two-sided P-value for our statistical test. One-sided tests could be performed by computing the fraction of differences greater or less than the true value. 
 
-This procedure is implemented in the function `bootstrap_fava`, which can conduct many pairwise comparisons. In the below example, we generate 100 bootstrap replicates  (`n_replicates = 100`) of the difference in FAVA values between each pair of subjects (`group = "subject"`) in our relative abundance matrix (`relab_matrix = xue_microbiome_sample`). We weight each FAVA computation by the sampling times (`time = "timepoint"`) and the species similarity (`S = xue_species_similarity`). Because bootstrapping is a random process, running the code multiple times would give slightly different results. Setting a random seed (`seed = 3`) makes this result repeatable. We specify `save_replicates = FALSE` so that `bootstrap_fava` does not save all 600 replicate matrices (100 per matrix in the 3 pairs of matrices being compared: XBA - XDA, XBA - XMA, and XDA - XMA), which would make the resulting object quite large. If you wish to perform a one-sided statistical test, you can specify `alternative = "lesser"` or `alternative = "greater"`; the default value is `alternative = "two.sided"`.
+This procedure is implemented in the function `bootstrap_fava`, which can conduct many pairwise comparisons. In the below example, we generate 100 bootstrap replicates  (`n_replicates = 100`) of the difference in FAVA values between each pair of subjects (`group = "subject"`) in our relative abundance matrix (`relab_matrix = xue_microbiome_sample`). We recommend using 500 or 1000 bootstrap replicates for a real analysis. We weight each FAVA computation by the sampling times (`time = "timepoint"`) and the species similarity (`S = xue_species_similarity`). Because bootstrapping is a random process, running the code multiple times would give slightly different results. Setting a random seed (`seed = 3`) makes this result repeatable. 
+<!-- We specify `save_replicates = FALSE` so that `bootstrap_fava` does not save all 600 replicate matrices (100 per matrix in the 3 pairs of matrices being compared: XBA - XDA, XBA - XMA, and XDA - XMA), which would make the resulting object quite large.  -->
+If you wish to perform a one-sided statistical test, you can specify `alternative = "lesser"` or `alternative = "greater"`; the default value is `alternative = "two.sided"`.
 
 ```{r}
 bootstrap_out = bootstrap_fava(relab_matrix = xue_microbiome_sample,
@@ -436,7 +438,7 @@ bootstrap_out = bootstrap_fava(relab_matrix = xue_microbiome_sample,
                                seed = 3,
                                group = "subject",
                                K = 524,
-                               # time = "timepoint",
+                               time = "timepoint",
                                S = xue_species_similarity)
 ```
 

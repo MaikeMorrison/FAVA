@@ -8,9 +8,11 @@
 #' ggplot object, its output can be modified using
 #' standard ggplot2 syntax.
 #'
-#' @param relab_matrix A matrix with \code{I=nrow(relab_matrix)} rows, each containing \code{K=ncol(relab_matrix)} non-negative entries that sum to 1.
-#' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix and the number of entries
-#' that sum to 1 (\code{K}) must be specified.
+#' @param relab_matrix A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+#' a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
+#' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
+#' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
+#' each row must sum to 1.
 #' @param group Optional; a string specifying the name of the column that describes which group each row (sample) belongs to. Use if \code{matrices} is a single matrix containing multiple groups of samples you wish to compare.
 #' @param time Optional; a string specifying the name of the column that describes the sampling time for each row. Include if you wish to weight FAVA by the distance between samples.
 #' @param w Optional; a vector of length \code{I} with non-negative entries that sum to 1. Entry \code{w[i]} represents the weight placed on row \code{i} in the computation of the mean abundance of each category across rows. The default value is \code{w = rep(1/nrow(relab_matrix), nrow(relab_matrix))}.
