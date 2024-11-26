@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.10) (preloaded format=pdflatex 2024.11.15)  25 NOV 2024 21:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.10) (preloaded format=pdflatex 2024.11.15)  25 NOV 2024 21:54
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**C:/Users/Maike/AppData/Local/Temp/RtmpENuwc2/Rd2pdf14101f4f4fc7/Rd2.tex
-(C:/Users/Maike/AppData/Local/Temp/RtmpENuwc2/Rd2pdf14101f4f4fc7/Rd2.tex
+**C:/Users/Maike/AppData/Local/Temp/RtmpsTVx9r/Rd2pdf60ec419066b8/Rd2.tex
+(C:/Users/Maike/AppData/Local/Temp/RtmpsTVx9r/Rd2pdf60ec419066b8/Rd2.tex
 LaTeX2e <2022-06-01> patch level 5
 L3 programming layer <2022-09-28>
 (C:\Users\Maike\AppData\Local\Programs\MiKTeX\tex/latex/base\book.cls
@@ -338,7 +338,7 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 31.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <5> on input line 31.
-LaTeX Font Info:    Trying to load font information for T1+phv on input line 47
+LaTeX Font Info:    Trying to load font information for T1+phv on input line 46
 .
 
 (C:\Users\Maike\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\t1phv.fd
@@ -352,93 +352,93 @@ File: t1phv.fd 2020/03/25 scalable font definitions for T1/phv.
 \openout5 = `Rd2.toc'.
 
 
-Overfull \hbox (2.71797pt too wide) in paragraph at lines 76--77
+Overfull \hbox (2.71797pt too wide) in paragraph at lines 75--76
 []\T1/ptm/m/n/10 The num-ber of boot-strap repli-cate ma-tri-ces to gen-er-ate.
  De-fault is []\T1/zi4/m/n/10 n_replicates
  []
 
 [2]
-Overfull \hbox (44.27902pt too wide) in paragraph at lines 84--85
+Overfull \hbox (44.27902pt too wide) in paragraph at lines 83--84
 \T1/ptm/m/n/10 dance of each cat-e-gory across rows. The de-fault value is []\T
 1/zi4/m/n/10 w = rep(1/nrow(relab_matrix),
  []
 
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 1
-00.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 9
+9.
 (C:\Users\Maike\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 9.0pt on input line 109.
+(Font)              scaled to size 9.0pt on input line 108.
 
 [3]
-Overfull \hbox (0.73488pt too wide) in paragraph at lines 123--123
+Overfull \hbox (0.73488pt too wide) in paragraph at lines 122--122
  [] \T1/zi4/m/n/9 # Plots of the bootstrap distributions of differences in FAVA
  between each pair of matrices,[] 
  []
 
 
-Overfull \hbox (44.27902pt too wide) in paragraph at lines 161--162
+Overfull \hbox (44.27902pt too wide) in paragraph at lines 160--161
 \T1/ptm/m/n/10 dance of each cat-e-gory across rows. The de-fault value is []\T
 1/zi4/m/n/10 w = rep(1/nrow(relab_matrix),
  []
 
 [4]
-Overfull \hbox (6.13835pt too wide) in paragraph at lines 165--166
+Overfull \hbox (6.13835pt too wide) in paragraph at lines 164--165
 \T1/ptm/m/n/10 that de-scribes which group(s) each row (sam-ple) be-longs to. U
 se if []\T1/zi4/m/n/10 relab_matrix
  []
 
 [5] [6] [7]
-Overfull \hbox (44.27902pt too wide) in paragraph at lines 325--326
+Overfull \hbox (44.27902pt too wide) in paragraph at lines 324--325
 \T1/ptm/m/n/10 dance of each cat-e-gory across rows. The de-fault value is []\T
 1/zi4/m/n/10 w = rep(1/nrow(relab_matrix),
  []
 
 
-Overfull \hbox (6.13835pt too wide) in paragraph at lines 329--330
+Overfull \hbox (6.13835pt too wide) in paragraph at lines 328--329
 \T1/ptm/m/n/10 that de-scribes which group(s) each row (sam-ple) be-longs to. U
 se if []\T1/zi4/m/n/10 relab_matrix
  []
 
 [8]
-Overfull \hbox (22.35841pt too wide) in paragraph at lines 379--380
+Overfull \hbox (22.35841pt too wide) in paragraph at lines 378--379
 []\T1/ptm/m/n/10 This func-tion com-putes the Gini-Simpson in-dex of a "pooled"
  vec-tor equal to []\T1/zi4/m/n/10 colMeans(relab_matrix)[]\T1/ptm/m/n/10 .
  []
 
 
-Overfull \hbox (44.27902pt too wide) in paragraph at lines 407--408
+Overfull \hbox (44.27902pt too wide) in paragraph at lines 406--407
 \T1/ptm/m/n/10 dance of each cat-e-gory across rows. The de-fault value is []\T
 1/zi4/m/n/10 w = rep(1/nrow(relab_matrix),
  []
 
 [9]
-Overfull \hbox (6.13835pt too wide) in paragraph at lines 411--412
+Overfull \hbox (6.13835pt too wide) in paragraph at lines 410--411
 \T1/ptm/m/n/10 that de-scribes which group(s) each row (sam-ple) be-longs to. U
 se if []\T1/zi4/m/n/10 relab_matrix
  []
 
 [10]
-Overfull \hbox (44.27902pt too wide) in paragraph at lines 495--496
+Overfull \hbox (44.27902pt too wide) in paragraph at lines 494--495
 \T1/ptm/m/n/10 dance of each cat-e-gory across rows. The de-fault value is []\T
 1/zi4/m/n/10 w = rep(1/nrow(relab_matrix),
  []
 
 [11] [12]
-Overfull \hbox (0.75328pt too wide) in paragraph at lines 581--581
+Overfull \hbox (0.75328pt too wide) in paragraph at lines 580--580
  [] \T1/zi4/m/n/9 plot_relabund(relab_matrix = populations_AB, group = "populat
 ion", arrange = "horizontal")[] 
  []
 
 [13] [14]
-Overfull \hbox (44.27902pt too wide) in paragraph at lines 712--713
+Overfull \hbox (44.27902pt too wide) in paragraph at lines 711--712
 \T1/ptm/m/n/10 dance of each cat-e-gory across rows. The de-fault value is []\T
 1/zi4/m/n/10 w = rep(1/nrow(relab_matrix),
  []
 
 [15] [16] [17]
-Underfull \hbox (badness 10000) in paragraph at lines 871--871
+Underfull \hbox (badness 10000) in paragraph at lines 870--870
 []\T1/ptm/m/it/10 Species sim-i-lar-ity ma-trix for the species in-cluded in
  []
 
@@ -472,9 +472,9 @@ Users/Maike/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/
 Users/Maike/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/
 Users/Maike/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/
 Users/Maike/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (20 pages, 215822 bytes).
+Output written on Rd2.pdf (20 pages, 215639 bytes).
 PDF statistics:
- 384 PDF objects out of 1000 (max. 8388607)
+ 383 PDF objects out of 1000 (max. 8388607)
  128 named destinations out of 1000 (max. 500000)
  137 words of extra memory for PDF output out of 10000 (max. 10000000)
 

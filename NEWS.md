@@ -2,6 +2,10 @@
 
 * Optimize bootstrap_fava for faster run time. 
 
+* Fix typos in documentation. 
+
+* Remove tutorial from R package for smaller file size. 
+
 # FAVA 1.0.3
 
 * Update README formatting

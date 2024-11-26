@@ -132,4 +132,4 @@ Joining, by = "generic_index"
 > 
 > proc.time()
    user  system elapsed 
-  36.28    2.14   86.90 
+  26.43    2.71   74.86 

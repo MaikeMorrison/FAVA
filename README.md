@@ -33,13 +33,13 @@ The *FAVA* R package includes the following core functions:
 
 ## Installation
 
-<!-- Install FAVA with: -->
-<!-- ```{r, eval = FALSE} -->
-<!-- install.packages("FAVA") -->
-<!-- ``` -->
+Install FAVA with:
 
-FAVA will be available on CRAN soon. In the meantime, you can install
-the development version of FAVA from
+``` r
+install.packages("FAVA")
+```
+
+You can install the development version of FAVA from
 [GitHub](https://github.com/MaikeMorrison/FAVA) with:
 
 ``` r
@@ -61,9 +61,4 @@ The package website,
 contains documentation and examples for all package functions. It also
 contains a tutorial on the usage of *FAVA* for the analysis of
 microbiome data. The tutorial vignette is available at [this
-link](https://maikemorrison.github.io/FAVA/articles/microbiome_tutorial.html)
-or via the following code after package installation.
-
-``` r
-vignette("microbiome_tutorial", package = "FAVA")
-```
+link](https://maikemorrison.github.io/FAVA/articles/microbiome_tutorial.html).

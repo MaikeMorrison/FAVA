@@ -39,14 +39,14 @@ The _FAVA_ R package includes the following core functions:
 ## Installation
 
 
-<!-- Install FAVA with: -->
+Install FAVA with:
 
-<!-- ```{r, eval = FALSE} -->
-<!-- install.packages("FAVA") -->
-<!-- ``` -->
+```{r, eval = FALSE}
+install.packages("FAVA")
+```
 
 
-FAVA will be available on CRAN soon. In the meantime, you can install the development version of FAVA from [GitHub](https://github.com/MaikeMorrison/FAVA) with:
+You can install the development version of FAVA from [GitHub](https://github.com/MaikeMorrison/FAVA) with:
 
 ```{r, eval = FALSE}
 # First, install devtools if you haven't already:
@@ -62,10 +62,5 @@ devtools::install_github("MaikeMorrison/FAVA", build_vignettes = TRUE)
 
 ## Tutorial
 
-The package website, [maikemorrison.github.io/FAVA/](https://maikemorrison.github.io/FAVA/), contains documentation and examples for all package functions. It also contains a tutorial on the usage of _FAVA_ for the analysis of microbiome data. The tutorial vignette is available at [this link](https://maikemorrison.github.io/FAVA/articles/microbiome_tutorial.html) or via the following code after package installation. 
-
-```{r, eval = FALSE}
-vignette("microbiome_tutorial", package = "FAVA")
-```
-
+The package website, [maikemorrison.github.io/FAVA/](https://maikemorrison.github.io/FAVA/), contains documentation and examples for all package functions. It also contains a tutorial on the usage of _FAVA_ for the analysis of microbiome data. The tutorial vignette is available at [this link](https://maikemorrison.github.io/FAVA/articles/microbiome_tutorial.html).
 

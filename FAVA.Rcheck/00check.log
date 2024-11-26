@@ -45,22 +45,10 @@
 * checking data for non-ASCII characters ... OK
 * checking LazyData ... OK
 * checking data for ASCII and uncompressed saves ... OK
-* checking files in 'vignettes' ... WARNING
-Files in the 'vignettes' directory but no files in 'inst/doc':
-  'microbiome_tutorial.Rmd'
 * checking examples ... OK
 * checking for unstated dependencies in 'tests' ... OK
 * checking tests ... OK
   Running 'testthat.R'
-* checking for unstated dependencies in vignettes ... OK
-* checking package vignettes in 'inst/doc' ... WARNING
-Directory 'inst/doc' does not exist.
-Package vignette without corresponding single PDF/HTML:
-   'microbiome_tutorial.Rmd'
-
-* checking running R code from vignettes ... NONE
-  'microbiome_tutorial.Rmd' using 'UTF-8'... OK
-* checking re-building of vignette outputs ... OK
 * checking PDF version of manual ... OK
 * DONE
-Status: 2 WARNINGs
+Status: OK
