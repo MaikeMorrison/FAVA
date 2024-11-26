@@ -10,13 +10,6 @@ process_relab <- function(relab_matrix,
   # To appease R cmd check
   grouping_var_multiple <- NULL
 
-  # Arrange data by time if not already
-  if(!is.null(time)){
-    if(!is.null(group)){
-      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[group[[1]]]], .data[[time]])
-    } else{
-      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[time]])
-    }}
 
   # Define K if not provided
   if(is.null(K)){
@@ -34,15 +27,18 @@ process_relab <- function(relab_matrix,
   if(length(group) > 1){
     relab_grouping_vars = dplyr::select(relab_matrix, dplyr::all_of(group))
 
-    relab_grouping_vars$grouping_var_multiple = apply(relab_grouping_vars, 1, paste, collapse = "_")
+    relab_grouping_vars$grouping_var_multiple = apply(relab_grouping_vars, 1,
+                                                      paste, collapse = "_")
 
     relab_matrix = dplyr::mutate(relab_matrix,
-                                 grouping_var_multiple = relab_grouping_vars$grouping_var_multiple,
+                                 grouping_var_multiple =
+                                   relab_grouping_vars$grouping_var_multiple,
                                  .before = 1)
 
     if(any(table(relab_matrix$grouping_var_multiple)<2)){
       ignore = names(which(table(relab_matrix$grouping_var_multiple)<2))
-      warning("Only analyzing combinations of grouping variables with at least two samples. Ignoring the following combinations of grouping variables: ", paste(ignore, collapse = "  "))
+      warning("Only analyzing combinations of grouping variables with at least two samples. Ignoring the following combinations of grouping variables: ",
+              paste(ignore, collapse = "  "))
       relab_matrix = dplyr::filter(relab_matrix,
                                    grouping_var_multiple %in%
                                      names(which(table(relab_matrix$grouping_var_multiple) >= 2)))
@@ -52,6 +48,32 @@ process_relab <- function(relab_matrix,
 
     multiple_groups = TRUE
   }
+
+  # Arrange data by group and time if not already
+  # Need to re-order w to match, if provided
+  if(!is.null(time)){
+    if(!is.null(group)){
+      relab_matrix$index = 1:nrow(relab_matrix)
+
+      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[group]], .data[[time]])
+
+      w = w[relab_matrix$index]
+      relab_matrix$index = NULL
+    } else{
+      relab_matrix$index = 1:nrow(relab_matrix)
+
+      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[time]])
+
+      w = w[relab_matrix$index]
+      relab_matrix$index = NULL
+    }}else if(!is.null(group)){
+      relab_matrix$index = 1:nrow(relab_matrix)
+
+      relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[group]])
+
+      w = w[relab_matrix$index]
+      relab_matrix$index = NULL
+    }
 
   if(length(group) == 1){
     if(any(table(relab_matrix[[group]])<2)){
@@ -89,7 +111,7 @@ process_relab <- function(relab_matrix,
   S = as.matrix(S)
   S = S_checker(S = S, K = K, relab_matrix = relab_matrix)
 
-  if(!missing(w) & length(w) != nrow(relab_matrix)){
+  if(!is.null(w) & length(w) != nrow(relab_matrix)){
     stop("Length of w must equal number of rows of relab_matrix.")
   }
 
@@ -110,7 +132,7 @@ process_relab <- function(relab_matrix,
 # gini_simpson -----------------------------------------------------------------
 #' Compute the Gini-Simpson index of a compositional vector
 #'
-#' This function computes the Gini-Simpson index, a statistical measure of variability also known as the Gini-Simpson index, of vector of non-negative entries which sum to 1. The function returns a number between 0 and 1 which quantifies the variability of the vector. Values of 0 are achieved when the vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when the vector is equal to (1/K, 1/K, ..., 1/K).
+#' This function computes the Gini-Simpson index, a statistical measure of variability known in population genetics as heterozygosity, of avector of non-negative entries which sum to 1. The function returns a number between 0 and 1 which quantifies the variability of the vector. Values of 0 are achieved when the vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when the vector is equal to (1/K, 1/K, ..., 1/K).
 #'
 #' @param q A vector with \code{K=length(q)} non-negative entries that sum to 1.
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=length(q)}.
@@ -142,7 +164,7 @@ gini_simpson <- function(q, K = length(q), S = diag(K)){
 # gini_simpson_mean -----------------------------------------------------------------
 #' Compute the mean Gini-Simpson index of the rows in a matrix of compositional vectors
 #'
-#' This function computes the mean Gini-Simpson index, a statistical measure of variability also known as the Gini-Simpson index, of a set of vectors of non-negative entries which sum to 1. The function returns a number between 0 and 1 which quantifies the mean variability of the vectors. Values of 0 are achieved when each vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when the vectors are equal to (1/K, 1/K, ..., 1/K).
+#' This function computes the mean Gini-Simpson index, a statistical measure of variability known in population genetics as heterozygosity, of a set of vectors of non-negative entries which sum to 1. The function returns a number between 0 and 1 which quantifies the mean variability of the vectors. Values of 0 are achieved when each vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when the vectors are equal to (1/K, 1/K, ..., 1/K).
 #'
 #' @param relab_matrix A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
 #' a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
@@ -197,10 +219,10 @@ gini_simpson_mean <- function(relab_matrix,
                               w = NULL,
                               time = NULL,
                               group = NULL
-                    # K = ncol(relab_matrix),
-                    # w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
-                    # S = diag(ncol(relab_matrix))
-                    ){
+                              # K = ncol(relab_matrix),
+                              # w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                              # S = diag(ncol(relab_matrix))
+){
 
   process_out = process_relab(relab_matrix = relab_matrix, K = K, S = S, w = w, time = time, group = group)
 
@@ -322,10 +344,10 @@ gini_simpson_pooled <- function(relab_matrix,
                                 w = NULL,
                                 time = NULL,
                                 group = NULL
-                      # K = ncol(relab_matrix),
-                      # w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
-                      # S = diag(ncol(relab_matrix))
-                      ){
+                                # K = ncol(relab_matrix),
+                                # w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                                # S = diag(ncol(relab_matrix))
+){
 
   process_out = process_relab(relab_matrix = relab_matrix, K = K, S = S, w = w, time = time, group = group)
 
@@ -405,9 +427,11 @@ gini_simpson_pooled <- function(relab_matrix,
 #' We employ the normalization employed in the [FSTruct package](https://github.com/MaikeMorrison/FSTruct) by
 #' Morrison, Alcala, and Rosenberg (2020) \doi{doi:10.1111/1755-0998.13647}.
 #'
-#' @param relab_matrix A matrix with \code{I=nrow(relab_matrix)} rows, each containing \code{K=ncol(relab_matrix)} non-negative entries that sum to 1.
-#' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix and the number of entries
-#' that sum to 1 (\code{K}) must be specified.
+#' @param relab_matrix A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
+#' a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
+#' If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix,
+#' the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of
+#' each row must sum to 1.
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.
 #' @returns A numeric value between 0 and 1.
 #' @examples
@@ -456,7 +480,7 @@ fava_norm <- function(relab_matrix, K = ncol(relab_matrix)){
 # fava -----------------------------------------------------------------
 #' Compute the Fst of a matrix of compositional vectors
 #'
-#' This function computes the population genetic statistic Fst on any matrix with rows that sum to 1. Values of 0 are achieved when each row is a permutation of (1,0,..., 0) and at least two categories have non-zero abundance across all rows. The value equals 1 when each row is identical.
+#' This function computes the population-genetic statistic Fst on any matrix with rows that sum to 1. Values of 0 are achieved when each row is a permutation of (1,0,..., 0) and at least two categories have non-zero abundance across all rows. The value equals 1 when each row is identical.
 #'
 #' @param relab_matrix A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents
 #' a sample, each column represents a category, and each entry represents the abundance of that category in the sample.
@@ -582,9 +606,9 @@ gini_simpson_fast <- function(q, S = diag(length(q)), K = length(q)){
 }
 
 gini_simpson_mean_fast <- function(relab_matrix,
-                              K = ncol(relab_matrix),
-                              w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
-                              S = diag(ncol(relab_matrix))){
+                                   K = ncol(relab_matrix),
+                                   w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                                   S = diag(ncol(relab_matrix))){
   I = nrow(relab_matrix)
 
   # Average Gini-Simpson index of each of the I subpopulations
@@ -593,9 +617,9 @@ gini_simpson_mean_fast <- function(relab_matrix,
 }
 
 gini_simpson_pooled_fast <- function(relab_matrix,
-                                K = ncol(relab_matrix),
-                                w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
-                                S = diag(ncol(relab_matrix))){
+                                     K = ncol(relab_matrix),
+                                     w = rep(1/nrow(relab_matrix), nrow(relab_matrix)),
+                                     S = diag(ncol(relab_matrix))){
 
   I = nrow(relab_matrix)
 

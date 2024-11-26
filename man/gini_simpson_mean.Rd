@@ -34,7 +34,7 @@ each row must sum to 1.}
 A numeric value between 0 and 1.
 }
 \description{
-This function computes the mean Gini-Simpson index, a statistical measure of variability also known as the Gini-Simpson index, of a set of vectors of non-negative entries which sum to 1. The function returns a number between 0 and 1 which quantifies the mean variability of the vectors. Values of 0 are achieved when each vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when the vectors are equal to (1/K, 1/K, ..., 1/K).
+This function computes the mean Gini-Simpson index, a statistical measure of variability known in population genetics as heterozygosity, of a set of vectors of non-negative entries which sum to 1. The function returns a number between 0 and 1 which quantifies the mean variability of the vectors. Values of 0 are achieved when each vector is a permutation of (1,0,..., 0). The value approaches 1 as the number of categories K increases when the vectors are equal to (1/K, 1/K, ..., 1/K).
 }
 \examples{
 # To compute the mean Gini-Simpson index of

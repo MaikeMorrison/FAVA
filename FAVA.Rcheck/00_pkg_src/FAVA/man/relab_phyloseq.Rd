@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{relab_phyloseq}
 \alias{relab_phyloseq}
-\title{Generate a relative abundance matrix with sample meta data and OTU abundances from a  phyloseq object.}
+\title{Generate a relative abundance matrix with sample metadata and OTU abundances from a  phyloseq object.}
 \usage{
 relab_phyloseq(phyloseq_object)
 }
@@ -15,13 +15,17 @@ OTU abundances are automatically normalized so that they sum to 1 for each sampl
 renormalization was necessary.
 }
 \description{
-The R package phyloseq streamlines the storage and analysis of microbiome sequence data. This function takes a phyloseq object and extracts the OTU table and the sample meta data and combines them into one relative abundance matrix with rows corresponding to samples, meta data on the left-hand side, and OTU relative abundances on the right-hand side.
+The R package phyloseq streamlines the storage and analysis of microbiome sequence data. This function takes a phyloseq object and extracts the OTU table and the sample metadata and combines them into one relative abundance matrix with rows corresponding to samples, metadata on the left-hand side, and OTU relative abundances on the right-hand side.
 }
 \examples{
 if (requireNamespace("phyloseq", quietly = TRUE)) {
   data(GlobalPatterns, package = "phyloseq")
-  phyloseq_subset = phyloseq::subset_samples(GlobalPatterns,
-                                             X.SampleID \%in\% c("CL3", "CC1"))
+
+# Make a small phyloseq object for demonstration
+phyloseq_subset = phyloseq::subset_taxa(phyloseq::subset_samples(GlobalPatterns,
+                                                                 X.SampleID \%in\%
+                                                                 c("CL3", "CC1")),
+                                        Order == "Cenarchaeales")
   otu_table = relab_phyloseq(phyloseq_subset)
   otu_table[, 1:10]
 }

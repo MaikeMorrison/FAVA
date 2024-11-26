@@ -1,7 +1,7 @@
 # relab_phyloseq ---------------------------------------------------------------
-#' Generate a relative abundance matrix with sample meta data and OTU abundances from a  phyloseq object.
+#' Generate a relative abundance matrix with sample metadata and OTU abundances from a  phyloseq object.
 #'
-#' The R package phyloseq streamlines the storage and analysis of microbiome sequence data. This function takes a phyloseq object and extracts the OTU table and the sample meta data and combines them into one relative abundance matrix with rows corresponding to samples, meta data on the left-hand side, and OTU relative abundances on the right-hand side.
+#' The R package phyloseq streamlines the storage and analysis of microbiome sequence data. This function takes a phyloseq object and extracts the OTU table and the sample metadata and combines them into one relative abundance matrix with rows corresponding to samples, metadata on the left-hand side, and OTU relative abundances on the right-hand side.
 #'
 #' @param phyloseq_object A phyloseq object containing both an OTU table (`otu_table`) and sample metadata (`sample_data`).
 #' @returns A data frame with rows representing samples and columns representing sample data categories or OTU relative abundances.
@@ -10,8 +10,12 @@
 #' @examples
 #' if (requireNamespace("phyloseq", quietly = TRUE)) {
 #'   data(GlobalPatterns, package = "phyloseq")
-#'   phyloseq_subset = phyloseq::subset_samples(GlobalPatterns,
-#'                                              X.SampleID %in% c("CL3", "CC1"))
+#'
+#' # Make a small phyloseq object for demonstration
+#' phyloseq_subset = phyloseq::subset_taxa(phyloseq::subset_samples(GlobalPatterns,
+#'                                                                  X.SampleID %in%
+#'                                                                  c("CL3", "CC1")),
+#'                                         Order == "Cenarchaeales")
 #'   otu_table = relab_phyloseq(phyloseq_subset)
 #'   otu_table[, 1:10]
 #' }
@@ -206,7 +210,7 @@ S_checker <- function(S, K, relab_matrix = NULL) {
 #' greater than the previous entry.
 #' @param group Optional; a character vector specifying the group identity of each
 #' sampling time. Use if there are samples from multiple replicates or subjects
-#' in one data set.
+#' in one dataset.
 #' @returns A numeric vector. Each entry provides a weight for each entry in the
 #' provided `times` vector. If `group` is not specified, the vector sums to 1. If
 #' `group` is specified, the vector sums to the number of distinct groups.

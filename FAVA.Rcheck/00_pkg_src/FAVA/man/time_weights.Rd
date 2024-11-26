@@ -12,7 +12,7 @@ greater than the previous entry.}
 
 \item{group}{Optional; a character vector specifying the group identity of each
 sampling time. Use if there are samples from multiple replicates or subjects
-in one data set.}
+in one dataset.}
 }
 \value{
 A numeric vector. Each entry provides a weight for each entry in the

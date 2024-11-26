@@ -7,7 +7,7 @@
 \format{
 \subsection{\code{xue_species_info}}{
 
-#' A data frame with 1346 rows and 9 columns:
+A data frame with 1346 rows and 9 columns:
 \describe{
 \item{species_id}{The species_id given in xue_microbiome_sample}
 \item{kingdom, phylum, class, order, family, genus, species}{The corresponding taxonomic category for each species}

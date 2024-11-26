@@ -8,12 +8,12 @@ Description: Implements the statistic FAVA, an FST-based Assessment of Variabili
   vectors of relative Abundances, as well as a suite of helper functions which enable the 
   visualization and statistical analysis of relative abundance data. The FAVA R package 
   accompanies the paper, “Quantifying compositional variability in microbial communities
-  with FAVA” by Morrison, Xue, and Rosenberg (2024) <doi:10.1101/2024.07.03.601929>.
+  with FAVA” by Morrison, Xue, and Rosenberg <doi:10.1101/2024.07.03.601929>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-URL: https://github.com/MaikeMorrison/FAVA, https://maikemorrison.github.io/FAVA/
+URL: https://github.com/MaikeMorrison/FAVA, https://maikemorrison.github.io/FAVA/, https://maikemorrison.github.io/FAVA/articles/microbiome_tutorial.html
 BugReports: https://github.com/MaikeMorrison/FAVA/issues
 Imports:
     dplyr,

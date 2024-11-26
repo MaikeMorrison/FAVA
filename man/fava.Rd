@@ -37,7 +37,7 @@ each row must sum to 1.}
 A numeric value between 0 and 1.
 }
 \description{
-This function computes the population genetic statistic Fst on any matrix with rows that sum to 1. Values of 0 are achieved when each row is a permutation of (1,0,..., 0) and at least two categories have non-zero abundance across all rows. The value equals 1 when each row is identical.
+This function computes the population-genetic statistic Fst on any matrix with rows that sum to 1. Values of 0 are achieved when each row is a permutation of (1,0,..., 0) and at least two categories have non-zero abundance across all rows. The value equals 1 when each row is identical.
 }
 \examples{
 # Compute the Fst of
