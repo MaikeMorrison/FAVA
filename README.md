@@ -15,7 +15,7 @@ as a suite of helper functions which enable the visualization and
 statistical analysis of relative abundance data. The *FAVA* R package
 accompanies the paper, “Quantifying compositional variability in
 microbial communities with FAVA” by [Morrison et
-al. (2024)](https://doi.org/10.1101/2024.07.03.601929).
+al. (2024)](\doi%7B10.1101/2024.07.03.601929%7D).
 
 The *FAVA* R package includes the following core functions:
 

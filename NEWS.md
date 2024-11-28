@@ -1,5 +1,7 @@
 # FAVA 1.0.5
 
+* Update doi URL formatting. 
+
 # FAVA 1.0.4
 
 * Optimize bootstrap_fava for faster run time. 
