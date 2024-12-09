@@ -1,3 +1,5 @@
+# FAVA 1.0.7
+
 # FAVA 1.0.6
 
 * Update DOI URL formatting again. 
