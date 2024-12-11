@@ -1,0 +1,11 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "Quantifying compositional variability in microbial communities with FAVA",
+  author   = c(person(c("Maike", "L."), "Morrison"),
+                    person(c("Katherine", "S."), "Xue"),
+                    person(c("Noah", "A."), "Rosenberg")),
+  journal  = "bioRxiv",
+  year     = "2024",
+  pages    = "2024.07.03.601929",
+  doi      = "10.1101/2024.07.03.601929"
+)
