@@ -33,26 +33,23 @@ The *FAVA* R package includes the following core functions:
 
 ## Installation
 
-Install FAVA with:
+FAVA is available for [download on
+CRAN](https://cran.r-project.org/web/packages/FAVA/index.html). Install
+FAVA with:
 
 ``` r
 install.packages("FAVA")
 ```
 
-You can install the development version of FAVA from
-[GitHub](https://github.com/MaikeMorrison/FAVA) with:
-
-``` r
-# First, install devtools if you haven't already:
-# install.packages("devtools")
-
-devtools::install_github("MaikeMorrison/FAVA")
-
-# If you wish to access the tutorial (also accessible below) from within
-# the package:
-
-devtools::install_github("MaikeMorrison/FAVA", build_vignettes = TRUE)
-```
+<!-- You can install the development version of FAVA from [GitHub](https://github.com/MaikeMorrison/FAVA) with: -->
+<!-- ```{r, eval = FALSE} -->
+<!-- # First, install devtools if you haven't already: -->
+<!-- # install.packages("devtools") -->
+<!-- devtools::install_github("MaikeMorrison/FAVA") -->
+<!-- # If you wish to access the tutorial (also accessible below) from within -->
+<!-- # the package: -->
+<!-- devtools::install_github("MaikeMorrison/FAVA", build_vignettes = TRUE) -->
+<!-- ``` -->
 
 ## Tutorial
 
