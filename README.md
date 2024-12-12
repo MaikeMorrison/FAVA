@@ -41,15 +41,20 @@ FAVA with:
 install.packages("FAVA")
 ```
 
-<!-- You can install the development version of FAVA from [GitHub](https://github.com/MaikeMorrison/FAVA) with: -->
-<!-- ```{r, eval = FALSE} -->
-<!-- # First, install devtools if you haven't already: -->
-<!-- # install.packages("devtools") -->
-<!-- devtools::install_github("MaikeMorrison/FAVA") -->
-<!-- # If you wish to access the tutorial (also accessible below) from within -->
-<!-- # the package: -->
-<!-- devtools::install_github("MaikeMorrison/FAVA", build_vignettes = TRUE) -->
-<!-- ``` -->
+If you find a bug, check
+[Issues](https://github.com/MaikeMorrison/FAVA/issues) to see if it has
+been identified already. If it has not yet been identified, please open
+an issue describing the bug and providing a minimal example. If it has
+already been identified, it will be fixed in the next CRAN release. In
+the meantime, you can install the development version of FAVA from
+[GitHub](https://github.com/MaikeMorrison/FAVA) with the following code:
+
+``` r
+# First, install devtools if you haven't already:
+# install.packages("devtools")
+
+devtools::install_github("MaikeMorrison/FAVA@CRAN_development")
+```
 
 ## Tutorial
 
