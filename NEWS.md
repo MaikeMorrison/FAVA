@@ -1,5 +1,7 @@
 # FAVA 1.0.8
 
+* Update bootstrap_fava to standardize data.frame input and accommodate numeric groups
+
 # FAVA 1.0.7
 
 * Update citation formatting in Description
