@@ -1,11 +1,9 @@
 ## Resubmission
-This is a resubmission. In this version I have:
+This is a package update. In this update I have: 
 
-* Updated citation formatting in the Description file to include the year.
+* Fixed one small bug which emerged when groups were numeric for 'bootstrap_fava'
 
-* Put the name of the package in single quotes in the Description. 
-
-Please note that, in the description, the acronym "FAVA" is defined and "Fst" is not an acronym. Fst is a standard population-genetic statistic. 
+* Updated references to the corresponding paper, which has now been published in PNAS but was formerly a bioRxiv preprint
 
 ## R CMD check results
 
