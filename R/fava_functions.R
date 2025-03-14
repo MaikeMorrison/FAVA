@@ -53,6 +53,7 @@ process_relab <- function(relab_matrix,
   # Need to re-order w to match, if provided
   if(!is.null(time)){
     if(!is.null(group)){
+      relab_matrix = as.data.frame(relab_matrix)
       relab_matrix$index = 1:nrow(relab_matrix)
 
       relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[group]], .data[[time]])
@@ -67,7 +68,9 @@ process_relab <- function(relab_matrix,
       w = w[relab_matrix$index]
       relab_matrix$index = NULL
     }}else if(!is.null(group)){
-      relab_matrix$index = 1:nrow(relab_matrix)
+      relab_matrix = as.data.frame(relab_matrix)
+      # relab_matrix$index = 1:nrow(relab_matrix)
+      relab_matrix = cbind(index = 1:nrow(relab_matrix), relab_matrix)
 
       relab_matrix = dplyr::arrange(.data = relab_matrix, .data[[group]])
 

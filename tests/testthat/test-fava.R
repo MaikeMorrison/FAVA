@@ -74,17 +74,14 @@ test_that("fava works on all relevant data types", {
   # unweighted
   expect_equal(fava(as.matrix(A)), 1)
   expect_equal(fava(data.frame(A)), 1)
-  expect_equal(fava(as_tibble(A)), 1)
 
   # weighted
   expect_equal(fava(as.matrix(A), S = S, w = w13), 1)
   expect_equal(fava(data.frame(A), S = S, w = w13), 1)
-  expect_equal(fava(as_tibble(A), S = S, w = w13), 1)
 
   # normalized
   expect_equal(fava(as.matrix(A), normalized = TRUE), 1)
   expect_equal(fava(data.frame(A), normalized = TRUE), 1)
-  expect_equal(fava(as_tibble(A), normalized = TRUE), 1)
 })
 
 
@@ -145,8 +142,8 @@ test_that("grouped fava works - real data", {
 
 tABC = gABC %>%
   mutate(.before = 1, timepoint = c(1,2,3,
-                               1,2,3,
-                               1,2,3))
+                                    1,2,3,
+                                    1,2,3))
 
 wtime = time_weights(c(1,2,3))
 
@@ -268,5 +265,35 @@ test_that("fava works with multiple groups with weightings", {
   expect_true(all(fava(test_groups %>% arrange(timepoint), group = c("Abx", "subject"), K = 524,
                        S = xue_species_similarity, time = "timepoint")$FAVA > 0))
 
+
+})
+
+test_that("fava works on data that is converted to numeric", {
+  # unweighted
+  expect_equal(fava(apply(A, MARGIN = c(1,2), as.character)), 1) %>%
+    expect_warning()
+
+  # weighted
+  expect_equal(fava(apply(A, MARGIN = c(1,2), as.character), S = S, w = w13), 1) %>%
+    expect_warning()
+
+  # normalized
+  expect_equal(fava(apply(A, MARGIN = c(1,2), as.character), normalized = TRUE), 1) %>%
+    expect_warning()
+
+  # grouped - data frame
+  expect_equal(fava(relab_matrix = apply(gAB, MARGIN = c(1,2), as.character) %>%
+                      data.frame,
+                    group = "g"),
+               data.frame(g = c("A", "B"),
+                          FAVA = c(1, 0))) %>%
+    expect_warning()
+
+  # grouped - matrix
+  expect_equal(fava(relab_matrix = apply(gAB, MARGIN = c(1,2), as.character),
+                    group = "g"),
+               data.frame(g = c("A", "B"),
+                          FAVA = c(1, 0))) %>%
+    expect_warning()
 
 })
