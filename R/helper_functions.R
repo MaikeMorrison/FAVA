@@ -121,8 +121,19 @@ relab_checker <- function(relab, K = NULL, rep = NULL, group = NULL, time = NULL
   sums <- rowSums(relab) %>% round(5)
   if (any(sums != 1)) {
     if (is.null(rep)) {
-      warning("At least one relab matrix has rows which do not sum to exactly 1. Rounding the sum of each row to 1 by dividing all entries by the sum of the row.")
+
+      if(any(sums==0)){
+        stop(paste0("The following rows of your relative abundance matrix sums to 0: ",
+                    paste(as.character(which(sums==0)), collapse = ", "),
+                    " Every row must have at least one non-zero abundance."))
+      }
+
+      warning("Your relative abundance matrix has rows which do not sum to exactly 1. Rounding the sum of each row to 1 by dividing all entries by the sum of the row.")
     } else {
+      if(any(sums==0)){
+        stop(paste0("At least one of the rows of your relative abundance matrix sums to 0 Every row must have at least one non-zero abundance."))
+      }
+
       warning(paste0(
         "At least one of the rows of relab matrix number ", rep,
         " (restricted to the last K columns) does not sum to 1. Rounding the sum of each row to 1 by dividing all entries by the sum of the row."
