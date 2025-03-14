@@ -54,7 +54,7 @@ bootstrap_fava <- function(relab_matrix,
   # To appease R cmd check
   P_value <- P_value_numeric <- Comparison <- Difference <- combn <- . <- NULL
 
-  relab_matrix = data.frame(relab_matrix)
+  relab_matrix = as.data.frame(relab_matrix)
 
   if(normalized == TRUE && any(!sapply(list(time, w, S), is.null))){
     stop("FAVA can be either normalized or weighted, but not both. Please specify `normalized = TRUE` if you wish to compute normalized FAVA OR provide the weighting parameters w or time and/or S.")
@@ -77,7 +77,7 @@ bootstrap_fava <- function(relab_matrix,
     if(any(sapply(relab_matrix[,group], is.numeric))){
       if(length(group)>1){
         numeric_groups = group[which(sapply(relab_matrix[,group], is.numeric))]
-      }else(numeric_groups = group)
+      }else{numeric_groups = group}
       relab_matrix[,numeric_groups] = sapply(relab_matrix[numeric_groups],
                                              function(col) paste0("group_", col))
     }

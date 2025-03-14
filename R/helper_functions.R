@@ -86,8 +86,16 @@ relab_checker <- function(relab, K = NULL, rep = NULL, group = NULL, time = NULL
     relab <- relab[, (ncol(relab) - K + 1):ncol(relab)]
   }
 
+  # Give warning if any of the grouping variables are numeric
+  if(any(group%in% as.character(1:1000))){
+    warning("At least one of your group names is a number. Avoid numeric group names in order to avoid errors.")
+  }
+
   # convert relab matrix entries to numbers
-  relab <- data.matrix(relab)
+  if(any(!apply(relab, MARGIN = c(1,2), is.numeric))){
+    relab <- apply(relab, MARGIN = c(1,2), as.numeric)
+    warning("Some of your relative abundances are not numeric. I am converting all abundances to numbers with `as.numeric()`. Please double check your entries for `K` and `group`, and review the structure of your `relab_matrix` with `str()`.")
+  }
 
   # Name relab matrix columns q1, q2, ..., qK
   # colnames(relab) <- paste0("q",1:K)
