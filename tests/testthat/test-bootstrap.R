@@ -355,4 +355,3 @@ test_that("bootstrapping tolerates group names with spaces", {
                               K = 524)
   expect_true(all(test_minus$observed_difference$Comparison %in% test_minus$bootstrap_difference$Comparison))
 })
-

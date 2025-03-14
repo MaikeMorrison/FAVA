@@ -70,6 +70,23 @@ test_that("fava works - normalized", {
   expect_equal(fava(D, normalized = TRUE), fava_norm(D))
 })
 
+test_that("fava works on all relevant data types", {
+  # unweighted
+  expect_equal(fava(as.matrix(A)), 1)
+  expect_equal(fava(data.frame(A)), 1)
+  expect_equal(fava(as_tibble(A)), 1)
+
+  # weighted
+  expect_equal(fava(as.matrix(A), S = S, w = w13), 1)
+  expect_equal(fava(data.frame(A), S = S, w = w13), 1)
+  expect_equal(fava(as_tibble(A), S = S, w = w13), 1)
+
+  # normalized
+  expect_equal(fava(as.matrix(A), normalized = TRUE), 1)
+  expect_equal(fava(data.frame(A), normalized = TRUE), 1)
+  expect_equal(fava(as_tibble(A), normalized = TRUE), 1)
+})
+
 
 # GROUPED FAVA ----------------------------------------------------------------
 library(dplyr)

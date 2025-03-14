@@ -1,6 +1,8 @@
 # FAVA 1.0.8
 
-* Update bootstrap_fava to standardize data.frame input and accommodate numeric groups
+* `bootstrap_fava()` now standardizes data frame inputs and accommodates numeric groups (#12).
+
+* References to accompanying paper now point to the PNAS paper rather than to the preprint.
 
 # FAVA 1.0.7
 
