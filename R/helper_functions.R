@@ -123,7 +123,7 @@ relab_checker <- function(relab, K = NULL, rep = NULL, group = NULL, time = NULL
     if (is.null(rep)) {
 
       if(any(sums==0)){
-        stop(paste0("The following rows of your relative abundance matrix sums to 0: ",
+        stop(paste0("The following rows of your relative abundance matrix sum to 0: ",
                     paste(as.character(which(sums==0)), collapse = ", "),
                     " Every row must have at least one non-zero abundance."))
       }
