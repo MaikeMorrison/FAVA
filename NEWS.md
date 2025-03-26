@@ -1,5 +1,7 @@
 # FAVA 1.0.9
 
+* `bootstrap_fava()` now has a faster-running example. 
+
 # FAVA 1.0.8
 
 * `bootstrap_fava()` now standardizes data frame inputs and accommodates numeric groups (#12).
