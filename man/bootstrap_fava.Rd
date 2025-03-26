@@ -54,7 +54,7 @@ A named list containing the following entries:
 # subjects in the xue_microbiome_sample data:
 
  boot_out = bootstrap_fava(relab_matrix = xue_microbiome_sample,
-               n_replicates = 5, # should use 1000 for a real analysis
+               n_replicates = 2, # use 1000 for a real analysis
                seed = 1,
                group = "subject",
                K = 524,
