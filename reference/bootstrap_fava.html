@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FAVA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
 
 
 <dl><dt id="arg-relab-matrix">relab_matrix<a class="anchor" aria-label="anchor" href="#arg-relab-matrix"></a></dt>
-<dd><p>A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents a sample, each column represents a category, and each entry represents the abundance of that category in the sample. If <code>relab_matrix</code> contains any metadata, it must be on the left-hand side of the matrix, the right <code>K</code> entries of each row must sum to 1, and <code>K</code> must be specified. Otherwise, all entries of each row must sum to 1.</p></dd>
+<dd><p>A data frame with rows containing non-negative entries that sum to 1. Each row represents a sample, each column represents a category, and each entry represents the abundance of that category in the sample. If <code>relab_matrix</code> contains any metadata, it must be on the left-hand side of the matrix, the right <code>K</code> entries of each row must sum to 1, and <code>K</code> must be specified. Otherwise, all entries of each row must sum to 1. <code>relab_matrix</code> must have at least one metadata column describing which group each row belongs to. The name(s) of the group column(s) must be provided in the <code>group</code> parameter.</p></dd>
 
 
 <dt id="arg-n-replicates">n_replicates<a class="anchor" aria-label="anchor" href="#arg-n-replicates"></a></dt>
@@ -115,7 +115,7 @@
 <span class="r-in"><span><span class="co"># subjects in the xue_microbiome_sample data:</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span> <span class="va">boot_out</span> <span class="op">=</span> <span class="fu">bootstrap_fava</span><span class="op">(</span>relab_matrix <span class="op">=</span> <span class="va">xue_microbiome_sample</span>,</span></span>
-<span class="r-in"><span>               n_replicates <span class="op">=</span> <span class="fl">20</span>, <span class="co"># should use 1000 for a real analysis</span></span></span>
+<span class="r-in"><span>               n_replicates <span class="op">=</span> <span class="fl">2</span>, <span class="co"># use 1000 for a real analysis</span></span></span>
 <span class="r-in"><span>               seed <span class="op">=</span> <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>               group <span class="op">=</span> <span class="st">"subject"</span>,</span></span>
 <span class="r-in"><span>               K <span class="op">=</span> <span class="fl">524</span>,</span></span>
@@ -124,9 +124,9 @@
 <span class="r-in"><span><span class="co"># Table of P-values comparing values of FAVA between group 1 and group 2:</span></span></span>
 <span class="r-in"><span> <span class="va">boot_out</span><span class="op">$</span><span class="va">P_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Comparison P_value P_value_numeric</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  XBA - XDA     0.6            0.60</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  XBA - XMA    0.05            0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  XDA - XMA   &lt;0.05            0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  XBA - XDA       1               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  XBA - XMA    &lt;0.5               0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  XDA - XMA    &lt;0.5               0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span> <span class="co"># Plots of the bootstrap distributions of differences in FAVA between each pair of matrices,</span></span></span>
 <span class="r-in"><span> <span class="co"># and how the true observed differences (red dots) compare to the distribution.</span></span></span>
