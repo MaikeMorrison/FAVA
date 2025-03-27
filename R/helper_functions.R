@@ -86,8 +86,16 @@ relab_checker <- function(relab, K = NULL, rep = NULL, group = NULL, time = NULL
     relab <- relab[, (ncol(relab) - K + 1):ncol(relab)]
   }
 
+  # Give warning if any of the grouping variables are numeric
+  if(any(group%in% as.character(1:1000))){
+    warning("At least one of your group names is a number. Avoid numeric group names in order to avoid errors.")
+  }
+
   # convert relab matrix entries to numbers
-  relab <- data.matrix(relab)
+  if(any(!apply(relab, MARGIN = c(1,2), is.numeric))){
+    relab <- apply(relab, MARGIN = c(1,2), as.numeric)
+    warning("Some of your relative abundances are not numeric. I am converting all abundances to numbers with `as.numeric()`. Please double check your entries for `K` and `group`, and review the structure of your `relab_matrix` with `str()`.")
+  }
 
   # Name relab matrix columns q1, q2, ..., qK
   # colnames(relab) <- paste0("q",1:K)
@@ -113,8 +121,19 @@ relab_checker <- function(relab, K = NULL, rep = NULL, group = NULL, time = NULL
   sums <- rowSums(relab) %>% round(5)
   if (any(sums != 1)) {
     if (is.null(rep)) {
-      warning("At least one relab matrix has rows which do not sum to exactly 1. Rounding the sum of each row to 1 by dividing all entries by the sum of the row.")
+
+      if(any(sums==0)){
+        stop(paste0("The following rows of your relative abundance matrix sum to 0: ",
+                    paste(as.character(which(sums==0)), collapse = ", "),
+                    " Every row must have at least one non-zero abundance."))
+      }
+
+      warning("Your relative abundance matrix has rows which do not sum to exactly 1. Rounding the sum of each row to 1 by dividing all entries by the sum of the row.")
     } else {
+      if(any(sums==0)){
+        stop(paste0("At least one of the rows of your relative abundance matrix sums to 0 Every row must have at least one non-zero abundance."))
+      }
+
       warning(paste0(
         "At least one of the rows of relab matrix number ", rep,
         " (restricted to the last K columns) does not sum to 1. Rounding the sum of each row to 1 by dividing all entries by the sum of the row."

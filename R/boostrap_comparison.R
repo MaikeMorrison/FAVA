@@ -3,7 +3,7 @@
 #'
 #' \code{bootstrap_fava} uses bootstrapping to statistically compare FAVA values between pairs of relative abundance matrices. \code{bootstrap_fava} takes the same options as \code{fava}, so, as with \code{fava}, you can separately analyze multiple populations or groups of samples (specify \code{group}), and account for similarity among categories (specify \code{S}) or uneven weighting of rows (specify \code{w} or \code{time}). \code{bootstrap_fava} follows the bootstrapping procedure defined by Efron and Tibshirani (1993). Details on the bootstrapping procedure are available in the Methods section of the accompanying paper.
 #'
-#' @param relab_matrix A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents a sample, each column represents a category, and each entry represents the abundance of that category in the sample. If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix, the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of each row must sum to 1.
+#' @param relab_matrix A data frame with rows containing non-negative entries that sum to 1. Each row represents a sample, each column represents a category, and each entry represents the abundance of that category in the sample. If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix, the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of each row must sum to 1. \code{relab_matrix} must have at least one metadata column describing which group each row belongs to. The name(s) of the group column(s) must be provided in the \code{group} parameter.
 #' @param n_replicates The number of bootstrap replicate matrices to generate. Default is `n_replicates = 1000`.
 #' @param group A string (or vector of strings) specifying the name(s) of the column(s) that describes which group(s) each row (sample) belongs to. Use if \code{relab_matrix} is a single matrix containing multiple groups of samples you wish to compare.
 #' @param K Optional; an integer specifying the number of categories in the data. Default is \code{K=ncol(relab_matrix)}.
@@ -26,7 +26,7 @@
 #' # subjects in the xue_microbiome_sample data:
 #'
 #'  boot_out = bootstrap_fava(relab_matrix = xue_microbiome_sample,
-#'                n_replicates = 20, # should use 1000 for a real analysis
+#'                n_replicates = 2, # use 1000 for a real analysis
 #'                seed = 1,
 #'                group = "subject",
 #'                K = 524,
@@ -54,6 +54,8 @@ bootstrap_fava <- function(relab_matrix,
   # To appease R cmd check
   P_value <- P_value_numeric <- Comparison <- Difference <- combn <- . <- NULL
 
+  relab_matrix = as.data.frame(relab_matrix)
+
   if(normalized == TRUE && any(!sapply(list(time, w, S), is.null))){
     stop("FAVA can be either normalized or weighted, but not both. Please specify `normalized = TRUE` if you wish to compute normalized FAVA OR provide the weighting parameters w or time and/or S.")
   }
@@ -73,7 +75,9 @@ bootstrap_fava <- function(relab_matrix,
   # Any numeric groups need to be renamed with a character in front
   if(!is.null(group)){
     if(any(sapply(relab_matrix[,group], is.numeric))){
-      numeric_groups = group[which(sapply(relab_matrix[,group], is.numeric))]
+      if(length(group)>1){
+        numeric_groups = group[which(sapply(relab_matrix[,group], is.numeric))]
+      }else{numeric_groups = group}
       relab_matrix[,numeric_groups] = sapply(relab_matrix[numeric_groups],
                                              function(col) paste0("group_", col))
     }

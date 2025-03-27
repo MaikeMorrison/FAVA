@@ -18,7 +18,7 @@ bootstrap_fava(
 )
 }
 \arguments{
-\item{relab_matrix}{A matrix or data frame with rows containing non-negative entries that sum to 1. Each row represents a sample, each column represents a category, and each entry represents the abundance of that category in the sample. If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix, the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of each row must sum to 1.}
+\item{relab_matrix}{A data frame with rows containing non-negative entries that sum to 1. Each row represents a sample, each column represents a category, and each entry represents the abundance of that category in the sample. If \code{relab_matrix} contains any metadata, it must be on the left-hand side of the matrix, the right \code{K} entries of each row must sum to 1, and \code{K} must be specified. Otherwise, all entries of each row must sum to 1. \code{relab_matrix} must have at least one metadata column describing which group each row belongs to. The name(s) of the group column(s) must be provided in the \code{group} parameter.}
 
 \item{n_replicates}{The number of bootstrap replicate matrices to generate. Default is \code{n_replicates = 1000}.}
 
@@ -54,7 +54,7 @@ A named list containing the following entries:
 # subjects in the xue_microbiome_sample data:
 
  boot_out = bootstrap_fava(relab_matrix = xue_microbiome_sample,
-               n_replicates = 20, # should use 1000 for a real analysis
+               n_replicates = 2, # use 1000 for a real analysis
                seed = 1,
                group = "subject",
                K = 524,

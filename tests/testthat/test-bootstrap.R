@@ -305,11 +305,23 @@ test_abx_numeric = test_abx_factor %>%
 
 test_that("bootstrapping works if groups are numeric", {
   # no weights
-  expect_no_error(bootstrap_fava(relab_matrix = test_abx_numeric, n_replicates = 3,
+  expect_true(all(bootstrap_fava(relab_matrix = test_abx_numeric, n_replicates = 3,
                                  group = "test_group",
-                                 K = 524))
+                                 K = 524, seed=1)$bootstrap_difference$Difference ==
+                    bootstrap_fava(relab_matrix = test_abx_numeric, n_replicates = 3,
+                                                            group = "subject",
+                                                            K = 524, seed=1)$bootstrap_difference$Difference))
+
+  expect_true(all(bootstrap_fava(relab_matrix = test_abx_numeric, n_replicates = 3,
+                                 group = c("test_group", "test_group_2"),
+                                 K = 524, seed=1)$bootstrap_difference$Difference ==
+                    bootstrap_fava(relab_matrix = test_abx_numeric, n_replicates = 3,
+                                   group = c("subject", "Abx"),
+                                   K = 524, seed=1)$bootstrap_difference$Difference))
+
+  # mix numeric and non-numeric
   expect_no_error(bootstrap_fava(relab_matrix = test_abx_numeric, n_replicates = 3,
-                                 group = c("test_group_2", "test_group"),
+                                 group = c("test_group_2", "subject"),
                                  K = 524))
   expect_no_error(bootstrap_fava(relab_matrix = test_abx_numeric, n_replicates = 3,
                                  group = c("Abx", "test_group"),
@@ -355,4 +367,3 @@ test_that("bootstrapping tolerates group names with spaces", {
                               K = 524)
   expect_true(all(test_minus$observed_difference$Comparison %in% test_minus$bootstrap_difference$Comparison))
 })
-

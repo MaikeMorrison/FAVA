@@ -1,14 +1,14 @@
 Package: FAVA
 Title: Quantify Compositional Variability Across Relative Abundance Vectors
-Version: 1.0.7
+Version: 1.0.9
 Authors@R: 
-    person("Maike", "Morrison", , "maikem@stanford.edu", role = c("aut", "cre", "cph"),
+    person("Maike", "Morrison", , "maike.morrison@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0003-0430-1401"))
 Description: Implements the statistic FAVA, an Fst-based Assessment of Variability across 
   vectors of relative Abundances, as well as a suite of helper functions which enable the 
   visualization and statistical analysis of relative abundance data. The 'FAVA' R package 
   accompanies the paper, “Quantifying compositional variability in microbial communities
-  with FAVA” by Morrison, Xue, and Rosenberg (2024) <doi:10.1101/2024.07.03.601929>.
+  with FAVA” by Morrison, Xue, and Rosenberg (2025) <doi:10.1073/pnas.2413211122>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

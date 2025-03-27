@@ -1,3 +1,13 @@
+# FAVA 1.0.9
+
+* `bootstrap_fava()` now has a faster-running example. 
+
+# FAVA 1.0.8
+
+* `bootstrap_fava()` now standardizes data frame inputs and accommodates numeric groups (#12).
+
+* References to accompanying paper now point to the PNAS paper rather than to the preprint.
+
 # FAVA 1.0.7
 
 * Update citation formatting in Description
